@@ -3,4 +3,6 @@
 
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">TAMBOLA</string>
+
+    <string name="title_activity_home">HomeActivity</string>
 </resources>

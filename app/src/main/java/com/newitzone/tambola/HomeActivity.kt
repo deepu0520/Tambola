@@ -1,20 +1,16 @@
 package com.newitzone.tambola
 
-import android.content.Context
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.view.View
-import kotlinx.android.synthetic.main.activity_fullscreen.*
+import kotlinx.android.synthetic.main.activity_home.*
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-class FullscreenActivity : AppCompatActivity() {
-    private var context: Context? = null
-    internal val DELAY_MS: Long = 4000  //delay in milliseconds before task is to be executed
+class HomeActivity : AppCompatActivity() {
     private val mHideHandler = Handler()
     private val mHidePart2Runnable = Runnable {
         // Delayed removal of status and navigation bar
@@ -52,27 +48,18 @@ class FullscreenActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_fullscreen)
-        //supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        this.context = this@FullscreenActivity
+        setContentView(R.layout.activity_home)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
         mVisible = true
 
         // Set up the user interaction to manually show or hide the system UI.
-        //fullscreen_content.setOnClickListener { toggle() }
+        fullscreen_content.setOnClickListener { toggle() }
 
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
-        //dummy_button.setOnTouchListener(mDelayHideTouchListener)
-
-        // handler
-        Handler().postDelayed({
-            // TODO Auto-generated method stub
-            val intent = Intent(context, HomeActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-            startActivity(intent)
-            finish()
-        }, DELAY_MS)
+        dummy_button.setOnTouchListener(mDelayHideTouchListener)
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
