@@ -14,7 +14,7 @@
         android:theme="@style/FullscreenTheme">
         <activity
             android:name=".HomeActivity"
-            android:screenOrientation="landscape"
+            android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_home"
             android:theme="@style/FullscreenTheme"></activity>
         <activity
