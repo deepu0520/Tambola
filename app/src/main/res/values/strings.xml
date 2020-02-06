@@ -1,8 +1,9 @@
 <resources>
-    <string name="app_name">Tambola</string>
+    <string name="app_name">Desi Tambola</string>
 
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">TAMBOLA</string>
-
     <string name="title_activity_home">HomeActivity</string>
+    <string name="profile_name">Rakesh Sharma</string>
+    <string name="level">Level 1</string>
 </resources>

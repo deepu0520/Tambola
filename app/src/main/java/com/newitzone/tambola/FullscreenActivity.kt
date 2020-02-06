@@ -16,7 +16,7 @@ import kotlinx.android.synthetic.main.activity_fullscreen.*
  */
 class FullscreenActivity : AppCompatActivity() {
     private var context: Context? = null
-    internal val DELAY_MS: Long = 4000  //delay in milliseconds before task is to be executed
+    internal val DELAY_MS: Long = 5000  //delay in milliseconds before task is to be executed
     /**
      * Touch listener to use for in-layout UI controls to delay hiding the
      * system UI. This is to prevent the jarring behavior of controls going away
@@ -38,14 +38,6 @@ class FullscreenActivity : AppCompatActivity() {
         // Remember that you should never show the action bar if the
         // status bar is hidden, so hide that too if necessary.
         actionBar?.hide()
-
-        // Set up the user interaction to manually show or hide the system UI.
-        //fullscreen_content.setOnClickListener { toggle() }
-
-        // Upon interacting with UI controls, delay any scheduled hide()
-        // operations to prevent the jarring behavior of controls going away
-        // while interacting with the UI.
-        //dummy_button.setOnTouchListener(mDelayHideTouchListener)
 
         // handler
         Handler().postDelayed({
