@@ -2,15 +2,18 @@ package com.newitzone.tambola
 
 import android.content.Context
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentTransaction
 import butterknife.BindView
 import butterknife.ButterKnife
 import com.google.android.material.snackbar.Snackbar
+import com.newitzone.tambola.dialog.FullScreenDialog
+
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -83,12 +86,24 @@ class HomeActivity : AppCompatActivity() {
     }
     fun onCash(view: View){
         Snackbar.make(imgCash,"for Cash",Snackbar.LENGTH_SHORT).show()
+//        val intent = Intent(context, PlayActivity::class.java)
+//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+//        startActivity(intent)
     }
     fun onTournament(view: View){
         Snackbar.make(imgTournament,"for Tournament",Snackbar.LENGTH_SHORT).show()
+//        val intent = Intent(context, PlayActivity::class.java)
+//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+//        startActivity(intent)
     }
     fun onPractice(view: View){
-        Snackbar.make(imgPractice,"for Practice",Snackbar.LENGTH_SHORT).show()
+        //Snackbar.make(imgPractice,"for Practice",Snackbar.LENGTH_SHORT).show()
+//        val intent = Intent(context, PlayActivity::class.java)
+//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+//        startActivity(intent)
+        val dialog = FullScreenDialog()
+        val ft: FragmentTransaction = supportFragmentManager.beginTransaction()
+        dialog.show(ft, FullScreenDialog.TAG)
     }
     fun onMenu(view: View){
         Snackbar.make(imgMenu,"for Menu",Snackbar.LENGTH_SHORT).show()
@@ -109,4 +124,6 @@ class HomeActivity : AppCompatActivity() {
     fun onChips(view: View){
         Snackbar.make(imgChips,"for Chips",Snackbar.LENGTH_SHORT).show()
     }
+
+
 }

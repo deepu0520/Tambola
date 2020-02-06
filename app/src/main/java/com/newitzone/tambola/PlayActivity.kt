@@ -6,9 +6,15 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
+import android.widget.ImageView
+import androidx.constraintlayout.widget.ConstraintLayout
+import butterknife.BindView
+import butterknife.ButterKnife
+import com.newitzone.tambola.dialog.FullScreenDialog
 
 class PlayActivity : AppCompatActivity() {
     private var context: Context? = null
+    @BindView(R.id.content) lateinit var cL: ConstraintLayout
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (Build.VERSION.SDK_INT < 16) {
@@ -20,10 +26,17 @@ class PlayActivity : AppCompatActivity() {
         setContentView(R.layout.activity_play)
         supportActionBar?.hide()
         this.context = this@PlayActivity
+        ButterKnife.bind(this)
         // Hide the status bar.
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
         // Remember that you should never show the action bar if the
         // status bar is hidden, so hide that too if necessary.
         actionBar?.hide()
+        val ticket:Int = intent.getIntExtra(FullScreenDialog.KEY_TICKET,0)
+        if (ticket == 1){
+            cL.setBackgroundResource(R.drawable.play_screen_1)
+        }else if (ticket == 2){
+            cL.setBackgroundResource(R.drawable.play_screen_2)
+        }
     }
 }
