@@ -27,6 +27,7 @@ android {
         sourceCompatibility = 1.8
         targetCompatibility = 1.8
     }
+
 }
 kapt {
     generateStubs = true
@@ -50,6 +51,8 @@ dependencies {
     // gif image
     implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.3'
     // butter knife
+//    implementation 'com.jakewharton:butterknife:10.1.0'
+//    kapt 'com.jakewharton:butterknife-compiler:10.1.0'
     implementation 'com.jakewharton:butterknife:10.1.0'
     kapt 'com.jakewharton:butterknife-compiler:10.1.0'
 }

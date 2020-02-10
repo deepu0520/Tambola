@@ -14,7 +14,6 @@ import butterknife.ButterKnife
 import com.google.android.material.snackbar.Snackbar
 import com.newitzone.tambola.dialog.FullScreenDialog
 
-
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
@@ -85,22 +84,19 @@ class HomeActivity : AppCompatActivity() {
         }
     }
     fun onCash(view: View){
-        Snackbar.make(imgCash,"for Cash",Snackbar.LENGTH_SHORT).show()
-//        val intent = Intent(context, PlayActivity::class.java)
-//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-//        startActivity(intent)
+        //Snackbar.make(imgCash,"for Cash",Snackbar.LENGTH_SHORT).show()
+        val dialog = FullScreenDialog()
+        val ft: FragmentTransaction = supportFragmentManager.beginTransaction()
+        dialog.show(ft, FullScreenDialog.TAG)
     }
     fun onTournament(view: View){
-        Snackbar.make(imgTournament,"for Tournament",Snackbar.LENGTH_SHORT).show()
-//        val intent = Intent(context, PlayActivity::class.java)
-//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-//        startActivity(intent)
+        //Snackbar.make(imgTournament,"for Tournament",Snackbar.LENGTH_SHORT).show()
+        val dialog = FullScreenDialog()
+        val ft: FragmentTransaction = supportFragmentManager.beginTransaction()
+        dialog.show(ft, FullScreenDialog.TAG)
     }
     fun onPractice(view: View){
         //Snackbar.make(imgPractice,"for Practice",Snackbar.LENGTH_SHORT).show()
-//        val intent = Intent(context, PlayActivity::class.java)
-//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-//        startActivity(intent)
         val dialog = FullScreenDialog()
         val ft: FragmentTransaction = supportFragmentManager.beginTransaction()
         dialog.show(ft, FullScreenDialog.TAG)
