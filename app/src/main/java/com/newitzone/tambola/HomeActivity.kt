@@ -26,8 +26,6 @@ class HomeActivity : AppCompatActivity() {
     @BindView(R.id.image_tournament) lateinit var imgTournament: ImageView
     @BindView(R.id.image_practice) lateinit var imgPractice: ImageView
     @BindView(R.id.image_menu) lateinit var imgMenu: ImageView
-    @BindView(R.id.image_combo) lateinit var imgCombo: ImageView
-    @BindView(R.id.image_chips) lateinit var imgChips: ImageView
     // text view
     @BindView(R.id.text_coin_count) lateinit var tvCoinCount: TextView
     @BindView(R.id.text_gems_count) lateinit var tvGemsCount: TextView
@@ -76,12 +74,6 @@ class HomeActivity : AppCompatActivity() {
         tvPowerCount.setOnClickListener { view ->
             onPower(view)
         }
-        imgCombo.setOnClickListener { view ->
-            onCombo(view)
-        }
-        imgChips.setOnClickListener { view ->
-            onChips(view)
-        }
     }
     fun onCash(view: View){
         //Snackbar.make(imgCash,"for Cash",Snackbar.LENGTH_SHORT).show()
@@ -113,13 +105,5 @@ class HomeActivity : AppCompatActivity() {
     fun onPower(view: View){
         Snackbar.make(tvPowerCount,"for Power",Snackbar.LENGTH_SHORT).show()
     }
-
-    fun onCombo(view: View){
-        Snackbar.make(imgCombo,"for Combo",Snackbar.LENGTH_SHORT).show()
-    }
-    fun onChips(view: View){
-        Snackbar.make(imgChips,"for Chips",Snackbar.LENGTH_SHORT).show()
-    }
-
 
 }
