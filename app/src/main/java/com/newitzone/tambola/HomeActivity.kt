@@ -12,7 +12,9 @@ import androidx.fragment.app.FragmentTransaction
 import butterknife.BindView
 import butterknife.ButterKnife
 import com.google.android.material.snackbar.Snackbar
-import com.newitzone.tambola.dialog.FullScreenDialog
+import com.newitzone.tambola.dialog.CashGamesDialog
+import com.newitzone.tambola.dialog.TicketsDialog
+import com.newitzone.tambola.dialog.TournamentGamesDialog
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -51,7 +53,6 @@ class HomeActivity : AppCompatActivity() {
         // status bar is hidden, so hide that too if necessary.
         actionBar?.hide()
 
-
         //
         imgCash.setOnClickListener { view ->
             onCash(view)
@@ -77,27 +78,27 @@ class HomeActivity : AppCompatActivity() {
     }
     fun onCash(view: View){
         //Snackbar.make(imgCash,"for Cash",Snackbar.LENGTH_SHORT).show()
-        val dialog = FullScreenDialog()
+        val dialog = CashGamesDialog()
         val ft: FragmentTransaction = supportFragmentManager.beginTransaction()
-        dialog.show(ft, FullScreenDialog.TAG)
+        dialog.show(ft, CashGamesDialog.TAG)
     }
     fun onTournament(view: View){
         //Snackbar.make(imgTournament,"for Tournament",Snackbar.LENGTH_SHORT).show()
-        val dialog = FullScreenDialog()
+        val dialog = TournamentGamesDialog()
         val ft: FragmentTransaction = supportFragmentManager.beginTransaction()
-        dialog.show(ft, FullScreenDialog.TAG)
+        dialog.show(ft, TournamentGamesDialog.TAG)
     }
     fun onPractice(view: View){
         //Snackbar.make(imgPractice,"for Practice",Snackbar.LENGTH_SHORT).show()
-        val dialog = FullScreenDialog()
+        val dialog = TicketsDialog()
         val ft: FragmentTransaction = supportFragmentManager.beginTransaction()
-        dialog.show(ft, FullScreenDialog.TAG)
+        dialog.show(ft, TicketsDialog.TAG)
     }
     fun onMenu(view: View){
         Snackbar.make(imgMenu,"for Menu",Snackbar.LENGTH_SHORT).show()
     }
     fun onCoin(view: View){
-        Snackbar.make(tvCoinCount,"for coin",Snackbar.LENGTH_SHORT).show()
+        Snackbar.make(tvCoinCount,"Add Cash",Snackbar.LENGTH_SHORT).show()
     }
     fun onGems(view: View){
         Snackbar.make(tvGemsCount,"for Gems",Snackbar.LENGTH_SHORT).show()

@@ -1,0 +1,76 @@
+package com.newitzone.tambola.dialog
+
+import android.content.Intent
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentTransaction
+import butterknife.BindView
+import butterknife.ButterKnife
+import butterknife.OnClick
+import com.newitzone.tambola.PlayActivity
+import com.newitzone.tambola.R
+
+class CashGamesDialog : DialogFragment() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setStyle(STYLE_NORMAL, R.style.FullScreenDialog)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        val dialog = dialog
+        if (dialog != null) {
+            val width = ViewGroup.LayoutParams.MATCH_PARENT
+            val height = ViewGroup.LayoutParams.MATCH_PARENT
+            dialog.window!!.setLayout(width, height)
+        }
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        parent: ViewGroup?,
+        state: Bundle?
+    ): View? {
+        super.onCreateView(inflater, parent, state)
+        val view =
+            activity!!.layoutInflater.inflate(R.layout.dialog_cash_games, parent, false)
+        ButterKnife.bind(this, view)
+        return view
+    }
+
+    @OnClick(R.id.linear_points_tambola)
+    fun onPoints(view: View?) {
+        val dialog = TicketsDialog()
+        val ft: FragmentTransaction = activity!!.supportFragmentManager.beginTransaction()
+        dialog.show(ft, TicketsDialog.TAG)
+    }
+
+    @OnClick(R.id.linear_deals_tambola)
+    fun onDeals(view: View?) {
+        val dialog = TicketsDialog()
+        val ft: FragmentTransaction = activity!!.supportFragmentManager.beginTransaction()
+        dialog.show(ft, TicketsDialog.TAG)
+    }
+    @OnClick(R.id.linear_pool_tambola)
+    fun onPool(view: View?) {
+        val dialog = TicketsDialog()
+        val ft: FragmentTransaction = activity!!.supportFragmentManager.beginTransaction()
+        dialog.show(ft, TicketsDialog.TAG)
+    }
+    @OnClick(R.id.linear_raise_tambola)
+    fun onRaise(view: View?) {
+        val dialog = TicketsDialog()
+        val ft: FragmentTransaction = activity!!.supportFragmentManager.beginTransaction()
+        dialog.show(ft, TicketsDialog.TAG)
+    }
+
+    companion object {
+        const val TAG = "FullScreenDialog"
+        const val KEY_TICKET = "Key_Ticket"
+    }
+}

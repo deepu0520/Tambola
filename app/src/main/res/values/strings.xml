@@ -6,4 +6,21 @@
     <string name="title_activity_home">HomeActivity</string>
     <string name="profile_name">Rakesh Sharma</string>
     <string name="level">Level 1</string>
+
+    <string name="cash_games">Cash Games</string>
+    <string name="tournament_games">Tournament Games</string>
+
+
+    <string name="points_tambola">Points\nTambola</string>
+    <string name="deals_tambola">Deals\nTambola</string>
+    <string name="pool_tambola">Pool\nTambola</string>
+    <string name="raise_tambola">Raise\nTambola</string>
+
+    <string name="club_tour">Club</string>
+    <string name="special_tour">Special</string>
+    <string name="jackpots_tour">Jackpots</string>
+    <string name="sunday_tour">Sunday\nMillion</string>
+    <string name="cash_tour">Cash</string>
+    <string name="saturday_tour">Saturday\nShowdown</string>
+    <string name="weekend_tour">Weekend\nLoot</string>
 </resources>

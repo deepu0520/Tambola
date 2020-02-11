@@ -18,16 +18,8 @@
             android:textColor="#aecfef"
             android:text="Buy Ticket For"
             android:textSize="24sp"
-            android:layout_margin="4dp"
-            android:textStyle="bold|italic"
-            />
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:background="@drawable/ic_btn_bg"
-            android:text="Playing at level 1 table"
-            android:textSize="16sp"/>
+            android:layout_margin="16dp"
+            android:textStyle="bold|italic"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="wrap_content"

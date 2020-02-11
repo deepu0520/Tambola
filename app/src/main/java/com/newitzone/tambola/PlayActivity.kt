@@ -2,15 +2,15 @@ package com.newitzone.tambola
 
 import android.content.Context
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
-import android.widget.ImageView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import butterknife.BindView
 import butterknife.ButterKnife
-import com.newitzone.tambola.dialog.FullScreenDialog
+import com.newitzone.tambola.dialog.TicketsDialog
+
 
 class PlayActivity : AppCompatActivity() {
     private var context: Context? = null
@@ -32,11 +32,15 @@ class PlayActivity : AppCompatActivity() {
         // Remember that you should never show the action bar if the
         // status bar is hidden, so hide that too if necessary.
         actionBar?.hide()
-        val ticket:Int = intent.getIntExtra(FullScreenDialog.KEY_TICKET,0)
+        val ticket:Int = intent.getIntExtra(TicketsDialog.KEY_TICKET,0)
         if (ticket == 1){
             cL.setBackgroundResource(R.drawable.play_screen_1)
         }else if (ticket == 2){
             cL.setBackgroundResource(R.drawable.play_screen_2)
         }
+    }
+    override fun onBackPressed() { // do something here and don't write super.onBackPressed()
+        super.onBackPressed()
+        finish()
     }
 }

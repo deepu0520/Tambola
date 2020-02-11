@@ -13,7 +13,7 @@ import butterknife.OnClick
 import com.newitzone.tambola.PlayActivity
 import com.newitzone.tambola.R
 
-class FullScreenDialog : DialogFragment() {
+class TicketsDialog : DialogFragment() {
     @JvmField
     @BindView(R.id.image_ticket_1)
     var imgTicket1: ImageView? = null
@@ -43,7 +43,7 @@ class FullScreenDialog : DialogFragment() {
     ): View? {
         super.onCreateView(inflater, parent, state)
         val view =
-            activity!!.layoutInflater.inflate(R.layout.dialog_layout, parent, false)
+            activity!!.layoutInflater.inflate(R.layout.dialog_tickets, parent, false)
         ButterKnife.bind(this, view)
         return view
     }
@@ -52,6 +52,7 @@ class FullScreenDialog : DialogFragment() {
     fun onTicket1(view: View?) {
         val intent = Intent(activity, PlayActivity::class.java)
         intent.putExtra(KEY_TICKET,1)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
         activity!!.startActivity(intent)
     }
 
@@ -59,6 +60,7 @@ class FullScreenDialog : DialogFragment() {
     fun onTicket2(view: View?) {
         val intent = Intent(activity, PlayActivity::class.java)
         intent.putExtra(KEY_TICKET,2)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
         activity!!.startActivity(intent)
     }
 
