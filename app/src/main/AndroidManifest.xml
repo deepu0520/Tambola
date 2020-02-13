@@ -13,8 +13,11 @@
         android:screenOrientation="landscape"
         android:supportsRtl="true"
         android:theme="@style/Theme.First">
-        <activity android:name=".PlayActivity"
-            android:screenOrientation="landscape"/>
+        <activity android:name=".AddCashActivity"
+            android:screenOrientation="landscape"></activity>
+        <activity
+            android:name=".PlayActivity"
+            android:screenOrientation="landscape" />
         <activity
             android:name=".HomeActivity"
             android:screenOrientation="landscape" />

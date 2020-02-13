@@ -9,7 +9,16 @@
 
     <string name="cash_games">Cash Games</string>
     <string name="tournament_games">Tournament Games</string>
+    <string name="add_cash">Add Cash</string>
 
+    <string name="rs_100">100</string>
+    <string name="rs_200">200</string>
+    <string name="rs_400">400</string>
+    <string name="rs_500">500</string>
+    <string name="txt_amt">Enter Amount</string>
+    <string name="txt_amt_hint">(₹25 to ₹25000)</string>
+    <string name="txt_promo_code">Having A Promo Code?</string>
+    <string name="txt_view_offers">View Offers</string>
 
     <string name="points_tambola">Points\nTambola</string>
     <string name="deals_tambola">Deals\nTambola</string>

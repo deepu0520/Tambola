@@ -1,6 +1,7 @@
 package com.newitzone.tambola
 
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -29,11 +30,9 @@ class HomeActivity : AppCompatActivity() {
     @BindView(R.id.image_practice) lateinit var imgPractice: ImageView
     @BindView(R.id.image_menu) lateinit var imgMenu: ImageView
     // text view
-    @BindView(R.id.text_coin_count) lateinit var tvCoinCount: TextView
-    @BindView(R.id.text_gems_count) lateinit var tvGemsCount: TextView
-    @BindView(R.id.text_power_count) lateinit var tvPowerCount: TextView
+    @BindView(R.id.text_cash_avail_amt) lateinit var tvCashAvailAmt: TextView
+    @BindView(R.id.text_add_cash) lateinit var tvAddCash: TextView
     @BindView(R.id.text_profile_name) lateinit var tvProfileName: TextView
-    @BindView(R.id.text_level) lateinit var tvLevel: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,14 +65,11 @@ class HomeActivity : AppCompatActivity() {
         imgMenu.setOnClickListener { view ->
             onMenu(view)
         }
-        tvCoinCount.setOnClickListener { view ->
-            onCoin(view)
+        tvCashAvailAmt.setOnClickListener { view ->
+            onCashAvailAmt(view)
         }
-        tvGemsCount.setOnClickListener { view ->
-            onGems(view)
-        }
-        tvPowerCount.setOnClickListener { view ->
-            onPower(view)
+        tvAddCash.setOnClickListener { view ->
+            onAddCash(view)
         }
     }
     fun onCash(view: View){
@@ -97,14 +93,13 @@ class HomeActivity : AppCompatActivity() {
     fun onMenu(view: View){
         Snackbar.make(imgMenu,"for Menu",Snackbar.LENGTH_SHORT).show()
     }
-    fun onCoin(view: View){
-        Snackbar.make(tvCoinCount,"Add Cash",Snackbar.LENGTH_SHORT).show()
+    fun onCashAvailAmt(view: View){
+        Snackbar.make(tvCashAvailAmt,"Available Cash amount is ₹"+tvCashAvailAmt.text,Snackbar.LENGTH_SHORT).show()
     }
-    fun onGems(view: View){
-        Snackbar.make(tvGemsCount,"for Gems",Snackbar.LENGTH_SHORT).show()
+    fun onAddCash(view: View){
+        //Snackbar.make(tvGemsCount,"for Gems",Snackbar.LENGTH_SHORT).show()
+        val intent = Intent(context, AddCashActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+        startActivity(intent)
     }
-    fun onPower(view: View){
-        Snackbar.make(tvPowerCount,"for Power",Snackbar.LENGTH_SHORT).show()
-    }
-
 }

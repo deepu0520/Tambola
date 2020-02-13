@@ -50,7 +50,8 @@ class CashGamesDialog : DialogFragment() {
         // Initializing an empty ArrayList to be filled with items
         val menuList: List<String> = resources.getStringArray(R.array.price_list).asList()
         val adapter = PriceAdapter(menuList,context)
-        recycler_view.layoutManager = LinearLayoutManager(context)
+        var recycler_view = view.findViewById(R.id.recycler_view) as RecyclerView
+        recycler_view.layoutManager = GridLayoutManager(context,3)
         recycler_view.adapter = adapter
         recycler_view.addOnItemTouchListener(RecyclerItemClickListenr(context, recycler_view, object : RecyclerItemClickListenr.OnItemClickListener {
 
@@ -65,32 +66,6 @@ class CashGamesDialog : DialogFragment() {
             }
         }))
         return view
-    }
-
-    @OnClick(R.id.linear_points_tambola)
-    fun onPoints(view: View?) {
-        val dialog = TicketsDialog()
-        val ft: FragmentTransaction = activity!!.supportFragmentManager.beginTransaction()
-        dialog.show(ft, TicketsDialog.TAG)
-    }
-
-    @OnClick(R.id.linear_deals_tambola)
-    fun onDeals(view: View?) {
-        val dialog = TicketsDialog()
-        val ft: FragmentTransaction = activity!!.supportFragmentManager.beginTransaction()
-        dialog.show(ft, TicketsDialog.TAG)
-    }
-    @OnClick(R.id.linear_pool_tambola)
-    fun onPool(view: View?) {
-        val dialog = TicketsDialog()
-        val ft: FragmentTransaction = activity!!.supportFragmentManager.beginTransaction()
-        dialog.show(ft, TicketsDialog.TAG)
-    }
-    @OnClick(R.id.linear_raise_tambola)
-    fun onRaise(view: View?) {
-        val dialog = TicketsDialog()
-        val ft: FragmentTransaction = activity!!.supportFragmentManager.beginTransaction()
-        dialog.show(ft, TicketsDialog.TAG)
     }
 
     companion object {
