@@ -19,6 +19,19 @@
     <string name="txt_amt_hint">(₹25 to ₹25000)</string>
     <string name="txt_promo_code">Having A Promo Code?</string>
     <string name="txt_view_offers">View Offers</string>
+    <string name="txt_prize_amt">₹500/-</string>
+    <string name="txt_entry">Entry : </string>
+    <string name="txt_entry_amt">₹5/-</string>
+    <string name="txt_start">Starts : </string>
+    <string name="txt_start_date_time">11:15 PM TODAY</string>
+    <string name="txt_seats">Seats : </string>
+    <string name="txt_seats_count">50/50</string>
+    <string name="txt_join">JOIN</string>
+    <string name="txt_wait_list">WAITLIST</string>
+    <string name="txt_fast_filling">FAST FILLING</string>
+
+
+
 
     <string name="points_tambola">Points\nTambola</string>
     <string name="deals_tambola">Deals\nTambola</string>

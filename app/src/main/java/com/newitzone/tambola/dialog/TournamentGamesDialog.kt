@@ -10,6 +10,7 @@ import android.widget.ImageView
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import butterknife.ButterKnife
@@ -18,6 +19,7 @@ import com.mod.rdpindia.ui.utils.RecyclerItemClickListenr
 import com.newitzone.tambola.PlayActivity
 import com.newitzone.tambola.R
 import com.newitzone.tambola.adapter.PriceAdapter
+import com.newitzone.tambola.adapter.TournamentAdapter
 
 class TournamentGamesDialog : DialogFragment() {
 
@@ -47,9 +49,9 @@ class TournamentGamesDialog : DialogFragment() {
         ButterKnife.bind(this, view)
         // Initializing an empty ArrayList to be filled with items
         val menuList: List<String> = resources.getStringArray(R.array.price_list).asList()
-        val adapter = PriceAdapter(menuList,context)
+        val adapter = TournamentAdapter(menuList,context)
         var recycler_view = view.findViewById(R.id.recycler_view) as RecyclerView
-        recycler_view.layoutManager = GridLayoutManager(context,3)
+        recycler_view.layoutManager = LinearLayoutManager(context,LinearLayoutManager.HORIZONTAL,false)
         recycler_view.adapter = adapter
         recycler_view.addOnItemTouchListener(RecyclerItemClickListenr(context, recycler_view, object : RecyclerItemClickListenr.OnItemClickListener {
 
