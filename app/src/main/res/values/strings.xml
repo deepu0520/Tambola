@@ -19,6 +19,11 @@
     <string name="txt_promo_code">Having A Promo Code?</string>
     <string name="txt_view_offers">View Offers</string>
 
+    <string name="txt_username">Username</string>
+    <string name="txt_email">Email</string>
+    <string name="txt_password">Password</string>
+    <string name="txt_mobile">Mobile(Optional)</string>
+    <string name="txt_terms_condition">By registering, you accept you are 18+ and agree to our T&amp;C and Privacy and Policy</string>
 
 
 
