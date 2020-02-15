@@ -1,5 +1,6 @@
 package com.newitzone.tambola.dialog
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,11 +9,17 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentTransaction
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
 import com.newitzone.tambola.PlayActivity
 import com.newitzone.tambola.R
+import com.newitzone.tambola.adapter.PriceAdapter
+import com.newitzone.tambola.utils.RecyclerItemClickListenr
+import kotlinx.android.synthetic.main.dialog_cash_games.*
 
 class CashGamesDialog : DialogFragment() {
 
@@ -37,36 +44,28 @@ class CashGamesDialog : DialogFragment() {
         state: Bundle?
     ): View? {
         super.onCreateView(inflater, parent, state)
-        val view =
-            activity!!.layoutInflater.inflate(R.layout.dialog_cash_games, parent, false)
+        val view = activity!!.layoutInflater.inflate(R.layout.dialog_cash_games, parent, false)
         ButterKnife.bind(this, view)
+        val context: Context = requireContext()
+        val recyclerView = view.findViewById(R.id.recycler_view) as RecyclerView
+        // Initializing an empty ArrayList to be filled with items
+        val menuList: List<String> = resources.getStringArray(R.array.price_list).asList()
+        val adapter = PriceAdapter(menuList,context)
+        recyclerView.layoutManager = GridLayoutManager(context,3)
+        recyclerView.adapter = adapter
+        recyclerView.addOnItemTouchListener(RecyclerItemClickListenr(context, recyclerView, object : RecyclerItemClickListenr.OnItemClickListener {
+
+            override fun onItemClick(view: View, position: Int) {
+                //TODO: Use this
+                val dialog = TicketsDialog()
+                val ft: FragmentTransaction = activity!!.supportFragmentManager.beginTransaction()
+                dialog.show(ft, TicketsDialog.TAG)
+            }
+            override fun onItemLongClick(view: View?, position: Int) {
+                TODO("do nothing")
+            }
+        }))
         return view
-    }
-
-    @OnClick(R.id.linear_points_tambola)
-    fun onPoints(view: View?) {
-        val dialog = TicketsDialog()
-        val ft: FragmentTransaction = activity!!.supportFragmentManager.beginTransaction()
-        dialog.show(ft, TicketsDialog.TAG)
-    }
-
-    @OnClick(R.id.linear_deals_tambola)
-    fun onDeals(view: View?) {
-        val dialog = TicketsDialog()
-        val ft: FragmentTransaction = activity!!.supportFragmentManager.beginTransaction()
-        dialog.show(ft, TicketsDialog.TAG)
-    }
-    @OnClick(R.id.linear_pool_tambola)
-    fun onPool(view: View?) {
-        val dialog = TicketsDialog()
-        val ft: FragmentTransaction = activity!!.supportFragmentManager.beginTransaction()
-        dialog.show(ft, TicketsDialog.TAG)
-    }
-    @OnClick(R.id.linear_raise_tambola)
-    fun onRaise(view: View?) {
-        val dialog = TicketsDialog()
-        val ft: FragmentTransaction = activity!!.supportFragmentManager.beginTransaction()
-        dialog.show(ft, TicketsDialog.TAG)
     }
 
     companion object {

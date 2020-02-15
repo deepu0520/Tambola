@@ -1,5 +1,6 @@
 package com.newitzone.tambola.dialog
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,11 +9,17 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentTransaction
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
 import com.newitzone.tambola.PlayActivity
 import com.newitzone.tambola.R
+import com.newitzone.tambola.adapter.PriceAdapter
+import com.newitzone.tambola.adapter.TournamentAdapter
+import com.newitzone.tambola.utils.RecyclerItemClickListenr
 
 class TournamentGamesDialog : DialogFragment() {
 
@@ -37,54 +44,28 @@ class TournamentGamesDialog : DialogFragment() {
         state: Bundle?
     ): View? {
         super.onCreateView(inflater, parent, state)
-        val view =
-            activity!!.layoutInflater.inflate(R.layout.dialog_tournament_games, parent, false)
+        val view = activity!!.layoutInflater.inflate(R.layout.dialog_tournament_games, parent, false)
         ButterKnife.bind(this, view)
+        val context: Context = requireContext()
+        val recyclerView = view.findViewById(R.id.recycler_view) as RecyclerView
+        // Initializing an empty ArrayList to be filled with items
+        val menuList: List<String> = resources.getStringArray(R.array.price_list).asList()
+        val adapter = TournamentAdapter(menuList,context)
+        recyclerView.layoutManager = LinearLayoutManager(context,LinearLayoutManager.HORIZONTAL,false)
+        recyclerView.adapter = adapter
+        recyclerView.addOnItemTouchListener(RecyclerItemClickListenr(context, recyclerView, object : RecyclerItemClickListenr.OnItemClickListener {
+
+            override fun onItemClick(view: View, position: Int) {
+                //TODO: Use this
+                val dialog = TicketsDialog()
+                val ft: FragmentTransaction = activity!!.supportFragmentManager.beginTransaction()
+                dialog.show(ft, TicketsDialog.TAG)
+            }
+            override fun onItemLongClick(view: View?, position: Int) {
+                TODO("do nothing")
+            }
+        }))
         return view
-    }
-
-    @OnClick(R.id.linear_club)
-    fun onClub(view: View?) {
-        val dialog = TicketsDialog()
-        val ft: FragmentTransaction = activity!!.supportFragmentManager.beginTransaction()
-        dialog.show(ft, TicketsDialog.TAG)
-    }
-
-    @OnClick(R.id.linear_special)
-    fun onSpecial(view: View?) {
-        val dialog = TicketsDialog()
-        val ft: FragmentTransaction = activity!!.supportFragmentManager.beginTransaction()
-        dialog.show(ft, TicketsDialog.TAG)
-    }
-    @OnClick(R.id.linear_jackpot)
-    fun onJackpot(view: View?) {
-        val dialog = TicketsDialog()
-        val ft: FragmentTransaction = activity!!.supportFragmentManager.beginTransaction()
-        dialog.show(ft, TicketsDialog.TAG)
-    }
-    @OnClick(R.id.linear_sunday)
-    fun onSunday(view: View?) {
-        val dialog = TicketsDialog()
-        val ft: FragmentTransaction = activity!!.supportFragmentManager.beginTransaction()
-        dialog.show(ft, TicketsDialog.TAG)
-    }
-    @OnClick(R.id.linear_cash)
-    fun onCash(view: View?) {
-        val dialog = TicketsDialog()
-        val ft: FragmentTransaction = activity!!.supportFragmentManager.beginTransaction()
-        dialog.show(ft, TicketsDialog.TAG)
-    }
-    @OnClick(R.id.linear_saturday)
-    fun onSaturday(view: View?) {
-        val dialog = TicketsDialog()
-        val ft: FragmentTransaction = activity!!.supportFragmentManager.beginTransaction()
-        dialog.show(ft, TicketsDialog.TAG)
-    }
-    @OnClick(R.id.linear_weekend)
-    fun onWeekend(view: View?) {
-        val dialog = TicketsDialog()
-        val ft: FragmentTransaction = activity!!.supportFragmentManager.beginTransaction()
-        dialog.show(ft, TicketsDialog.TAG)
     }
 
     companion object {
