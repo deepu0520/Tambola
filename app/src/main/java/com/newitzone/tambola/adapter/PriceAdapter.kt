@@ -22,7 +22,7 @@ class PriceAdapter(val items : List<String>, val context: Context) : RecyclerVie
 
     // Binds each animal in the ArrayList to a view
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder?.tvPrice?.text = items.get(position)
+        holder?.tvPrice?.text = "₹"+items.get(position)
     }
 }
 
