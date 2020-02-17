@@ -62,7 +62,7 @@ class PlayActivity : AppCompatActivity() {
             lLTicket1.visibility = View.VISIBLE
             lLTicket2.visibility = View.VISIBLE
         }
-        // TODO: on Click
+        // TODO: on Click test
         // TODO: Random Number open
         onRecyclerViewRandomNumber()
         // TODO: Live User
