@@ -10,7 +10,6 @@
     <string name="cash_games">Cash Games</string>
     <string name="tournament_games">Tournament Games</string>
     <string name="add_cash">Add Cash</string>
-
     <string name="rs_100">100</string>
     <string name="rs_200">200</string>
     <string name="rs_400">400</string>
@@ -19,30 +18,14 @@
     <string name="txt_amt_hint">(₹25 to ₹25000)</string>
     <string name="txt_promo_code">Having A Promo Code?</string>
     <string name="txt_view_offers">View Offers</string>
-    <string name="txt_prize_amt">₹500/-</string>
-    <string name="txt_entry">Entry : </string>
-    <string name="txt_entry_amt">₹5/-</string>
-    <string name="txt_start">Starts : </string>
-    <string name="txt_start_date_time">11:15 PM TODAY</string>
-    <string name="txt_seats">Seats : </string>
-    <string name="txt_seats_count">50/50</string>
-    <string name="txt_join">JOIN</string>
-    <string name="txt_wait_list">WAITLIST</string>
-    <string name="txt_fast_filling">FAST FILLING</string>
 
+    <string name="txt_username">Username</string>
+    <string name="txt_email">Email</string>
+    <string name="txt_password">Password</string>
+    <string name="txt_mobile">Mobile(Optional)</string>
+    <string name="txt_terms_condition">By registering, you accept you are 18+ and agree to our T&amp;C and Privacy and Policy</string>
+    <string name="txt_register_for_free"><u>REGISTER FOR FREE</u></string>
 
-
-
-    <string name="points_tambola">Points\nTambola</string>
-    <string name="deals_tambola">Deals\nTambola</string>
-    <string name="pool_tambola">Pool\nTambola</string>
-    <string name="raise_tambola">Raise\nTambola</string>
-
-    <string name="club_tour">Club</string>
-    <string name="special_tour">Special</string>
-    <string name="jackpots_tour">Jackpots</string>
-    <string name="sunday_tour">Sunday\nMillion</string>
-    <string name="cash_tour">Cash</string>
-    <string name="saturday_tour">Saturday\nShowdown</string>
-    <string name="weekend_tour">Weekend\nLoot</string>
+    <string name="txt_ticket_1">Ticket\n1\nClaim</string>
+    <string name="txt_ticket_2">Ticket\n2\nClaim</string>
 </resources>

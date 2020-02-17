@@ -15,10 +15,10 @@ import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
-import com.mod.rdpindia.ui.utils.RecyclerItemClickListenr
 import com.newitzone.tambola.PlayActivity
 import com.newitzone.tambola.R
 import com.newitzone.tambola.adapter.PriceAdapter
+import com.newitzone.tambola.utils.RecyclerItemClickListenr
 import kotlinx.android.synthetic.main.dialog_cash_games.*
 
 class CashGamesDialog : DialogFragment() {
@@ -45,15 +45,15 @@ class CashGamesDialog : DialogFragment() {
     ): View? {
         super.onCreateView(inflater, parent, state)
         val view = activity!!.layoutInflater.inflate(R.layout.dialog_cash_games, parent, false)
-        val context:Context = requireContext()
         ButterKnife.bind(this, view)
+        val context: Context = requireContext()
+        val recyclerView = view.findViewById(R.id.recycler_view) as RecyclerView
         // Initializing an empty ArrayList to be filled with items
         val menuList: List<String> = resources.getStringArray(R.array.price_list).asList()
         val adapter = PriceAdapter(menuList,context)
-        var recycler_view = view.findViewById(R.id.recycler_view) as RecyclerView
-        recycler_view.layoutManager = GridLayoutManager(context,3)
-        recycler_view.adapter = adapter
-        recycler_view.addOnItemTouchListener(RecyclerItemClickListenr(context, recycler_view, object : RecyclerItemClickListenr.OnItemClickListener {
+        recyclerView.layoutManager = GridLayoutManager(context,3)
+        recyclerView.adapter = adapter
+        recyclerView.addOnItemTouchListener(RecyclerItemClickListenr(context, recyclerView, object : RecyclerItemClickListenr.OnItemClickListener {
 
             override fun onItemClick(view: View, position: Int) {
                 //TODO: Use this

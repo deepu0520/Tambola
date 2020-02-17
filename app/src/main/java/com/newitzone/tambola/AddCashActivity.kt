@@ -2,11 +2,12 @@ package com.newitzone.tambola
 
 import android.content.Context
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
+import androidx.appcompat.app.AppCompatActivity
 import butterknife.ButterKnife
+
 
 class AddCashActivity : AppCompatActivity() {
     private var context: Context? = null
@@ -27,5 +28,9 @@ class AddCashActivity : AppCompatActivity() {
         // Remember that you should never show the action bar if the
         // status bar is hidden, so hide that too if necessary.
         actionBar?.hide()
+    }
+    override fun onBackPressed() { // do something here and don't write super.onBackPressed()
+        super.onBackPressed()
+        finish()
     }
 }

@@ -42,7 +42,7 @@ class FullscreenActivity : AppCompatActivity() {
         // handler
         Handler().postDelayed({
             // TODO Auto-generated method stub
-            val intent = Intent(context, HomeActivity::class.java)
+            val intent = Intent(context, LoginActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
             startActivity(intent)
             finish()

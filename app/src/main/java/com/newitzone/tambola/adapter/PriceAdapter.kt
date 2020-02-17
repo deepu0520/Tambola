@@ -1,4 +1,5 @@
 package com.newitzone.tambola.adapter
+
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -21,11 +22,11 @@ class PriceAdapter(val items : List<String>, val context: Context) : RecyclerVie
 
     // Binds each animal in the ArrayList to a view
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder?.tvPrice?.text = ""+items.get(position)
+        holder?.tvPrice?.text = "₹"+items.get(position)
     }
 }
 
 class ViewHolder (view: View) : RecyclerView.ViewHolder(view) {
-        // Holds the TextView that will add each animal to
-        val tvPrice = view.text_price
+    // Holds the TextView that will add each animal to
+    val tvPrice = view.text_price
 }

@@ -1,4 +1,4 @@
-package com.mod.rdpindia.ui.utils
+package com.newitzone.tambola.utils
 
 import android.content.Context
 import android.view.GestureDetector

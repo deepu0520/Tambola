@@ -1,4 +1,5 @@
 package com.newitzone.tambola.adapter
+
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -7,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.newitzone.tambola.R
 import kotlinx.android.synthetic.main.cardview_tournament_item.view.*
 
-class TournamentAdapter(val items : List<String>, val context: Context) : RecyclerView.Adapter<ViewHolder>() {
+class TournamentAdapter(val items : List<String>, val context: Context) : RecyclerView.Adapter<ViewHolderTournament>() {
 
     // Gets the number of animals in the list
     override fun getItemCount(): Int {
@@ -15,17 +16,17 @@ class TournamentAdapter(val items : List<String>, val context: Context) : Recycl
     }
 
     // Inflates the item views
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(LayoutInflater.from(context).inflate(R.layout.cardview_tournament_item, parent, false))
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderTournament {
+        return ViewHolderTournament(LayoutInflater.from(context).inflate(R.layout.cardview_tournament_item, parent, false))
     }
 
     // Binds each animal in the ArrayList to a view
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder?.tvPrizeAmt?.text = ""+items.get(position)
+    override fun onBindViewHolder(holder: ViewHolderTournament, position: Int) {
+        holder?.tvTitle?.text = items.get(position)
     }
 }
 
-class ViewHolder (view: View) : RecyclerView.ViewHolder(view) {
-        // Holds the TextView that will add each animal to
-        val tvPrizeAmt = view.text_tournament_prize_amt
+class ViewHolderTournament (view: View) : RecyclerView.ViewHolder(view) {
+    // Holds the TextView that will add each animal to
+    val tvTitle = view.text_title
 }
