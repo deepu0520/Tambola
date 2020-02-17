@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import butterknife.ButterKnife
+import com.newitzone.tambola.adapter.ClaimTicketAdapter
 import com.newitzone.tambola.adapter.LiveUserAdapter
 import com.newitzone.tambola.adapter.RandomNumberAdapter
 import com.newitzone.tambola.adapter.TicketNumberAdapter
@@ -26,6 +27,8 @@ import java.util.Random
 class PlayActivity : AppCompatActivity() {
     private var context: Context? = null
     val random = Random()
+    var claimTicket1 = true
+    var claimTicket2 = true
     @BindView(R.id.linear_ticket_1) lateinit var lLTicket1: LinearLayout
     @BindView(R.id.linear_ticket_2) lateinit var lLTicket2: LinearLayout
     @BindView(R.id.recycler_view_ticket_1) lateinit var rVTicket1: RecyclerView
@@ -62,7 +65,6 @@ class PlayActivity : AppCompatActivity() {
             lLTicket1.visibility = View.VISIBLE
             lLTicket2.visibility = View.VISIBLE
         }
-        // TODO: on Click test
         // TODO: Random Number open
         onRecyclerViewRandomNumber()
         // TODO: Live User
@@ -71,6 +73,18 @@ class PlayActivity : AppCompatActivity() {
         onTicket1()
         // TODO: Ticket 2
         onTicket2()
+        // TODO: Recycler view Claim Ticket 1
+        onRecyclerViewClaimTicket1()
+        // TODO: Recycler view Claim Ticket 2
+        onRecyclerViewClaimTicket2()
+        // TODO: Claim Ticket 1
+        tvBtnClaimTicket1.setOnClickListener { view ->
+            onClaimTicket1(view)
+        }
+        // TODO: Claim Ticket 2
+        tvBtnClaimTicket2.setOnClickListener { view ->
+            onClaimTicket2(view)
+        }
     }
     fun onRecyclerViewRandomNumber(){
         // Initializing an empty ArrayList to be filled with items
@@ -122,8 +136,42 @@ class PlayActivity : AppCompatActivity() {
         rVTicket2.layoutManager = GridLayoutManager(context,9)
         rVTicket2.adapter = adapter
     }
-
-
+    fun onClaimTicket1(view: View) {
+        if (claimTicket1){
+            rVClaimTicket1.visibility = View.VISIBLE
+            claimTicket1 = false
+            tvBtnClaimTicket1.text = resources.getString(R.string.txt_ticket_hide_1)
+        }else{
+            rVClaimTicket1.visibility = View.GONE
+            claimTicket1 = true
+            tvBtnClaimTicket1.text = resources.getString(R.string.txt_ticket_1)
+        }
+    }
+    fun onClaimTicket2(view: View) {
+        if (claimTicket2){
+            rVClaimTicket2.visibility = View.VISIBLE
+            claimTicket2 = false
+            tvBtnClaimTicket2.text = resources.getString(R.string.txt_ticket_hide_2)
+        }else{
+            rVClaimTicket2.visibility = View.GONE
+            claimTicket2 = true
+            tvBtnClaimTicket2.text = resources.getString(R.string.txt_ticket_2)
+        }
+    }
+    fun onRecyclerViewClaimTicket1(){
+        // Initializing an empty ArrayList to be filled with items
+        val prizeList: List<String> = resources.getStringArray(R.array.claim_ticket_list).asList()
+        val adapter = ClaimTicketAdapter(prizeList,this)
+        rVClaimTicket1.layoutManager = GridLayoutManager(context,3)
+        rVClaimTicket1.adapter = adapter
+    }
+    fun onRecyclerViewClaimTicket2(){
+        // Initializing an empty ArrayList to be filled with items
+        val prizeList: List<String> = resources.getStringArray(R.array.claim_ticket_list).asList()
+        val adapter = ClaimTicketAdapter(prizeList,this)
+        rVClaimTicket2.layoutManager = GridLayoutManager(context,3)
+        rVClaimTicket2.adapter = adapter
+    }
     fun rand(from: Int, to: Int) : Int {
         return random.nextInt(to - from) + from
     }

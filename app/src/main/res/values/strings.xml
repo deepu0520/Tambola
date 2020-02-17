@@ -37,5 +37,7 @@
     <string name="txt_register_for_free"><u>REGISTER FOR FREE</u></string>
 
     <string name="txt_ticket_1">Ticket\n1\nClaim</string>
+    <string name="txt_ticket_hide_1">Ticket\n1\nHide</string>
     <string name="txt_ticket_2">Ticket\n2\nClaim</string>
+    <string name="txt_ticket_hide_2">Ticket\n2\nHide</string>
 </resources>
