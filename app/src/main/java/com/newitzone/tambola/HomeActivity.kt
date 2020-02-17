@@ -30,7 +30,7 @@ class HomeActivity : AppCompatActivity() {
     @BindView(R.id.image_practice) lateinit var imgPractice: ImageView
     @BindView(R.id.image_menu) lateinit var imgMenu: ImageView
     // text view
-    @BindView(R.id.text_cash_avail_amt) lateinit var tvCashAvailAmt: TextView
+    @BindView(R.id.text_cash_balance) lateinit var tvCashAvailAmt: TextView
     @BindView(R.id.text_add_cash) lateinit var tvAddCash: TextView
     @BindView(R.id.text_profile_name) lateinit var tvProfileName: TextView
 
