@@ -7,6 +7,7 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.GridLayout
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.GridLayoutManager
@@ -29,6 +30,10 @@ class PlayActivity : AppCompatActivity() {
     @BindView(R.id.linear_ticket_2) lateinit var lLTicket2: LinearLayout
     @BindView(R.id.recycler_view_ticket_1) lateinit var rVTicket1: RecyclerView
     @BindView(R.id.recycler_view_ticket_2) lateinit var rVTicket2: RecyclerView
+    @BindView(R.id.text_btn_ticket_claim_1) lateinit var tvBtnClaimTicket1: TextView
+    @BindView(R.id.text_btn_ticket_claim_2) lateinit var tvBtnClaimTicket2: TextView
+    @BindView(R.id.recycler_view_claim_ticket_1) lateinit var rVClaimTicket1: RecyclerView
+    @BindView(R.id.recycler_view_claim_ticket_2) lateinit var rVClaimTicket2: RecyclerView
 
     @BindView(R.id.recycler_view_random_number) lateinit var recyclerViewRanNum: RecyclerView
     @BindView(R.id.recycler_view_live_user) lateinit var recyclerViewLiveUser: RecyclerView
@@ -57,6 +62,7 @@ class PlayActivity : AppCompatActivity() {
             lLTicket1.visibility = View.VISIBLE
             lLTicket2.visibility = View.VISIBLE
         }
+
         // TODO: Random Number open
         onRecyclerViewRandomNumber()
         // TODO: Live User

@@ -22,5 +22,14 @@
         <item>Rakesh Singh</item>
         <item>Hemant</item>
         <item>Rani</item>
+        <item>Ram</item>
+    </string-array>
+    <string-array name="claim_ticket_list">
+        <item>Early Five</item>
+        <item>Top Line</item>
+        <item>Middle Line</item>
+        <item>Bottom Line</item>
+        <item>4 Corners</item>
+        <item>Full House</item>
     </string-array>
 </resources>
