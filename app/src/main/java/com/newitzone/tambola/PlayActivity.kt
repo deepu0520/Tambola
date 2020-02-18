@@ -33,8 +33,10 @@ class PlayActivity : AppCompatActivity() {
     var claimTicket2 = true
     private var i = 0
     private val handler = Handler()
+    var randomNumList: MutableList<String> = mutableListOf<String>()
 
     @BindView(R.id.progress_bar) lateinit var progressBar: ProgressBar
+    @BindView(R.id.text_per) lateinit var tvPer: TextView
     @BindView(R.id.text_ran_num) lateinit var tvRanNum: TextView
 
     @BindView(R.id.linear_ticket_1) lateinit var lLTicket1: LinearLayout
@@ -73,12 +75,15 @@ class PlayActivity : AppCompatActivity() {
             lLTicket1.visibility = View.VISIBLE
             lLTicket2.visibility = View.VISIBLE
         }
+        progressBar.setOnClickListener { view ->
+            onRecyclerViewRandomNumber()
+        }
         // TODO: Random Number open
         onRecyclerViewRandomNumber()
         // TODO: Live User
         onRecyclerViewLiveUser()
         // TODO: Ticket 1
-        onTicket1()
+        //onTicket1()
         // TODO: Ticket 2
         onTicket2()
         // TODO: Recycler view Claim Ticket 1
@@ -97,11 +102,12 @@ class PlayActivity : AppCompatActivity() {
     fun onRecyclerViewRandomNumber(){
         for (i in 1..1){
             var ranNum = rand(1,90)
+            randomNumList.add(ranNum.toString())
             numberCounter(ranNum)
         }
         // Initializing an empty ArrayList to be filled with items
         val menuList: List<String> = resources.getStringArray(R.array.random_number_list).asList()
-        val adapter = RandomNumberAdapter(menuList,this)
+        val adapter = RandomNumberAdapter(randomNumList,this)
         recyclerViewRanNum.layoutManager = LinearLayoutManager(context,LinearLayoutManager.HORIZONTAL,false)
         recyclerViewRanNum.adapter = adapter
         recyclerViewRanNum.addOnItemTouchListener(RecyclerItemClickListenr(this, recyclerViewRanNum, object : RecyclerItemClickListenr.OnItemClickListener {
@@ -115,25 +121,24 @@ class PlayActivity : AppCompatActivity() {
         }))
     }
     fun numberCounter(num: Int){
-        i = progressBar!!.progress
+        progressBar.progress = 1
+        i = progressBar.progress
         Thread(Runnable {
             while (i < 100) {
-                i += 2
+                i += 1
                 // Update the progress bar and display the current value
                 handler.post(Runnable {
-                    progressBar!!.progress = i
-                    tvRanNum!!.text = i.toString()// + "/" + progressBar!!.max
-                //tvRanNum!!.text = ""+num
-            })
+                    progressBar.progress = i
+                    tvPer!!.text = i.toString()// + "%/" + progressBar!!.max
+                    tvRanNum!!.text = ""+num
+                })
                 try {
                     Thread.sleep(100)
                 } catch (e: InterruptedException) {
                     e.printStackTrace()
                 }
-
             }
         }).start()
-
     }
     fun onRecyclerViewLiveUser(){
         // Initializing an empty ArrayList to be filled with items

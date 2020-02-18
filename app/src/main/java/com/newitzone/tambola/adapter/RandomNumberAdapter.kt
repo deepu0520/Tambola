@@ -7,9 +7,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.newitzone.tambola.R
 import kotlinx.android.synthetic.main.cardview_open_random_number.view.*
-import kotlinx.android.synthetic.main.cardview_tournament_item.view.*
 
-class RandomNumberAdapter(val items : List<String>, val context: Context) : RecyclerView.Adapter<ViewHolderRN>() {
+class RandomNumberAdapter(val items : MutableList<String>, val context: Context) : RecyclerView.Adapter<ViewHolderRN>() {
 
     // Gets the number of animals in the list
     override fun getItemCount(): Int {

@@ -9,7 +9,7 @@
     tools:context=".PlayActivity">
     <!-- todo: top center-->
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintTop_toTopOf="parent"
@@ -25,25 +25,42 @@
 
             <ProgressBar
                 android:id="@+id/progress_bar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:indeterminate="false"
+                android:max="100"
+                android:progress="50"
+                android:layout_centerInParent="true"
+                android:progressDrawable="@drawable/circular"
+                android:secondaryProgress="100"/>
+            <TextView
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:id="@+id/text_per"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:background="@drawable/ic_bg"
-                android:max="100"
-                android:min="1"/>
+                android:text="90"
+                android:visibility="invisible"
+                android:gravity="center"
+                android:layout_centerInParent="true"/>
             <TextView
-                android:textSize="12sp"
+                android:textSize="18sp"
                 android:textStyle="bold"
                 android:id="@+id/text_ran_num"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="@drawable/whitecircle"
                 android:text="90"
+                android:visibility="visible"
                 android:gravity="center"
                 android:layout_centerInParent="true"/>
         </RelativeLayout>
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view_random_number"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"/>
     </LinearLayout>
     <!-- todo: start center-->
     <androidx.recyclerview.widget.RecyclerView
