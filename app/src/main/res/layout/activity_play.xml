@@ -8,15 +8,43 @@
     android:background="@drawable/splash_screen"
     tools:context=".PlayActivity">
     <!-- todo: top center-->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view_random_number"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginStart="96dp"
-        android:layout_marginEnd="96dp"/>
+        android:layout_marginEnd="96dp">
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/recycler_view_random_number">
+
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/ic_bg"
+                android:max="100"
+                android:min="1"/>
+            <TextView
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:id="@+id/text_ran_num"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="90"
+                android:gravity="center"
+                android:layout_centerInParent="true"/>
+        </RelativeLayout>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view_random_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
     <!-- todo: start center-->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_live_user"

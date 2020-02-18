@@ -3,10 +3,12 @@ package com.newitzone.tambola
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.view.View
 import android.view.WindowManager
 import android.widget.GridLayout
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -29,6 +31,12 @@ class PlayActivity : AppCompatActivity() {
     val random = Random()
     var claimTicket1 = true
     var claimTicket2 = true
+    private var i = 0
+    private val handler = Handler()
+
+    @BindView(R.id.progress_bar) lateinit var progressBar: ProgressBar
+    @BindView(R.id.text_ran_num) lateinit var tvRanNum: TextView
+
     @BindView(R.id.linear_ticket_1) lateinit var lLTicket1: LinearLayout
     @BindView(R.id.linear_ticket_2) lateinit var lLTicket2: LinearLayout
     @BindView(R.id.recycler_view_ticket_1) lateinit var rVTicket1: RecyclerView
@@ -87,6 +95,10 @@ class PlayActivity : AppCompatActivity() {
         }
     }
     fun onRecyclerViewRandomNumber(){
+        for (i in 1..1){
+            var ranNum = rand(1,90)
+            numberCounter(ranNum)
+        }
         // Initializing an empty ArrayList to be filled with items
         val menuList: List<String> = resources.getStringArray(R.array.random_number_list).asList()
         val adapter = RandomNumberAdapter(menuList,this)
@@ -101,6 +113,27 @@ class PlayActivity : AppCompatActivity() {
                 TODO("do nothing")
             }
         }))
+    }
+    fun numberCounter(num: Int){
+        i = progressBar!!.progress
+        Thread(Runnable {
+            while (i < 100) {
+                i += 2
+                // Update the progress bar and display the current value
+                handler.post(Runnable {
+                    progressBar!!.progress = i
+                    tvRanNum!!.text = i.toString()// + "/" + progressBar!!.max
+                //tvRanNum!!.text = ""+num
+            })
+                try {
+                    Thread.sleep(100)
+                } catch (e: InterruptedException) {
+                    e.printStackTrace()
+                }
+
+            }
+        }).start()
+
     }
     fun onRecyclerViewLiveUser(){
         // Initializing an empty ArrayList to be filled with items

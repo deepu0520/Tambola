@@ -6,16 +6,14 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_margin="4dp">
-    <ProgressBar
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:background="@drawable/ic_bg"/>
     <TextView
-        android:textSize="16sp"
+        android:textSize="24sp"
         android:textStyle="bold"
         android:id="@+id/text_ran_num"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:text="90"
+        android:gravity="center"
+        android:background="@drawable/ic_bg"
         android:layout_centerInParent="true"/>
 </RelativeLayout>

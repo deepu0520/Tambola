@@ -57,9 +57,10 @@ class TournamentGamesDialog : DialogFragment() {
 
             override fun onItemClick(view: View, position: Int) {
                 //TODO: Use this
-                val dialog = TicketsDialog()
-                val ft: FragmentTransaction = activity!!.supportFragmentManager.beginTransaction()
-                dialog.show(ft, TicketsDialog.TAG)
+                val intent = Intent(activity, PlayActivity::class.java)
+                intent.putExtra(TicketsDialog.KEY_TICKET,1)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                activity!!.startActivity(intent)
             }
             override fun onItemLongClick(view: View?, position: Int) {
                 TODO("do nothing")
