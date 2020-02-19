@@ -6,10 +6,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.view.View
 import android.view.WindowManager
-import android.widget.GridLayout
-import android.widget.LinearLayout
-import android.widget.ProgressBar
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.GridLayoutManager
@@ -31,6 +28,8 @@ class PlayActivity : AppCompatActivity() {
     val random = Random()
     var claimTicket1 = true
     var claimTicket2 = true
+    var sCash = 0
+    var sTournament = 0
     private var i = 0
     private val handler = Handler()
     var randomNumList: MutableList<String> = mutableListOf<String>()
@@ -38,6 +37,7 @@ class PlayActivity : AppCompatActivity() {
     @BindView(R.id.progress_bar) lateinit var progressBar: ProgressBar
     @BindView(R.id.text_per) lateinit var tvPer: TextView
     @BindView(R.id.text_ran_num) lateinit var tvRanNum: TextView
+    @BindView(R.id.relative_pro_bar) lateinit var rLProBar: RelativeLayout
 
     @BindView(R.id.linear_ticket_1) lateinit var lLTicket1: LinearLayout
     @BindView(R.id.linear_ticket_2) lateinit var lLTicket2: LinearLayout
@@ -67,6 +67,8 @@ class PlayActivity : AppCompatActivity() {
         // Remember that you should never show the action bar if the
         // status bar is hidden, so hide that too if necessary.
         actionBar?.hide()
+        sCash = intent.getIntExtra(HomeActivity.KEY_CASH,0)
+        sTournament = intent.getIntExtra(HomeActivity.KEY_TOURNAMENT,0)
         val ticket:Int = intent.getIntExtra(TicketsDialog.KEY_TICKET,0)
         if (ticket == 1){
             lLTicket1.visibility = View.VISIBLE
@@ -75,9 +77,9 @@ class PlayActivity : AppCompatActivity() {
             lLTicket1.visibility = View.VISIBLE
             lLTicket2.visibility = View.VISIBLE
         }
-        progressBar.setOnClickListener { view ->
-            onRecyclerViewRandomNumber()
-        }
+//        progressBar.setOnClickListener { view ->
+//            onRecyclerViewRandomNumber()
+//        }
         // TODO: Random Number open
         onRecyclerViewRandomNumber()
         // TODO: Live User
@@ -100,27 +102,7 @@ class PlayActivity : AppCompatActivity() {
         }
     }
     fun onRecyclerViewRandomNumber(){
-        for (i in 1..1){
-            var ranNum = rand(1,90)
-            randomNumList.add(ranNum.toString())
-            numberCounter(ranNum)
-        }
-        // Initializing an empty ArrayList to be filled with items
-        val menuList: List<String> = resources.getStringArray(R.array.random_number_list).asList()
-        val adapter = RandomNumberAdapter(randomNumList,this)
-        recyclerViewRanNum.layoutManager = LinearLayoutManager(context,LinearLayoutManager.HORIZONTAL,false)
-        recyclerViewRanNum.adapter = adapter
-        recyclerViewRanNum.addOnItemTouchListener(RecyclerItemClickListenr(this, recyclerViewRanNum, object : RecyclerItemClickListenr.OnItemClickListener {
-
-            override fun onItemClick(view: View, position: Int) {
-                //TODO: Use this
-            }
-            override fun onItemLongClick(view: View?, position: Int) {
-                TODO("do nothing")
-            }
-        }))
-    }
-    fun numberCounter(num: Int){
+        var ranNum = rand(1,90)
         progressBar.progress = 1
         i = progressBar.progress
         Thread(Runnable {
@@ -130,12 +112,27 @@ class PlayActivity : AppCompatActivity() {
                 handler.post(Runnable {
                     progressBar.progress = i
                     tvPer!!.text = i.toString()// + "%/" + progressBar!!.max
-                    tvRanNum!!.text = ""+num
+                    tvRanNum!!.text = ""+ranNum
                 })
                 try {
                     Thread.sleep(100)
                 } catch (e: InterruptedException) {
                     e.printStackTrace()
+                }
+            }
+            handler.post {
+                randomNumList.add(ranNum.toString())
+                // Initializing an empty ArrayList to be filled with items
+                val adapter = RandomNumberAdapter(randomNumList,this)
+                recyclerViewRanNum.layoutManager = LinearLayoutManager(context,LinearLayoutManager.HORIZONTAL,false)
+                recyclerViewRanNum.adapter = adapter
+                recyclerViewRanNum.scrollToPosition(randomNumList.size - 1)
+
+                if(randomNumList.size < 90) {
+                    // restart
+                    onRecyclerViewRandomNumber()
+                }else{
+                    rLProBar.visibility = View.INVISIBLE
                 }
             }
         }).start()
@@ -198,16 +195,34 @@ class PlayActivity : AppCompatActivity() {
     }
     fun onRecyclerViewClaimTicket1(){
         // Initializing an empty ArrayList to be filled with items
-        val prizeList: List<String> = resources.getStringArray(R.array.claim_ticket_list).asList()
+        var prizeList: List<String> = emptyList()
+        if (sCash == 1){
+            prizeList = resources.getStringArray(R.array.cash_claim_ticket_list).asList()
+            rVClaimTicket1.layoutManager = GridLayoutManager(context,2)
+        }else if (sTournament == 1){
+            prizeList = resources.getStringArray(R.array.tournament_claim_ticket_list).asList()
+            rVClaimTicket1.layoutManager = GridLayoutManager(context,3)
+        }else {
+            prizeList = resources.getStringArray(R.array.tournament_claim_ticket_list).asList()
+            rVClaimTicket1.layoutManager = GridLayoutManager(context,3)
+        }
         val adapter = ClaimTicketAdapter(prizeList,this)
-        rVClaimTicket1.layoutManager = GridLayoutManager(context,3)
         rVClaimTicket1.adapter = adapter
     }
     fun onRecyclerViewClaimTicket2(){
         // Initializing an empty ArrayList to be filled with items
-        val prizeList: List<String> = resources.getStringArray(R.array.claim_ticket_list).asList()
+        var prizeList: List<String> = emptyList()
+        if (sCash == 1){
+            prizeList = resources.getStringArray(R.array.cash_claim_ticket_list).asList()
+            rVClaimTicket2.layoutManager = GridLayoutManager(context,2)
+        }else if (sTournament == 1){
+            prizeList = resources.getStringArray(R.array.tournament_claim_ticket_list).asList()
+            rVClaimTicket2.layoutManager = GridLayoutManager(context,3)
+        }else {
+            prizeList = resources.getStringArray(R.array.tournament_claim_ticket_list).asList()
+            rVClaimTicket2.layoutManager = GridLayoutManager(context,3)
+        }
         val adapter = ClaimTicketAdapter(prizeList,this)
-        rVClaimTicket2.layoutManager = GridLayoutManager(context,3)
         rVClaimTicket2.adapter = adapter
     }
     fun rand(from: Int, to: Int) : Int {

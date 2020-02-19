@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:gravity="center"
     android:background="@android:color/transparent"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:layout_margin="4dp">
@@ -11,7 +11,7 @@
         android:id="@+id/text_prize_name"
         android:textSize="14sp"
         android:textStyle="bold"
-        android:layout_width="144dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textColor="@color/color_blue"

@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
+import com.newitzone.tambola.HomeActivity
 import com.newitzone.tambola.PlayActivity
 import com.newitzone.tambola.R
 import com.newitzone.tambola.adapter.PriceAdapter
@@ -59,6 +60,10 @@ class CashGamesDialog : DialogFragment() {
                 //TODO: Use this
                 val dialog = TicketsDialog()
                 val ft: FragmentTransaction = activity!!.supportFragmentManager.beginTransaction()
+                val args = Bundle()
+                args?.putInt(HomeActivity.KEY_CASH, 1)
+                args?.putInt(HomeActivity.KEY_TOURNAMENT, 0)
+                dialog.setArguments(args)
                 dialog.show(ft, TicketsDialog.TAG)
             }
             override fun onItemLongClick(view: View?, position: Int) {

@@ -8,21 +8,26 @@
     android:background="@drawable/splash_screen"
     tools:context=".PlayActivity">
     <!-- todo: top center-->
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:gravity="end"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginStart="96dp"
-        android:layout_marginEnd="96dp">
+        android:layout_marginStart="96dp">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view_random_number"
+            android:layout_width="wrap_content"
+            android:layout_height="96dp"
+            android:layout_toLeftOf="@+id/relative_pro_bar"
+            android:gravity="end" />
         <RelativeLayout
+            android:id="@+id/relative_pro_bar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/recycler_view_random_number">
-
+            android:layout_alignParentRight="true">
             <ProgressBar
                 android:id="@+id/progress_bar"
                 style="?android:attr/progressBarStyleHorizontal"
@@ -56,12 +61,7 @@
                 android:gravity="center"
                 android:layout_centerInParent="true"/>
         </RelativeLayout>
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view_random_number"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="22dp"/>
-    </LinearLayout>
+    </RelativeLayout>
     <!-- todo: start center-->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_live_user"
@@ -121,7 +121,7 @@
                 </LinearLayout>
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recycler_view_claim_ticket_1"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:visibility="gone"/>
             </LinearLayout>
@@ -158,7 +158,7 @@
                 </LinearLayout>
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recycler_view_claim_ticket_2"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:visibility="gone"/>
             </LinearLayout>

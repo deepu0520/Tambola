@@ -83,7 +83,7 @@ class HomeActivity : AppCompatActivity() {
         //Snackbar.make(imgTournament,"for Tournament",Snackbar.LENGTH_SHORT).show()
         val dialog = TournamentGamesDialog()
         val ft: FragmentTransaction = supportFragmentManager.beginTransaction()
-        var args: Bundle? = null
+        val args = Bundle()
         args?.putInt(KEY_CASH, 0)
         args?.putInt(KEY_TOURNAMENT, 1)
         dialog.setArguments(args)

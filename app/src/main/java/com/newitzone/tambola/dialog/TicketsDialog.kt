@@ -10,6 +10,7 @@ import androidx.fragment.app.DialogFragment
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
+import com.newitzone.tambola.HomeActivity
 import com.newitzone.tambola.PlayActivity
 import com.newitzone.tambola.R
 
@@ -21,6 +22,8 @@ class TicketsDialog : DialogFragment() {
     @BindView(R.id.image_ticket_2)
     var imgTicket2: ImageView? = null
 
+    var sCash = 0
+    var sTournament = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(STYLE_NORMAL, R.style.FullScreenDialog)
@@ -42,8 +45,12 @@ class TicketsDialog : DialogFragment() {
         state: Bundle?
     ): View? {
         super.onCreateView(inflater, parent, state)
-        val view =
-            activity!!.layoutInflater.inflate(R.layout.dialog_tickets, parent, false)
+        val view = activity!!.layoutInflater.inflate(R.layout.dialog_tickets, parent, false)
+        if (getArguments() != null) {
+            val mArgs = arguments
+            sCash= mArgs!!.getInt(HomeActivity.KEY_CASH)
+            sTournament= mArgs!!.getInt(HomeActivity.KEY_TOURNAMENT)
+        }
         ButterKnife.bind(this, view)
         return view
     }
@@ -52,6 +59,8 @@ class TicketsDialog : DialogFragment() {
     fun onTicket1(view: View?) {
         val intent = Intent(activity, PlayActivity::class.java)
         intent.putExtra(KEY_TICKET,1)
+        intent.putExtra(HomeActivity.KEY_CASH,sCash)
+        intent.putExtra(HomeActivity.KEY_TOURNAMENT,sTournament)
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
         activity!!.startActivity(intent)
     }
@@ -60,6 +69,8 @@ class TicketsDialog : DialogFragment() {
     fun onTicket2(view: View?) {
         val intent = Intent(activity, PlayActivity::class.java)
         intent.putExtra(KEY_TICKET,2)
+        intent.putExtra(HomeActivity.KEY_CASH,sCash)
+        intent.putExtra(HomeActivity.KEY_TOURNAMENT,sTournament)
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
         activity!!.startActivity(intent)
     }
