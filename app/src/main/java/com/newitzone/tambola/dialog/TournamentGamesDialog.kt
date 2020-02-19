@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
+import com.newitzone.tambola.HomeActivity
 import com.newitzone.tambola.PlayActivity
 import com.newitzone.tambola.R
 import com.newitzone.tambola.adapter.PriceAdapter
@@ -22,7 +23,8 @@ import com.newitzone.tambola.adapter.TournamentAdapter
 import com.newitzone.tambola.utils.RecyclerItemClickListenr
 
 class TournamentGamesDialog : DialogFragment() {
-
+    var sCash = 0
+    var sTournament = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(STYLE_NORMAL, R.style.FullScreenDialog)
@@ -45,6 +47,11 @@ class TournamentGamesDialog : DialogFragment() {
     ): View? {
         super.onCreateView(inflater, parent, state)
         val view = activity!!.layoutInflater.inflate(R.layout.dialog_tournament_games, parent, false)
+        if (getArguments() != null) {
+            val mArgs = arguments
+            sCash= mArgs!!.getInt(HomeActivity.KEY_CASH)
+            sTournament= mArgs!!.getInt(HomeActivity.KEY_TOURNAMENT)
+        }
         ButterKnife.bind(this, view)
         val context: Context = requireContext()
         val recyclerView = view.findViewById(R.id.recycler_view) as RecyclerView
@@ -59,6 +66,8 @@ class TournamentGamesDialog : DialogFragment() {
                 //TODO: Use this
                 val intent = Intent(activity, PlayActivity::class.java)
                 intent.putExtra(TicketsDialog.KEY_TICKET,1)
+                intent.putExtra(HomeActivity.KEY_CASH,sCash)
+                intent.putExtra(HomeActivity.KEY_TOURNAMENT,sTournament)
                 intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                 activity!!.startActivity(intent)
             }

@@ -10,6 +10,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentTransaction
+import androidx.fragment.app.add
 import butterknife.BindView
 import butterknife.ButterKnife
 import com.google.android.material.snackbar.Snackbar
@@ -82,6 +83,10 @@ class HomeActivity : AppCompatActivity() {
         //Snackbar.make(imgTournament,"for Tournament",Snackbar.LENGTH_SHORT).show()
         val dialog = TournamentGamesDialog()
         val ft: FragmentTransaction = supportFragmentManager.beginTransaction()
+        var args: Bundle? = null
+        args?.putInt(KEY_CASH, 0)
+        args?.putInt(KEY_TOURNAMENT, 1)
+        dialog.setArguments(args)
         dialog.show(ft, TournamentGamesDialog.TAG)
     }
     fun onPractice(view: View){
@@ -101,5 +106,11 @@ class HomeActivity : AppCompatActivity() {
         val intent = Intent(context, AddCashActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
         startActivity(intent)
+    }
+
+    companion object {
+        const val TAG = "HomeScreen"
+        const val KEY_CASH = "Key_Cash"
+        const val KEY_TOURNAMENT = "Key_Tournament"
     }
 }

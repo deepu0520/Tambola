@@ -85,7 +85,7 @@ class PlayActivity : AppCompatActivity() {
         // TODO: Ticket 1
         //onTicket1()
         // TODO: Ticket 2
-        onTicket2()
+        //onTicket2()
         // TODO: Recycler view Claim Ticket 1
         onRecyclerViewClaimTicket1()
         // TODO: Recycler view Claim Ticket 2
