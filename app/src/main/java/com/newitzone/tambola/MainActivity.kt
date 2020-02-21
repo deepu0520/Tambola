@@ -8,13 +8,12 @@ import android.os.Bundle
 import android.os.Handler
 import android.view.View
 import android.view.WindowManager
-import kotlinx.android.synthetic.main.activity_fullscreen.*
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-class FullscreenActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
     private var context: Context? = null
     internal val DELAY_MS: Long = 5000  //delay in milliseconds before task is to be executed
     /**
@@ -30,9 +29,9 @@ class FullscreenActivity : AppCompatActivity() {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN)
         }
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        setContentView(R.layout.activity_fullscreen)
+        setContentView(R.layout.activity_main)
         supportActionBar?.hide()
-        this.context = this@FullscreenActivity
+        this.context = this@MainActivity
         // Hide the status bar.
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
         // Remember that you should never show the action bar if the
