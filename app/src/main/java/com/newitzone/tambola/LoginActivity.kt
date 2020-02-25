@@ -5,12 +5,15 @@ import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 
 class LoginActivity : AppCompatActivity() {
     private var context: Context? = null
@@ -69,6 +72,15 @@ class LoginActivity : AppCompatActivity() {
         finish()
     }
     fun onRegister(view: View){
-
+//        val repository = SearchRepositoryProvider.provideSearchRepository()
+//        repository.searchUsers("Lagos", "Java")
+//            .observeOn(AndroidSchedulers.mainThread())
+//            .subscribeOn(Schedulers.io())
+//            .subscribe ({
+//                    result ->
+//                Log.d("Result", "There are ${result.items.size} Java developers in Lagos")
+//            }, { error ->
+//                error.printStackTrace()
+//            })
     }
 }
