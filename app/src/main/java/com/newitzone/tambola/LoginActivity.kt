@@ -1,5 +1,6 @@
 package com.newitzone.tambola
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -10,10 +11,13 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import butterknife.BindView
 import butterknife.ButterKnife
+import com.newitzone.tambola.utils.UtilMethods
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import retrofit.TambolaApiService
 
 class LoginActivity : AppCompatActivity() {
     private var context: Context? = null
@@ -82,5 +86,28 @@ class LoginActivity : AppCompatActivity() {
 //            }, { error ->
 //                error.printStackTrace()
 //            })
+    }
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    @SuppressLint("CheckResult")
+    private fun loginApiCall(userID: String, userPassword: String){
+//        if(UtilMethods.isConnectedToInternet(context)){
+//            UtilMethods.showLoading(context)
+//            val observable = TambolaApiService.TambolaApiService().doLogin(LoginPostData(userID, userPassword))
+//            observable.subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe({ loginResponse ->
+//                    UtilMethods.hideLoading()
+//
+//                    /** loginResponse is response data class*/
+//
+//                }, { error ->
+//                    UtilMethods.hideLoading()
+//                    UtilMethods.showLongToast(context, error.message.toString())
+//                }
+//                )
+//        }else{
+//            UtilMethods.showLongToast(context, "No Internet Connection!")
+//        }
     }
 }
