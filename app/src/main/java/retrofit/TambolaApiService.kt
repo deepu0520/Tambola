@@ -1,8 +1,8 @@
 package retrofit
 
-import ResLogin
+import model.login.ResLogin
 import io.reactivex.Observable
-import Response
+import model.DefaultResponse
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
@@ -37,7 +37,7 @@ interface TambolaApiService {
                      @Query("dob") dob: String,
                      @Query("userType") userType: Int,
                      @Query("img") img: Int
-    ): Observable<Response>
+    ): Observable<DefaultResponse>
     // TODO: Login
     @POST("login")
     fun login(@Query("userName") userName: String,
@@ -59,5 +59,5 @@ interface TambolaApiService {
                       @Query("sesid") sesid: Int,
                       @Query("dob") dob: String,
                       @Query("img") img: String
-    ): Observable<Response>
+    ): Observable<DefaultResponse>
 }

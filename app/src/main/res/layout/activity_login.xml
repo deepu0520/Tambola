@@ -90,19 +90,22 @@
                             android:background="@android:color/black"/>
                     </LinearLayout>
                     <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/text_input_user_id"
                         android:layout_width="256dp"
                         android:layout_height="wrap_content"
                         app:hintEnabled="true">
+
                         <com.google.android.material.textfield.TextInputEditText
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="@string/txt_email"
-                            android:maxLength="100"
                             android:drawableLeft="@drawable/ic_action_account"
                             android:drawablePadding="4dp"
-                            android:inputType="textEmailAddress"/>
+                            android:hint="@string/txt_email"
+                            android:inputType="textEmailAddress"
+                            android:maxLength="100" />
                     </com.google.android.material.textfield.TextInputLayout>
                     <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/text_input_user_passkey"
                         android:layout_width="256dp"
                         android:layout_height="wrap_content"
                         app:hintEnabled="true">

@@ -1,7 +1,9 @@
+package model
+
 import com.google.gson.annotations.SerializedName
-data class Response (
+data class DefaultResponse (
 
 	@SerializedName("status") val status : Int,
 	@SerializedName("msg") val msg : String,
-	@SerializedName("Result") val result : List<String>
+	@SerializedName("model.login.Result") val result : List<String>
 )

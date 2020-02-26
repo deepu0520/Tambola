@@ -1,23 +1,25 @@
 package com.newitzone.tambola
 
+import model.login.ResLogin
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import butterknife.BindView
 import butterknife.ButterKnife
-import com.newitzone.tambola.utils.UtilMethods
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
-import retrofit.TambolaApiService
+import com.google.android.material.textfield.TextInputLayout
+import kotlinx.android.synthetic.main.activity_login.*
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import simplifiedcoding.net.kotlinretrofittutorial.api.RetrofitClient
 
 class LoginActivity : AppCompatActivity() {
     private var context: Context? = null
@@ -29,7 +31,9 @@ class LoginActivity : AppCompatActivity() {
     @BindView(R.id.text_login_from_reg) lateinit var tvLogin: TextView
     @BindView(R.id.text_register) lateinit var tvRegister: TextView
     @BindView(R.id.text_register_for_free) lateinit var btnRegister: TextView
-
+    // TextInputLayout
+    @BindView(R.id.text_input_user_id) lateinit var tInputUserId: TextInputLayout
+    @BindView(R.id.text_input_user_passkey) lateinit var tInputUserPassKey: TextInputLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,12 +72,27 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     fun onLogin(view: View){
+        val email = text_input_user_id.editText!!.text.toString().trim()
+        val password = text_input_user_passkey.editText!!.text.toString().trim()
 
-        val intent = Intent(context, HomeActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-        startActivity(intent)
-        finish()
+        if(email.isEmpty()){
+            text_input_user_id.error = "Email required"
+            text_input_user_id.requestFocus()
+        }
+
+
+        if(password.isEmpty()){
+            text_input_user_passkey.error = "Password required"
+            text_input_user_passkey.requestFocus()
+        }
+
+        loginApiCall(email,password)
+//        val intent = Intent(context, HomeActivity::class.java)
+//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+//        startActivity(intent)
+//        finish()
     }
     fun onRegister(view: View){
 //        val repository = SearchRepositoryProvider.provideSearchRepository()
@@ -82,7 +101,7 @@ class LoginActivity : AppCompatActivity() {
 //            .subscribeOn(Schedulers.io())
 //            .subscribe ({
 //                    result ->
-//                Log.d("Result", "There are ${result.items.size} Java developers in Lagos")
+//                Log.d("model.login.Result", "There are ${result.items.size} Java developers in Lagos")
 //            }, { error ->
 //                error.printStackTrace()
 //            })
@@ -91,6 +110,28 @@ class LoginActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     @SuppressLint("CheckResult")
     private fun loginApiCall(userID: String, userPassword: String){
+        RetrofitClient.instance.login(userID, userPassword,0,0,"","")
+            .enqueue(object: Callback<ResLogin>{
+                override fun onFailure(call: Call<ResLogin>, t: Throwable) {
+                    Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG).show()
+                }
+
+                override fun onResponse(call: Call<ResLogin>, response: Response<ResLogin>) {
+                    if (response.code() == 200){
+//                        SharedPrefManager.getInstance(applicationContext).saveUser(response.body()?.user!!)
+//
+//                        val intent = Intent(applicationContext, ProfileActivity::class.java)
+//                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+//
+//                        startActivity(intent)
+
+                        Toast.makeText(applicationContext, response.body()?.msg, Toast.LENGTH_LONG).show()
+                    }else{
+                        Toast.makeText(applicationContext, response.body()?.msg, Toast.LENGTH_LONG).show()
+                    }
+
+                }
+            })
 //        if(UtilMethods.isConnectedToInternet(context)){
 //            UtilMethods.showLoading(context)
 //            val observable = TambolaApiService.TambolaApiService().doLogin(LoginPostData(userID, userPassword))
