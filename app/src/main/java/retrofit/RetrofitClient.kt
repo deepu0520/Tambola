@@ -1,23 +1,20 @@
-package simplifiedcoding.net.kotlinretrofittutorial.api
+package retrofit
 
-import android.util.Base64
 import com.newitzone.tambola.utils.Constants
 import okhttp3.OkHttpClient
 import retrofit.Api
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
-
     private val okHttpClient = OkHttpClient.Builder()
             .addInterceptor { chain ->
-                val original = chain.request()
 
-                val requestBuilder = original.newBuilder()
-                        .addHeader("Authorization", Constants.API_AUTHORIZATION_KEY)
-                        .method(original.method(), original.body())
-
-                val request = requestBuilder.build()
+                val request = chain.request()
+                        .newBuilder()
+                        .addHeader("Connection", "close")
+                        .build()
                 chain.proceed(request)
             }.build()
 

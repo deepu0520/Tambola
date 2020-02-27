@@ -6,5 +6,5 @@ data class ResLogin (
 
 	@SerializedName("status") val status : Int,
 	@SerializedName("msg") val msg : String,
-	@SerializedName("model.login.Result") val result : Result
+	@SerializedName("Result") val result : Result
 )

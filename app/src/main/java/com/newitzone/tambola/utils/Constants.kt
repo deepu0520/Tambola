@@ -3,7 +3,7 @@ package com.newitzone.tambola.utils
 import android.util.Base64
 
 /**
- * Created by imran on 11/04/2018.
+ * Created by rakesh on 22/02/2020.
  */
 object Constants {
     const val API_CONTENT_TYPE = "application/json; charset=utf-8"

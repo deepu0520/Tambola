@@ -16,10 +16,16 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.android.synthetic.main.activity_login.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import retrofit.RetrofitClient
+import retrofit.TambolaApiService
 import retrofit2.Call
 import retrofit2.Callback
+import retrofit2.HttpException
 import retrofit2.Response
-import simplifiedcoding.net.kotlinretrofittutorial.api.RetrofitClient
 
 class LoginActivity : AppCompatActivity() {
     private var context: Context? = null
@@ -35,6 +41,7 @@ class LoginActivity : AppCompatActivity() {
     @BindView(R.id.text_input_user_id) lateinit var tInputUserId: TextInputLayout
     @BindView(R.id.text_input_user_passkey) lateinit var tInputUserPassKey: TextInputLayout
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (Build.VERSION.SDK_INT < 16) {
@@ -94,6 +101,9 @@ class LoginActivity : AppCompatActivity() {
 //        startActivity(intent)
 //        finish()
     }
+    fun toast(str: String){
+        Toast.makeText(context,str,Toast.LENGTH_SHORT).show()
+    }
     fun onRegister(view: View){
 //        val repository = SearchRepositoryProvider.provideSearchRepository()
 //        repository.searchUsers("Lagos", "Java")
@@ -109,6 +119,26 @@ class LoginActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     @SuppressLint("CheckResult")
+    private fun loginApi(userID: String, userPassword: String){
+        val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
+        CoroutineScope(Dispatchers.IO).launch {
+            val response = service.getlogin(userID,userPassword,0,0,"","")
+            withContext(Dispatchers.Main) {
+                try {
+                    if (response.isSuccessful) {
+                        toast("success: ${response.code()}")
+                        //Do something with response e.g show to the UI.
+                    } else {
+                        toast("Error: ${response.code()}")
+                    }
+                } catch (e: HttpException) {
+                    toast("Exception ${e.message}")
+                } catch (e: Throwable) {
+                    toast("Ooops: Something else went wrong")
+                }
+            }
+        }
+    }
     private fun loginApiCall(userID: String, userPassword: String){
         RetrofitClient.instance.login(userID, userPassword,0,0,"","")
             .enqueue(object: Callback<ResLogin>{
