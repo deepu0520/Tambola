@@ -53,6 +53,8 @@ dependencies {
     // retrofit
 //    implementation "com.squareup.retrofit2:retrofit:2.4.0"
 //    implementation "com.squareup.retrofit2:adapter-rxjava2:2.3.0"
+    implementation 'com.squareup.okhttp:okhttp:2.7.5'
+    implementation 'com.squareup.okhttp:okhttp-urlconnection:2.7.5'
     implementation 'com.squareup.retrofit2:retrofit:2.6.0'
     implementation "com.squareup.retrofit2:converter-gson:2.4.0"
     implementation 'com.squareup.retrofit2:converter-moshi:2.6.0'
@@ -65,4 +67,6 @@ dependencies {
     kapt 'com.jakewharton:butterknife-compiler:10.1.0'
     // circular progress bar
     implementation 'com.mikhaellopez:circularprogressbar:3.0.3'
+    // validator
+    implementation 'com.afollestad:vvalidator:0.2.2'
 }

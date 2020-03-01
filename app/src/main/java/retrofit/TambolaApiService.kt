@@ -1,7 +1,7 @@
 package retrofit
 
 import com.newitzone.tambola.utils.Constants
-import model.LoginResponse
+import model.DefaultResponse
 import model.login.ResLogin
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -13,22 +13,47 @@ interface TambolaApiService {
     /**
      * Companion object to create the TambolaApiService
      */
-//    @GET("/posts")
-//    suspend fun getPosts(): Response<List<POST>>
-    @GET("login")
-    suspend fun getlogin(@Query("userName") userName:String,
-                         @Query("passkey") passkey: String,
-                         @Query("userType") userType: Int,
-                         @Query("loginType") loginType: Int,
-                         @Query("sesID") sesID: String,
-                         @Query("userID") userID: String
-    ): Response<LoginResponse>
+
+    @FormUrlEncoded
+    @POST("profile-update")
+    suspend fun updateProfile(@Field("fname") fname: String,
+                              @Field("lname") lname: String,
+                              @Field("mobileNo") mobileNo: String,
+                              @Field("passkey") passkey: String,
+                              @Field("userid") userid: String,
+                              @Field("sesid") sesid: String,
+                              @Field("dob") dob: String,
+                              @Field("img") img: String
+    ): Response<DefaultResponse>
+
+    @FormUrlEncoded
+    @POST("login")
+    suspend fun getlogin(@Field("userName") userName:String,
+                         @Field("passkey") passkey: String,
+                         @Field("userType") userType: Int,
+                         @Field("loginType") loginType: Int,
+                         @Field("sesID") sesID: String,
+                         @Field("userID") userID: String
+    ): Response<ResLogin>
+
+    @FormUrlEncoded
+    @POST("registration")
+    suspend fun registration(
+        @Field("fname") fname:String,
+        @Field("lname") lname:String,
+        @Field("emailID") emailID:String,
+        @Field("mobileNo") mobileNo:String,
+        @Field("passkey") passkey:String,
+        @Field("dob") dob:String,
+        @Field("userType") userType:String,
+        @Field("img") img:String
+    ): Response<DefaultResponse>
+
 
     object RetrofitFactory {
-        const val BASE_URL = "https://api.newitzone.com/tambola/"//"https://jsonplaceholder.typicode.com"
         fun makeRetrofitService(): TambolaApiService {
             return Retrofit.Builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(Constants.API_BASE_PATH)
                 .addConverterFactory(MoshiConverterFactory.create())
                 .build().create(TambolaApiService::class.java)
         }

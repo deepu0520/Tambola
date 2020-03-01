@@ -50,8 +50,11 @@ object UtilMethods {
      * @param context
      * @action show Long toast message
      */
-    fun showLongToast(context: Context, message: String) {
+    fun ToastLong(context: Context, message: String) {
         Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+    }
+    fun ToastSort(context: Context, message: String) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 
 

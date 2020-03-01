@@ -1,8 +1,8 @@
 package com.newitzone.tambola
 
-import model.login.ResLogin
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -14,21 +14,25 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import butterknife.BindView
 import butterknife.ButterKnife
+import com.afollestad.vvalidator.form
 import com.google.android.material.textfield.TextInputLayout
+import com.newitzone.tambola.utils.SharedPrefManager
+import com.newitzone.tambola.utils.UtilMethods
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import retrofit.RetrofitClient
 import retrofit.TambolaApiService
-import retrofit2.Call
-import retrofit2.Callback
 import retrofit2.HttpException
-import retrofit2.Response
 
 class LoginActivity : AppCompatActivity() {
     private var context: Context? = null
+    private var userType: Int = 0
+    private var loginType: Int = 0;
+    private var sesId: String = "";
+    private var userId: String = "";
+
     // linear layout
     @BindView(R.id.linear_login) lateinit var lLLogin: LinearLayout
     @BindView(R.id.linear_register) lateinit var lLRegister: LinearLayout
@@ -84,22 +88,23 @@ class LoginActivity : AppCompatActivity() {
         val email = text_input_user_id.editText!!.text.toString().trim()
         val password = text_input_user_passkey.editText!!.text.toString().trim()
 
-        if(email.isEmpty()){
-            text_input_user_id.error = "Email required"
-            text_input_user_id.requestFocus()
+        form {
+            input(R.id.input_user_id , name = "Username(Email)") {
+                isNotEmpty()
+                isEmail()
+            }
+            input(R.id.input_user_passkey , name = "Pass Key") {
+                isNotEmpty()
+            }
+
+            submitWith(R.id.text_login) { result ->
+                // this block is only called if form is valid.
+                // do something with a valid form state.
+                context?.let { loginApi(it,email,password,userType,loginType,sesId,userId) }
+            }
         }
 
-
-        if(password.isEmpty()){
-            text_input_user_passkey.error = "Password required"
-            text_input_user_passkey.requestFocus()
-        }
-
-        loginApiCall(email,password)
-//        val intent = Intent(context, HomeActivity::class.java)
-//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-//        startActivity(intent)
-//        finish()
+        //updateProfileApi()
     }
     fun toast(str: String){
         Toast.makeText(context,str,Toast.LENGTH_SHORT).show()
@@ -119,10 +124,46 @@ class LoginActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     @SuppressLint("CheckResult")
-    private fun loginApi(userID: String, userPassword: String){
+    private fun loginApi(context: Context,userID: String,userPassword: String
+                         ,userType: Int,loginType: Int,sesId: String,userId: String){
+        if (UtilMethods.isConnectedToInternet(context)) {
+            UtilMethods.showLoading(context)
+            val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
+            CoroutineScope(Dispatchers.IO).launch {
+                val response = service.getlogin(userID, userPassword, userType, loginType, sesId, userId)
+                withContext(Dispatchers.Main) {
+                    try {
+                        if (response.isSuccessful) {
+                            response.body()?.result?.let {
+                                SharedPrefManager.getInstance(context).saveUser(
+                                    it
+                                )
+                            }
+                            val intent = Intent(context, HomeActivity::class.java)
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                            //intent.putExtra("tes",SharedPrefManager.getInstance(context).result)
+                            startActivity(intent)
+                            finish()
+                        } else {
+                            UtilMethods.ToastLong(context,"Error: ${response.code()}"+"\nMsg:${response.body()?.msg}")
+                        }
+                    } catch (e: HttpException) {
+                        UtilMethods.ToastLong(context,"Exception ${e.message}")
+
+                    } catch (e: Throwable) {
+                        UtilMethods.ToastLong(context,"Ooops: Something else went wrong : " + e.message)
+                    }
+                    UtilMethods.hideLoading()
+                }
+            }
+        }else{
+            UtilMethods.ToastLong(context,"No Internet Connection")
+        }
+    }
+    private fun updateProfileApi(){
         val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
         CoroutineScope(Dispatchers.IO).launch {
-            val response = service.getlogin(userID,userPassword,0,0,"","")
+            val response = service.updateProfile("Rakesh","Kumar","9716561086","abc@123","3C96A37F-5C3C-4849-A4F3-984B26D01FAD","6C87D629-0469-4CFC-8EC6-336A183B67F5","1989-07-13","")
             withContext(Dispatchers.Main) {
                 try {
                     if (response.isSuccessful) {
@@ -134,51 +175,9 @@ class LoginActivity : AppCompatActivity() {
                 } catch (e: HttpException) {
                     toast("Exception ${e.message}")
                 } catch (e: Throwable) {
-                    toast("Ooops: Something else went wrong")
+                    toast("Ooops: Something else went wrong : "+e.message)
                 }
             }
         }
-    }
-    private fun loginApiCall(userID: String, userPassword: String){
-        RetrofitClient.instance.login(userID, userPassword,0,0,"","")
-            .enqueue(object: Callback<ResLogin>{
-                override fun onFailure(call: Call<ResLogin>, t: Throwable) {
-                    Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG).show()
-                }
-
-                override fun onResponse(call: Call<ResLogin>, response: Response<ResLogin>) {
-                    if (response.code() == 200){
-//                        SharedPrefManager.getInstance(applicationContext).saveUser(response.body()?.user!!)
-//
-//                        val intent = Intent(applicationContext, ProfileActivity::class.java)
-//                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-//
-//                        startActivity(intent)
-
-                        Toast.makeText(applicationContext, response.body()?.msg, Toast.LENGTH_LONG).show()
-                    }else{
-                        Toast.makeText(applicationContext, response.body()?.msg, Toast.LENGTH_LONG).show()
-                    }
-
-                }
-            })
-//        if(UtilMethods.isConnectedToInternet(context)){
-//            UtilMethods.showLoading(context)
-//            val observable = TambolaApiService.TambolaApiService().doLogin(LoginPostData(userID, userPassword))
-//            observable.subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe({ loginResponse ->
-//                    UtilMethods.hideLoading()
-//
-//                    /** loginResponse is response data class*/
-//
-//                }, { error ->
-//                    UtilMethods.hideLoading()
-//                    UtilMethods.showLongToast(context, error.message.toString())
-//                }
-//                )
-//        }else{
-//            UtilMethods.showLongToast(context, "No Internet Connection!")
-//        }
     }
 }
