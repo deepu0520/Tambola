@@ -10,7 +10,11 @@ class SharedPrefManager private constructor(private val mCtx: Context) {
             val sharedPreferences = mCtx.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
             return sharedPreferences.getInt("login_st", 0) != 0
         }
-
+    val passKey: String?
+        get() {
+            val sharedPreferences = mCtx.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
+            return sharedPreferences.getString("pass_key", "")
+        }
     val result: Result
         get() {
             val sPref = mCtx.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
@@ -34,7 +38,7 @@ class SharedPrefManager private constructor(private val mCtx: Context) {
         }
 
 
-    fun saveUser(result: Result) {
+    fun saveUser(result: Result,passKey: String) {
 
         val sPref = mCtx.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
         val editor = sPref.edit()
@@ -54,6 +58,7 @@ class SharedPrefManager private constructor(private val mCtx: Context) {
         editor.putInt("onlineUser", result.onlineUser)
         editor.putInt("login_st", result.login_st)
         editor.putString("sid", result.sid)
+        editor.putString("pass_key", passKey)
 
         editor.apply()
 

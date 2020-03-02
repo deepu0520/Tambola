@@ -100,7 +100,7 @@ class LoginActivity : AppCompatActivity() {
             submitWith(R.id.text_login) { result ->
                 // this block is only called if form is valid.
                 // do something with a valid form state.
-                context?.let { loginApi(it,email,password,userType,loginType,sesId,userId) }
+                context?.let { loginApi(it,email,password,userType.toString(),loginType,sesId,userId) }
             }
         }
 
@@ -110,40 +110,36 @@ class LoginActivity : AppCompatActivity() {
         Toast.makeText(context,str,Toast.LENGTH_SHORT).show()
     }
     fun onRegister(view: View){
-//        val repository = SearchRepositoryProvider.provideSearchRepository()
-//        repository.searchUsers("Lagos", "Java")
-//            .observeOn(AndroidSchedulers.mainThread())
-//            .subscribeOn(Schedulers.io())
-//            .subscribe ({
-//                    result ->
-//                Log.d("model.login.Result", "There are ${result.items.size} Java developers in Lagos")
-//            }, { error ->
-//                error.printStackTrace()
-//            })
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     @SuppressLint("CheckResult")
-    private fun loginApi(context: Context,userID: String,userPassword: String
-                         ,userType: Int,loginType: Int,sesId: String,userId: String){
+    private fun loginApi(context: Context,userID: String,passKey: String
+                         ,userType: String,loginType: Int,sesId: String,userId: String){
         if (UtilMethods.isConnectedToInternet(context)) {
             UtilMethods.showLoading(context)
             val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
             CoroutineScope(Dispatchers.IO).launch {
-                val response = service.getlogin(userID, userPassword, userType, loginType, sesId, userId)
+                val response = service.getlogin(userID, passKey, userType, loginType, sesId, userId)
                 withContext(Dispatchers.Main) {
                     try {
                         if (response.isSuccessful) {
+                            // save the user details
                             response.body()?.result?.let {
                                 SharedPrefManager.getInstance(context).saveUser(
-                                    it
-                                )
+                                    it,passKey)
                             }
-                            val intent = Intent(context, HomeActivity::class.java)
-                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                            //intent.putExtra("tes",SharedPrefManager.getInstance(context).result)
-                            startActivity(intent)
-                            finish()
+
+                            if (SharedPrefManager.getInstance(context).isLoggedIn) {
+
+                                val intent = Intent(context, HomeActivity::class.java)
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                //intent.putExtra("tes",SharedPrefManager.getInstance(context).result)
+                                startActivity(intent)
+                                finish()
+                            }else{
+                                UtilMethods.ToastLong(context,"Your cannot login because your account is blocked")
+                            }
                         } else {
                             UtilMethods.ToastLong(context,"Error: ${response.code()}"+"\nMsg:${response.body()?.msg}")
                         }
