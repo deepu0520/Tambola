@@ -30,9 +30,11 @@
     <string name="txt_wait_list">WAITLIST</string>
     <string name="txt_fast_filling">FAST FILLING</string>
 
-    <string name="txt_username">Username</string>
+    <string name="txt_fname">First Name</string>
+    <string name="txt_lname">Last Name</string>
     <string name="txt_email">Email</string>
     <string name="txt_password">Password</string>
+    <string name="txt_confirm_password">Confirm Password</string>
     <string name="txt_mobile">Mobile(Optional)</string>
     <string name="txt_terms_condition">By registering, you accept you are 18+ and agree to our T&amp;C and Privacy and Policy</string>
     <string name="txt_register_for_free"><u>REGISTER FOR FREE</u></string>

@@ -1,12 +1,18 @@
 package retrofit
 
+import com.google.gson.GsonBuilder
 import com.newitzone.tambola.utils.Constants
 import model.DefaultResponse
 import model.login.ResLogin
+import okhttp3.OkHttpClient
 import retrofit2.Response
 import retrofit2.Retrofit
-import retrofit2.converter.moshi.MoshiConverterFactory
-import retrofit2.http.*
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Field
+import retrofit2.http.FormUrlEncoded
+import retrofit2.http.POST
+import java.util.concurrent.TimeUnit
+
 
 interface TambolaApiService {
 
@@ -49,12 +55,20 @@ interface TambolaApiService {
         @Field("img") img:String
     ): Response<DefaultResponse>
 
-
     object RetrofitFactory {
+
+        private fun okHttpBuilder(): OkHttpClient {
+            return OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .build()
+        }
+
         fun makeRetrofitService(): TambolaApiService {
             return Retrofit.Builder()
                 .baseUrl(Constants.API_BASE_PATH)
-                .addConverterFactory(MoshiConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(GsonBuilder().create()))
+                .client(okHttpBuilder())
                 .build().create(TambolaApiService::class.java)
         }
     }

@@ -93,13 +93,12 @@
                         android:id="@+id/text_input_user_id"
                         android:layout_width="256dp"
                         android:layout_height="wrap_content"
+                        app:startIconDrawable="@drawable/ic_action_email"
                         app:hintEnabled="true">
-
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/input_user_id"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:drawableLeft="@drawable/ic_action_account"
                             android:drawablePadding="4dp"
                             android:hint="@string/txt_email"
                             android:inputType="textEmailAddress"
@@ -109,6 +108,7 @@
                         android:id="@+id/text_input_user_passkey"
                         android:layout_width="256dp"
                         android:layout_height="wrap_content"
+                        app:startIconDrawable="@drawable/ic_action_password"
                         app:hintEnabled="true">
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/input_user_passkey"
@@ -116,7 +116,6 @@
                             android:layout_height="wrap_content"
                             android:hint="@string/txt_password"
                             android:maxLength="15"
-                            android:drawableLeft="@drawable/ic_action_password"
                             android:drawablePadding="4dp"
                             android:inputType="textPassword"/>
                     </com.google.android.material.textfield.TextInputLayout>
@@ -176,52 +175,93 @@
                             android:background="@android:color/black"/>
                     </LinearLayout>
                     <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/text_input_fname"
                         android:layout_width="256dp"
                         android:layout_height="wrap_content"
+                        app:startIconDrawable="@drawable/ic_action_account"
                         app:hintEnabled="true">
                         <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/input_fname"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="@string/txt_username"
-                            android:maxLength="100"
-                            android:drawableLeft="@drawable/ic_action_account"
+                            android:hint="@string/txt_fname"
+                            android:maxLength="40"
                             android:drawablePadding="4dp"
-                            android:inputType="textEmailAddress"/>
+                            android:inputType="text"/>
                     </com.google.android.material.textfield.TextInputLayout>
                     <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/text_input_lname"
                         android:layout_width="256dp"
                         android:layout_height="wrap_content"
+                        app:startIconDrawable="@drawable/ic_action_account"
                         app:hintEnabled="true">
                         <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/input_lname"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/txt_lname"
+                            android:maxLength="40"
+                            android:drawablePadding="4dp"
+                            android:inputType="text"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/text_input_email"
+                        android:layout_width="256dp"
+                        android:layout_height="wrap_content"
+                        app:startIconDrawable="@drawable/ic_action_email"
+                        app:hintEnabled="true">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/input_email"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="@string/txt_email"
-                            android:maxLength="100"
-                            android:drawableLeft="@drawable/ic_action_email"
+                            android:maxLength="50"
                             android:drawablePadding="4dp"
                             android:inputType="textEmailAddress"/>
                     </com.google.android.material.textfield.TextInputLayout>
                     <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/text_input_mobile"
                         android:layout_width="256dp"
                         android:layout_height="wrap_content"
+                        app:startIconDrawable="@drawable/ic_action_mobile"
                         app:hintEnabled="true">
                         <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/input_mobile"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="@string/txt_mobile"
-                            android:maxLength="100"
-                            android:drawableLeft="@drawable/ic_action_mobile"
+                            android:maxLength="10"
                             android:drawablePadding="4dp"
-                            android:inputType="textEmailAddress"/>
+                            android:inputType="number"/>
                     </com.google.android.material.textfield.TextInputLayout>
                     <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/text_input_password"
                         android:layout_width="256dp"
                         android:layout_height="wrap_content"
-                        app:hintEnabled="true">
+                        app:hintEnabled="true"
+                        app:startIconDrawable="@drawable/ic_action_password"
+                        app:passwordToggleEnabled="true">
                         <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/input_password"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="@string/txt_password"
+                            android:maxLength="15"
+                            android:drawablePadding="4dp"
+                            android:inputType="textPassword"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/text_input_confirm_password"
+                        android:layout_width="256dp"
+                        android:layout_height="wrap_content"
+                        app:hintEnabled="true"
+                        app:startIconDrawable="@drawable/ic_action_password"
+                        app:passwordToggleEnabled="true">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/input_confirm_password"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/txt_confirm_password"
                             android:maxLength="15"
                             android:drawableLeft="@drawable/ic_action_password"
                             android:drawablePadding="4dp"

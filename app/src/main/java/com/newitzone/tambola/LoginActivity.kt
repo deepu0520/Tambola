@@ -41,9 +41,16 @@ class LoginActivity : AppCompatActivity() {
     @BindView(R.id.text_login_from_reg) lateinit var tvLogin: TextView
     @BindView(R.id.text_register) lateinit var tvRegister: TextView
     @BindView(R.id.text_register_for_free) lateinit var btnRegister: TextView
-    // TextInputLayout
+    // TextInputLayout login
     @BindView(R.id.text_input_user_id) lateinit var tInputUserId: TextInputLayout
     @BindView(R.id.text_input_user_passkey) lateinit var tInputUserPassKey: TextInputLayout
+//    // TextInputLayout registration
+    @BindView(R.id.text_input_fname) lateinit var tInputfName: TextInputLayout
+    @BindView(R.id.text_input_lname) lateinit var tInputlName: TextInputLayout
+    @BindView(R.id.text_input_email) lateinit var tInputlEmail: TextInputLayout
+    @BindView(R.id.text_input_mobile) lateinit var tInputlMobile: TextInputLayout
+    @BindView(R.id.text_input_password) lateinit var tInputlPassword: TextInputLayout
+    @BindView(R.id.text_input_confirm_password) lateinit var tInputlConfirmPassword: TextInputLayout
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -106,10 +113,38 @@ class LoginActivity : AppCompatActivity() {
 
         //updateProfileApi()
     }
-    fun toast(str: String){
-        Toast.makeText(context,str,Toast.LENGTH_SHORT).show()
-    }
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     fun onRegister(view: View){
+        val fName = text_input_fname.editText!!.text.toString().trim()
+        val lName = text_input_lname.editText!!.text.toString().trim()
+        val email = text_input_email.editText!!.text.toString().trim()
+        val password = text_input_password.editText!!.text.toString().trim()
+        val confirmPassword = text_input_confirm_password.editText!!.text.toString().trim()
+
+        form {
+            input(R.id.input_fname , name = "First Name") {
+                isNotEmpty()
+            }
+            input(R.id.input_lname , name = "Last Name") {
+                isNotEmpty()
+            }
+            input(R.id.input_email , name = "Email(User name)") {
+                isNotEmpty()
+                isEmail()
+            }
+            input(R.id.input_password , name = "Password") {
+                isNotEmpty()
+            }
+            input(R.id.input_confirm_password , name = "Confirm Password") {
+                isNotEmpty()
+            }
+
+            submitWith(R.id.text_register_for_free) { result ->
+                // this block is only called if form is valid.
+                // do something with a valid form state.
+                context?.let { registerApi(it,email,password,userType.toString(),loginType,sesId,userId) }
+            }
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -156,24 +191,68 @@ class LoginActivity : AppCompatActivity() {
             UtilMethods.ToastLong(context,"No Internet Connection")
         }
     }
-    private fun updateProfileApi(){
-        val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
-        CoroutineScope(Dispatchers.IO).launch {
-            val response = service.updateProfile("Rakesh","Kumar","9716561086","abc@123","3C96A37F-5C3C-4849-A4F3-984B26D01FAD","6C87D629-0469-4CFC-8EC6-336A183B67F5","1989-07-13","")
-            withContext(Dispatchers.Main) {
-                try {
-                    if (response.isSuccessful) {
-                        toast("success: ${response.code()}")
-                        //Do something with response e.g show to the UI.
-                    } else {
-                        toast("Error: ${response.code()}")
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    @SuppressLint("CheckResult")
+    private fun registerApi(context: Context,userID: String,passKey: String
+                         ,userType: String,loginType: Int,sesId: String,userId: String){
+        if (UtilMethods.isConnectedToInternet(context)) {
+            UtilMethods.showLoading(context)
+            val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
+            CoroutineScope(Dispatchers.IO).launch {
+                val response = service.getlogin(userID, passKey, userType, loginType, sesId, userId)
+                withContext(Dispatchers.Main) {
+                    try {
+                        if (response.isSuccessful) {
+                            // save the user details
+                            response.body()?.result?.let {
+                                SharedPrefManager.getInstance(context).saveUser(
+                                    it,passKey)
+                            }
+
+                            if (SharedPrefManager.getInstance(context).isLoggedIn) {
+
+                                val intent = Intent(context, HomeActivity::class.java)
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                //intent.putExtra("tes",SharedPrefManager.getInstance(context).result)
+                                startActivity(intent)
+                                finish()
+                            }else{
+                                UtilMethods.ToastLong(context,"Your cannot login because your account is blocked")
+                            }
+                        } else {
+                            UtilMethods.ToastLong(context,"Error: ${response.code()}"+"\nMsg:${response.body()?.msg}")
+                        }
+                    } catch (e: HttpException) {
+                        UtilMethods.ToastLong(context,"Exception ${e.message}")
+
+                    } catch (e: Throwable) {
+                        UtilMethods.ToastLong(context,"Ooops: Something else went wrong : " + e.message)
                     }
-                } catch (e: HttpException) {
-                    toast("Exception ${e.message}")
-                } catch (e: Throwable) {
-                    toast("Ooops: Something else went wrong : "+e.message)
+                    UtilMethods.hideLoading()
                 }
             }
+        }else{
+            UtilMethods.ToastLong(context,"No Internet Connection")
         }
     }
+//    private fun updateProfileApi(){
+//        val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
+//        CoroutineScope(Dispatchers.IO).launch {
+//            val response = service.updateProfile("Rakesh","Kumar","9716561086","abc@123","3C96A37F-5C3C-4849-A4F3-984B26D01FAD","6C87D629-0469-4CFC-8EC6-336A183B67F5","1989-07-13","")
+//            withContext(Dispatchers.Main) {
+//                try {
+//                    if (response.isSuccessful) {
+//                        toast("success: ${response.code()}")
+//                        //Do something with response e.g show to the UI.
+//                    } else {
+//                        toast("Error: ${response.code()}")
+//                    }
+//                } catch (e: HttpException) {
+//                    toast("Exception ${e.message}")
+//                } catch (e: Throwable) {
+//                    toast("Ooops: Something else went wrong : "+e.message)
+//                }
+//            }
+//        }
+//    }
 }
