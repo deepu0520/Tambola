@@ -37,7 +37,7 @@ interface TambolaApiService {
     suspend fun getlogin(@Field("userName") userName:String,
                          @Field("passkey") passkey: String,
                          @Field("userType") userType: String,
-                         @Field("loginType") loginType: Int,
+                         @Field("loginType") loginType: String,
                          @Field("sesID") sesID: String,
                          @Field("userID") userID: String
     ): Response<ResLogin>

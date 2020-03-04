@@ -15,12 +15,12 @@ class SharedPrefManager private constructor(private val mCtx: Context) {
             val sharedPreferences = mCtx.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
             return sharedPreferences.getString("pass_key", "")
         }
-    val result: Result
+    val result: model.login.Result
         get() {
             val sPref = mCtx.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
-            return Result(
+            return model.login.Result(
                 sPref.getString("id", "").toString(),
-                sPref.getInt("inactive", 0),
+                sPref.getString("inactive", "0").toString(),
                 sPref.getString("fname", "").toString(),
                 sPref.getString("lname", "").toString(),
                 sPref.getString("dob", "").toString(),
@@ -31,8 +31,8 @@ class SharedPrefManager private constructor(private val mCtx: Context) {
                 sPref.getString("img", "").toString(),
                 sPref.getString("en_time", "").toString(),
                 sPref.getFloat("AcBal", 0f),
-                sPref.getInt("onlineUser", 0),
-                sPref.getInt("login_st", 0),
+                sPref.getString("onlineUser", "0").toString(),
+                sPref.getString("login_st", "0").toString(),
                 sPref.getString("sid", "").toString()
             )
         }
@@ -44,19 +44,19 @@ class SharedPrefManager private constructor(private val mCtx: Context) {
         val editor = sPref.edit()
 
         editor.putString("id", result.id)
-        editor.putInt("inactive", result.inactive)
+        editor.putString("inactive", result.inactive)
         editor.putString("fname", result.fname)
         editor.putString("lname", result.lname)
-        editor.putString("dob", result.dob)
-        editor.putString("email_id", result.email_id)
+        editor.putString("dob", result.dob.toString())
+        editor.putString("email_id", result.emailId)
         editor.putString("code", result.code)
-        editor.putString("mobile_no", result.mobile_no)
-        editor.putString("user_type", result.user_type)
+        editor.putString("mobile_no", result.mobileNo)
+        editor.putString("user_type", result.userType)
         editor.putString("img", result.img)
-        editor.putString("en_time", result.en_time)
-        editor.putFloat("AcBal", result.acBal)
-        editor.putInt("onlineUser", result.onlineUser)
-        editor.putInt("login_st", result.login_st)
+        editor.putString("en_time", result.enTime)
+        editor.putFloat("AcBal", result.acBal.toFloat())
+        editor.putString("onlineUser", result.onlineUser)
+        editor.putString("login_st", result.loginSt)
         editor.putString("sid", result.sid)
         editor.putString("pass_key", passKey)
 

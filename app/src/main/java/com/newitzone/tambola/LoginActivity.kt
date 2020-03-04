@@ -6,8 +6,11 @@ import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.Html
+import android.text.method.LinkMovementMethod
 import android.view.View
 import android.view.WindowManager
+import android.widget.CheckBox
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -41,6 +44,9 @@ class LoginActivity : AppCompatActivity() {
     @BindView(R.id.text_login_from_reg) lateinit var tvLogin: TextView
     @BindView(R.id.text_register) lateinit var tvRegister: TextView
     @BindView(R.id.text_register_for_free) lateinit var btnRegister: TextView
+    @BindView(R.id.text_terms_condition) lateinit var txtTnC: TextView
+    // check box
+    @BindView(R.id.checkBox_terms_condition) lateinit var cbTnC: CheckBox
     // TextInputLayout login
     @BindView(R.id.text_input_user_id) lateinit var tInputUserId: TextInputLayout
     @BindView(R.id.text_input_user_passkey) lateinit var tInputUserPassKey: TextInputLayout
@@ -88,6 +94,8 @@ class LoginActivity : AppCompatActivity() {
         btnRegister.setOnClickListener { view ->
             onRegister(view)
         }
+        // terms and condition
+        txtTnC.text(R.string.txt_terms_condition)
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -107,7 +115,7 @@ class LoginActivity : AppCompatActivity() {
             submitWith(R.id.text_login) { result ->
                 // this block is only called if form is valid.
                 // do something with a valid form state.
-                context?.let { loginApi(it,email,password,userType.toString(),loginType,sesId,userId) }
+                context?.let { loginApi(it,email,password,userType.toString(),loginType.toString(),sesId,userId) }
             }
         }
 
@@ -118,9 +126,11 @@ class LoginActivity : AppCompatActivity() {
         val fName = text_input_fname.editText!!.text.toString().trim()
         val lName = text_input_lname.editText!!.text.toString().trim()
         val email = text_input_email.editText!!.text.toString().trim()
+        val mobile = text_input_mobile.editText!!.text.toString().trim()
+        val dob = ""
         val password = text_input_password.editText!!.text.toString().trim()
         val confirmPassword = text_input_confirm_password.editText!!.text.toString().trim()
-
+        val img = ""
         form {
             input(R.id.input_fname , name = "First Name") {
                 isNotEmpty()
@@ -141,8 +151,26 @@ class LoginActivity : AppCompatActivity() {
 
             submitWith(R.id.text_register_for_free) { result ->
                 // this block is only called if form is valid.
-                // do something with a valid form state.
-                context?.let { registerApi(it,email,password,userType.toString(),loginType,sesId,userId) }
+                if (password.equals(confirmPassword)) {
+                    // do something with a valid form state.
+                    context?.let {
+                        registerApi(
+                            it,
+                            fName,
+                            lName,
+                            email,
+                            mobile,
+                            password,
+                            dob,
+                            userType.toString(),
+                            img
+                        )
+                    }
+                }else{
+                    input(R.id.input_confirm_password , name = "Confirm Password") {
+                        context?.let { UtilMethods.ToastLong(it,"Password is not match") }
+                    }
+                }
             }
         }
     }
@@ -150,7 +178,7 @@ class LoginActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     @SuppressLint("CheckResult")
     private fun loginApi(context: Context,userID: String,passKey: String
-                         ,userType: String,loginType: Int,sesId: String,userId: String){
+                         ,userType: String,loginType: String,sesId: String,userId: String){
         if (UtilMethods.isConnectedToInternet(context)) {
             UtilMethods.showLoading(context)
             val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
@@ -193,32 +221,20 @@ class LoginActivity : AppCompatActivity() {
     }
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     @SuppressLint("CheckResult")
-    private fun registerApi(context: Context,userID: String,passKey: String
-                         ,userType: String,loginType: Int,sesId: String,userId: String){
+    private fun registerApi(context: Context,fname: String,lname: String
+                         ,emailID: String,mobileNo: String,passkey: String,dob: String,userType: String,img: String){
         if (UtilMethods.isConnectedToInternet(context)) {
             UtilMethods.showLoading(context)
             val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
             CoroutineScope(Dispatchers.IO).launch {
-                val response = service.getlogin(userID, passKey, userType, loginType, sesId, userId)
+                val response = service.registration(fname, lname, emailID, mobileNo, passkey, dob,userType,img)
                 withContext(Dispatchers.Main) {
                     try {
                         if (response.isSuccessful) {
                             // save the user details
-                            response.body()?.result?.let {
-                                SharedPrefManager.getInstance(context).saveUser(
-                                    it,passKey)
-                            }
-
-                            if (SharedPrefManager.getInstance(context).isLoggedIn) {
-
-                                val intent = Intent(context, HomeActivity::class.java)
-                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                                //intent.putExtra("tes",SharedPrefManager.getInstance(context).result)
-                                startActivity(intent)
-                                finish()
-                            }else{
-                                UtilMethods.ToastLong(context,"Your cannot login because your account is blocked")
-                            }
+                            UtilMethods.ToastLong(context,"${response.body()?.msg}")
+                            lLLogin.visibility = View.VISIBLE
+                            lLRegister.visibility = View.GONE
                         } else {
                             UtilMethods.ToastLong(context,"Error: ${response.code()}"+"\nMsg:${response.body()?.msg}")
                         }

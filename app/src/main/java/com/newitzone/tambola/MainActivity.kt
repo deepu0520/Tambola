@@ -53,10 +53,10 @@ class MainActivity : AppCompatActivity() {
         if (SharedPrefManager.getInstance(context as MainActivity).isLoggedIn){
             loginApi(
                 context as MainActivity
-                , SharedPrefManager.getInstance(context as MainActivity).result.email_id
+                , SharedPrefManager.getInstance(context as MainActivity).result.emailId
                 , SharedPrefManager.getInstance(context as MainActivity).passKey.toString()
-                , SharedPrefManager.getInstance(context as MainActivity).result.user_type
-                , SharedPrefManager.getInstance(context as MainActivity).result.login_st
+                , SharedPrefManager.getInstance(context as MainActivity).result.userType
+                , SharedPrefManager.getInstance(context as MainActivity).result.loginSt
                 , SharedPrefManager.getInstance(context as MainActivity).result.sid
                 , SharedPrefManager.getInstance(context as MainActivity).result.id)
         }else {
@@ -74,7 +74,7 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("CheckResult")
     private fun loginApi(
         context: Context, userID: String, passKey: String
-        , userType: String, loginType: Int, sesId: String, userId: String){
+        , userType: String, loginType: String, sesId: String, userId: String){
         if (UtilMethods.isConnectedToInternet(context)) {
             UtilMethods.showLoading(context)
             val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
