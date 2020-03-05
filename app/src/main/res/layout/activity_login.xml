@@ -283,6 +283,7 @@
                             android:id="@+id/text_terms_condition"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:text="@string/txt_terms_condition"
                             android:clickable="true" />
 
                     </LinearLayout>

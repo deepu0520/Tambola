@@ -8,6 +8,9 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:allowBackup="true"
@@ -19,22 +22,19 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.First"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".ProfileActivity"></activity>
-        <activity android:name=".LoadingActivity" />
-        <activity
-            android:name=".AddCashActivity"
+        <activity android:name=".ProfileActivity"
             android:screenOrientation="sensorLandscape" />
-        <activity
-            android:name=".PlayActivity"
+        <activity android:name=".LoadingActivity"
             android:screenOrientation="sensorLandscape" />
-        <activity
-            android:name=".HomeActivity"
+        <activity android:name=".AddCashActivity"
             android:screenOrientation="sensorLandscape" />
-        <activity
-            android:name=".LoginActivity"
+        <activity android:name=".PlayActivity"
             android:screenOrientation="sensorLandscape" />
-        <activity
-            android:name=".MainActivity"
+        <activity android:name=".HomeActivity"
+            android:screenOrientation="sensorLandscape" />
+        <activity android:name=".LoginActivity"
+            android:screenOrientation="sensorLandscape" />
+        <activity android:name=".MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="sensorLandscape"
             android:theme="@style/Theme.First">

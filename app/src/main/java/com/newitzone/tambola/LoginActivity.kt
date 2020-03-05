@@ -95,7 +95,7 @@ class LoginActivity : AppCompatActivity() {
             onRegister(view)
         }
         // terms and condition
-        txtTnC.text(R.string.txt_terms_condition)
+        //txtTnC.text(R.string.txt_terms_condition)
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -132,22 +132,26 @@ class LoginActivity : AppCompatActivity() {
         val confirmPassword = text_input_confirm_password.editText!!.text.toString().trim()
         val img = ""
         form {
-            input(R.id.input_fname , name = "First Name") {
+            inputLayout(R.id.text_input_fname , name = "First Name") {
                 isNotEmpty()
             }
-            input(R.id.input_lname , name = "Last Name") {
+            inputLayout(R.id.text_input_lname , name = "Last Name") {
                 isNotEmpty()
             }
-            input(R.id.input_email , name = "Email(User name)") {
+            inputLayout(R.id.text_input_email , name = "Email(User name)") {
                 isNotEmpty()
                 isEmail()
             }
-            input(R.id.input_password , name = "Password") {
+            inputLayout(R.id.text_input_password , name = "Password") {
                 isNotEmpty()
             }
-            input(R.id.input_confirm_password , name = "Confirm Password") {
+            inputLayout(R.id.text_input_confirm_password , name = "Confirm Password") {
                 isNotEmpty()
             }
+            checkable(R.id.checkBox_terms_condition , name = "Terms and Condition") {
+                isChecked()
+            }
+
 
             submitWith(R.id.text_register_for_free) { result ->
                 // this block is only called if form is valid.
