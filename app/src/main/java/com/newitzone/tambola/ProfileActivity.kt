@@ -18,6 +18,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import butterknife.BindView
 import butterknife.ButterKnife
+import model.login.Result
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -26,6 +27,7 @@ import java.util.*
 
 class ProfileActivity : AppCompatActivity() {
     private var context: Context? = null
+    private lateinit var login: Result
     private val GALLERY = 1
     private val CAMERA = 2
     //
@@ -49,6 +51,9 @@ class ProfileActivity : AppCompatActivity() {
         // Remember that you should never show the action bar if the
         // status bar is hidden, so hide that too if necessary.
         actionBar?.hide()
+        // Intent
+        login = intent.getSerializableExtra(HomeActivity.KEY_LOGIN) as Result
+
         // add image
         txtAddImg.setOnClickListener { view ->
             showPictureDialog()

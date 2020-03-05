@@ -2,6 +2,7 @@ package model.login
 
 
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
 data class Result(
     @SerializedName("id")
@@ -13,7 +14,7 @@ data class Result(
     @SerializedName("lname")
     val lname: String,
     @SerializedName("dob")
-    val dob: Any,
+    val dob: String,
     @SerializedName("email_id")
     val emailId: String,
     @SerializedName("code")
@@ -34,4 +35,4 @@ data class Result(
     val loginSt: String,
     @SerializedName("sid")
     val sid: String
-)
+) : Serializable

@@ -28,6 +28,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit.TambolaApiService
 import retrofit2.HttpException
+import java.io.Serializable
 
 class LoginActivity : AppCompatActivity() {
     private var context: Context? = null
@@ -115,7 +116,30 @@ class LoginActivity : AppCompatActivity() {
             submitWith(R.id.text_login) { result ->
                 // this block is only called if form is valid.
                 // do something with a valid form state.
-                context?.let { loginApi(it,email,password,userType.toString(),loginType.toString(),sesId,userId) }
+                val  context = this@LoginActivity
+                if (SharedPrefManager.getInstance(context).userId.isNullOrBlank()) {
+                        loginApi(
+                            context,
+                            email,
+                            password,
+                            userType.toString(),
+                            loginType.toString(),
+                            sesId,
+                            userId
+                        )
+                }else{
+                    loginType = 1
+                    userId = SharedPrefManager.getInstance(context).userId.toString()
+                    loginApi(
+                        context,
+                        email,
+                        password,
+                        userType.toString(),
+                        loginType.toString(),
+                        sesId,
+                        userId
+                    )
+                }
             }
         }
 
@@ -201,7 +225,7 @@ class LoginActivity : AppCompatActivity() {
 
                                 val intent = Intent(context, HomeActivity::class.java)
                                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                                //intent.putExtra("tes",SharedPrefManager.getInstance(context).result)
+                                intent.putExtra(HomeActivity.KEY_LOGIN,SharedPrefManager.getInstance(context).result)
                                 startActivity(intent)
                                 finish()
                             }else{
@@ -212,7 +236,6 @@ class LoginActivity : AppCompatActivity() {
                         }
                     } catch (e: HttpException) {
                         UtilMethods.ToastLong(context,"Exception ${e.message}")
-
                     } catch (e: Throwable) {
                         UtilMethods.ToastLong(context,"Ooops: Something else went wrong : " + e.message)
                     }

@@ -8,12 +8,17 @@ class SharedPrefManager private constructor(private val mCtx: Context) {
     val isLoggedIn: Boolean
         get() {
             val sharedPreferences = mCtx.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
-            return sharedPreferences.getInt("login_st", 0) != 0
+            return !sharedPreferences.getString("id", "").isNullOrBlank()
         }
     val passKey: String?
         get() {
             val sharedPreferences = mCtx.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
             return sharedPreferences.getString("pass_key", "")
+        }
+    val userId: String?
+        get() {
+            val sharedPreferences = mCtx.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
+            return sharedPreferences.getString("id", "")
         }
     val result: model.login.Result
         get() {
@@ -47,7 +52,7 @@ class SharedPrefManager private constructor(private val mCtx: Context) {
         editor.putString("inactive", result.inactive)
         editor.putString("fname", result.fname)
         editor.putString("lname", result.lname)
-        editor.putString("dob", result.dob.toString())
+        editor.putString("dob", result.dob)
         editor.putString("email_id", result.emailId)
         editor.putString("code", result.code)
         editor.putString("mobile_no", result.mobileNo)

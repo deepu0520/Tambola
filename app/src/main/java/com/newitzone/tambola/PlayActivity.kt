@@ -81,8 +81,6 @@ class PlayActivity : AppCompatActivity() {
 //        progressBar.setOnClickListener { view ->
 //            onRecyclerViewRandomNumber()
 //        }
-        // TODO: Profle update
-        onProfileUpdate()
         // TODO: Random Number open
         onRecyclerViewRandomNumber()
         // TODO: Live User
@@ -103,11 +101,6 @@ class PlayActivity : AppCompatActivity() {
         tvBtnClaimTicket2.setOnClickListener { view ->
             onClaimTicket2(view)
         }
-    }
-    fun onProfileUpdate(){
-        val intent = Intent(context, ProfileActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-        startActivity(intent)
     }
     fun onRecyclerViewRandomNumber(){
         var ranNum = rand(1,90)

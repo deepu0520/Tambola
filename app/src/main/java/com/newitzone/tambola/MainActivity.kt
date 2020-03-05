@@ -92,7 +92,7 @@ class MainActivity : AppCompatActivity() {
 
                                 val intent = Intent(context, HomeActivity::class.java)
                                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                                //intent.putExtra("tes",SharedPrefManager.getInstance(context).result)
+                                intent.putExtra(HomeActivity.KEY_LOGIN, SharedPrefManager.getInstance(context).result)
                                 startActivity(intent)
                                 finish()
                             }else{

@@ -2,6 +2,7 @@ package model.login
 
 
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
 data class ResLogin(
     @SerializedName("msg")
@@ -10,4 +11,4 @@ data class ResLogin(
     val result: Result,
     @SerializedName("status")
     val status: Int
-)
+): Serializable

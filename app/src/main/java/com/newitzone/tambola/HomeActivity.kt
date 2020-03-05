@@ -17,6 +17,8 @@ import com.google.android.material.snackbar.Snackbar
 import com.newitzone.tambola.dialog.CashGamesDialog
 import com.newitzone.tambola.dialog.TicketsDialog
 import com.newitzone.tambola.dialog.TournamentGamesDialog
+import model.login.Result
+import java.io.Serializable
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -24,6 +26,7 @@ import com.newitzone.tambola.dialog.TournamentGamesDialog
  */
 class HomeActivity : AppCompatActivity() {
     private var context: Context? = null
+    private lateinit var login: Result
     // image view
     @BindView(R.id.image_profile) lateinit var imgProfile: ImageView
     @BindView(R.id.image_cash) lateinit var imgCash: ImageView
@@ -52,7 +55,14 @@ class HomeActivity : AppCompatActivity() {
         // Remember that you should never show the action bar if the
         // status bar is hidden, so hide that too if necessary.
         actionBar?.hide()
-
+        // Intent
+        login = intent.getSerializableExtra(HomeActivity.KEY_LOGIN) as Result
+        tvProfileName.text = login.fname+" "+login.lname
+        tvCashAvailAmt.text = login.acBal.toString()
+        // TODO: Profle update
+        imgProfile.setOnClickListener { view ->
+            onProfileUpdate()
+        }
         //
         imgCash.setOnClickListener { view ->
             onCash(view)
@@ -72,6 +82,12 @@ class HomeActivity : AppCompatActivity() {
         tvAddCash.setOnClickListener { view ->
             onAddCash(view)
         }
+    }
+    fun onProfileUpdate(){
+        val intent = Intent(context, ProfileActivity::class.java)
+        intent.putExtra(KEY_LOGIN, login)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+        startActivity(intent)
     }
     fun onCash(view: View){
         //Snackbar.make(imgCash,"for Cash",Snackbar.LENGTH_SHORT).show()
@@ -110,7 +126,9 @@ class HomeActivity : AppCompatActivity() {
 
     companion object {
         const val TAG = "HomeScreen"
+        const val KEY_LOGIN = "Key_Login"
         const val KEY_CASH = "Key_Cash"
         const val KEY_TOURNAMENT = "Key_Tournament"
+
     }
 }
