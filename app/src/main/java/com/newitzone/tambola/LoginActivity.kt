@@ -278,24 +278,4 @@ class LoginActivity : AppCompatActivity() {
             UtilMethods.ToastLong(context,"No Internet Connection")
         }
     }
-//    private fun updateProfileApi(){
-//        val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
-//        CoroutineScope(Dispatchers.IO).launch {
-//            val response = service.updateProfile("Rakesh","Kumar","9716561086","abc@123","3C96A37F-5C3C-4849-A4F3-984B26D01FAD","6C87D629-0469-4CFC-8EC6-336A183B67F5","1989-07-13","")
-//            withContext(Dispatchers.Main) {
-//                try {
-//                    if (response.isSuccessful) {
-//                        toast("success: ${response.code()}")
-//                        //Do something with response e.g show to the UI.
-//                    } else {
-//                        toast("Error: ${response.code()}")
-//                    }
-//                } catch (e: HttpException) {
-//                    toast("Exception ${e.message}")
-//                } catch (e: Throwable) {
-//                    toast("Ooops: Something else went wrong : "+e.message)
-//                }
-//            }
-//        }
-//    }
 }

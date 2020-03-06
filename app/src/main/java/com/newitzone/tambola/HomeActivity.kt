@@ -17,6 +17,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.newitzone.tambola.dialog.CashGamesDialog
 import com.newitzone.tambola.dialog.TicketsDialog
 import com.newitzone.tambola.dialog.TournamentGamesDialog
+import com.squareup.picasso.Picasso
 import model.login.Result
 import java.io.Serializable
 
@@ -37,6 +38,8 @@ class HomeActivity : AppCompatActivity() {
     @BindView(R.id.text_cash_balance) lateinit var tvCashAvailAmt: TextView
     @BindView(R.id.text_add_cash) lateinit var tvAddCash: TextView
     @BindView(R.id.text_profile_name) lateinit var tvProfileName: TextView
+    @BindView(R.id.text_online_count) lateinit var tvOnlineCount: TextView
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,6 +62,11 @@ class HomeActivity : AppCompatActivity() {
         login = intent.getSerializableExtra(HomeActivity.KEY_LOGIN) as Result
         tvProfileName.text = login.fname+" "+login.lname
         tvCashAvailAmt.text = login.acBal.toString()
+        tvOnlineCount.text = login.onlineUser.toString()
+        if (login.img.isNotEmpty()) {
+            // load the image with Picasso
+            Picasso.get().load(login.img).into(imgProfile) // select the ImageView to load it into
+        }
         // TODO: Profle update
         imgProfile.setOnClickListener { view ->
             onProfileUpdate()

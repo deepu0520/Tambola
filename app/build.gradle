@@ -69,4 +69,8 @@ dependencies {
     implementation 'com.mikhaellopez:circularprogressbar:3.0.3'
     // validator
     implementation 'com.afollestad:vvalidator:0.2.2'
+    // picasso
+    implementation 'com.squareup.picasso:picasso:2.71828'
+    // permission
+    implementation 'com.github.quickpermissions:quickpermissions-kotlin:0.4.0'
 }
