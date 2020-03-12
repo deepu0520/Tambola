@@ -46,5 +46,6 @@
 
     <string name="menu_setting">Setting</string>
     <string name="menu_sound">Sound</string>
+    <string name="menu_logout">Logout</string>
 
 </resources>

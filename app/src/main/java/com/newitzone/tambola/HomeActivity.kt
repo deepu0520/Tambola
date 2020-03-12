@@ -4,11 +4,14 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.add
 import butterknife.BindView
@@ -61,7 +64,7 @@ class HomeActivity : AppCompatActivity() {
         // Intent
         login = intent.getSerializableExtra(HomeActivity.KEY_LOGIN) as Result
         tvProfileName.text = login.fname+" "+login.lname
-        tvCashAvailAmt.text = login.acBal.toString()
+        tvCashAvailAmt.text = "₹"+login.acBal.toString()
         tvOnlineCount.text = login.onlineUser.toString()
         if (login.img.isNotEmpty()) {
             // load the image with Picasso
@@ -120,7 +123,8 @@ class HomeActivity : AppCompatActivity() {
         dialog.show(ft, TicketsDialog.TAG)
     }
     fun onMenu(view: View){
-        Snackbar.make(imgMenu,"for Menu",Snackbar.LENGTH_SHORT).show()
+        //Snackbar.make(imgMenu,"for Menu",Snackbar.LENGTH_SHORT).show()
+        showPopupMenu(view)
     }
     fun onCashAvailAmt(view: View){
         Snackbar.make(tvCashAvailAmt,"Available Cash amount is ₹"+tvCashAvailAmt.text,Snackbar.LENGTH_SHORT).show()
@@ -131,7 +135,33 @@ class HomeActivity : AppCompatActivity() {
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
         startActivity(intent)
     }
+    fun showPopupMenu(view: View) {
+        var popup: PopupMenu? = null;
+        popup = PopupMenu(this, view)
+        popup.inflate(R.menu.setting_menu)
 
+        popup.setOnMenuItemClickListener(PopupMenu.OnMenuItemClickListener { item: MenuItem? ->
+
+            when (item!!.itemId) {
+                R.id.menu_setting -> {
+                    Toast.makeText(this@HomeActivity, item.title, Toast.LENGTH_SHORT).show();
+                }
+                R.id.menu_sound -> {
+                    Toast.makeText(this@HomeActivity, item.title, Toast.LENGTH_SHORT).show();
+                }
+                R.id.menu_logout -> {
+                    val intent = Intent(context, LoginActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    startActivity(intent)
+                    finish()
+                }
+            }
+
+            true
+        })
+
+        popup.show()
+    }
     companion object {
         const val TAG = "HomeScreen"
         const val KEY_LOGIN = "Key_Login"

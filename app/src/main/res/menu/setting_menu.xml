@@ -7,9 +7,14 @@
         android:icon="@drawable/ic_action_setting"
         android:title="@string/menu_setting"
         app:showAsAction="ifRoom"/>
-    <!-- add setting -->
+    <!-- add sound -->
     <item android:id="@+id/menu_sound"
         android:icon="@drawable/ic_action_sound"
         android:title="@string/menu_sound"
+        app:showAsAction="ifRoom"/>
+    <!-- add logout -->
+    <item android:id="@+id/menu_logout"
+        android:icon="@drawable/ic_action_logout"
+        android:title="@string/menu_logout"
         app:showAsAction="ifRoom"/>
 </menu>

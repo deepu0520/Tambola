@@ -179,7 +179,7 @@ class LoginActivity : AppCompatActivity() {
 
             submitWith(R.id.text_register_for_free) { result ->
                 // this block is only called if form is valid.
-                if (password.equals(confirmPassword)) {
+                if (password.compareTo(confirmPassword) == 0) {
                     // do something with a valid form state.
                     context?.let {
                         registerApi(
