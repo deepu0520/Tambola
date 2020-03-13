@@ -15,10 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import butterknife.ButterKnife
-import com.newitzone.tambola.adapter.ClaimTicketAdapter
-import com.newitzone.tambola.adapter.LiveUserAdapter
-import com.newitzone.tambola.adapter.RandomNumberAdapter
-import com.newitzone.tambola.adapter.TicketNumberAdapter
+import com.newitzone.tambola.adapter.*
 import com.newitzone.tambola.dialog.TicketsDialog
 import com.newitzone.tambola.utils.RecyclerItemClickListenr
 import org.jetbrains.annotations.TestOnly
@@ -51,6 +48,7 @@ class PlayActivity : AppCompatActivity() {
 
     @BindView(R.id.recycler_view_random_number) lateinit var recyclerViewRanNum: RecyclerView
     @BindView(R.id.recycler_view_live_user) lateinit var recyclerViewLiveUser: RecyclerView
+    @BindView(R.id.recycler_view_number_grid) lateinit var recyclerViewNoGrid: RecyclerView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (Build.VERSION.SDK_INT < 16) {
@@ -85,6 +83,8 @@ class PlayActivity : AppCompatActivity() {
         onRecyclerViewRandomNumber()
         // TODO: Live User
         onRecyclerViewLiveUser()
+        // TODO: Number Grid
+        onRecyclerViewNumberGrid()
         // TODO: Ticket 1
         //onTicket1()
         // TODO: Ticket 2
@@ -225,6 +225,17 @@ class PlayActivity : AppCompatActivity() {
         }
         val adapter = ClaimTicketAdapter(prizeList,this)
         rVClaimTicket2.adapter = adapter
+    }
+    fun onRecyclerViewNumberGrid(){
+        var numList: MutableList<String> = mutableListOf<String>()
+        for (i in 1..90) {
+            //println(i)
+            numList.add(i.toString())
+        }
+        // Initializing an empty ArrayList to be filled with items
+        val adapter = NumberGridAdapter(numList,this)
+        recyclerViewRanNum.layoutManager = GridLayoutManager(context,3)
+        recyclerViewRanNum.adapter = adapter
     }
     fun rand(from: Int, to: Int) : Int {
         return random.nextInt(to - from) + from
