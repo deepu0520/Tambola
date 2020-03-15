@@ -3,6 +3,7 @@ package retrofit
 import com.google.gson.GsonBuilder
 import com.newitzone.tambola.utils.Constants
 import model.DefaultResponse
+import model.gamestatus.ResGameStatus
 import model.login.ResLogin
 import okhttp3.OkHttpClient
 import retrofit2.Response
@@ -19,6 +20,25 @@ interface TambolaApiService {
     /**
      * Companion object to create the TambolaApiService
      */
+
+    @FormUrlEncoded
+    @POST("game-request-status")
+    suspend fun gameRequestStatus(@Field("userid") userid: String,
+                                  @Field("sesid") sesid: String,
+                                  @Field("game_type") game_type: String,
+                                  @Field("amt") amt: String,
+                                  @Field("tournament_id") tournament_id: String
+    ): Response<ResGameStatus>
+
+    @FormUrlEncoded
+    @POST("game-request")
+    suspend fun gameRequest(@Field("userid") userid: String,
+                            @Field("sesid") sesid: String,
+                            @Field("amt") amt: String,
+                            @Field("req_ticket") req_ticket: String,
+                            @Field("game_type") game_type: String,
+                            @Field("tournament_id") tournament_id: String
+    ): Response<DefaultResponse>
 
     @FormUrlEncoded
     @POST("profile-update")

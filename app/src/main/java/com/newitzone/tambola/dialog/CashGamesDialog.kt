@@ -16,14 +16,14 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
 import com.newitzone.tambola.HomeActivity
-import com.newitzone.tambola.PlayActivity
 import com.newitzone.tambola.R
 import com.newitzone.tambola.adapter.PriceAdapter
 import com.newitzone.tambola.utils.RecyclerItemClickListenr
-import kotlinx.android.synthetic.main.dialog_cash_games.*
+import model.KeyModel
+
 
 class CashGamesDialog : DialogFragment() {
-
+    private lateinit var keyModel: KeyModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(STYLE_NORMAL, R.style.FullScreenDialog)
@@ -46,6 +46,10 @@ class CashGamesDialog : DialogFragment() {
     ): View? {
         super.onCreateView(inflater, parent, state)
         val view = activity!!.layoutInflater.inflate(R.layout.dialog_cash_games, parent, false)
+        if (arguments != null) {
+            val mArgs = arguments
+            keyModel = mArgs!!.getSerializable(HomeActivity.KEY_MODEL) as KeyModel
+        }
         ButterKnife.bind(this, view)
         val context: Context = requireContext()
         val recyclerView = view.findViewById(R.id.recycler_view) as RecyclerView
@@ -57,13 +61,14 @@ class CashGamesDialog : DialogFragment() {
         recyclerView.addOnItemTouchListener(RecyclerItemClickListenr(context, recyclerView, object : RecyclerItemClickListenr.OnItemClickListener {
 
             override fun onItemClick(view: View, position: Int) {
-                //TODO: Use this
+                val amt = menuList[position]
+                // set amount
+                keyModel.amount = amt.toFloat()
                 val dialog = TicketsDialog()
                 val ft: FragmentTransaction = activity!!.supportFragmentManager.beginTransaction()
                 val args = Bundle()
-                args?.putInt(HomeActivity.KEY_CASH, 1)
-                args?.putInt(HomeActivity.KEY_TOURNAMENT, 0)
-                dialog.setArguments(args)
+                args?.putSerializable(HomeActivity.KEY_MODEL, keyModel)
+                dialog.arguments = args
                 dialog.show(ft, TicketsDialog.TAG)
             }
             override fun onItemLongClick(view: View?, position: Int) {

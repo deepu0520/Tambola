@@ -1,18 +1,28 @@
 package com.newitzone.tambola.dialog
 
+import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.DialogFragment
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
-import com.newitzone.tambola.HomeActivity
-import com.newitzone.tambola.PlayActivity
-import com.newitzone.tambola.R
+import com.newitzone.tambola.*
+import com.newitzone.tambola.utils.SharedPrefManager
+import com.newitzone.tambola.utils.UtilMethods
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import model.KeyModel
+import retrofit.TambolaApiService
+import retrofit2.HttpException
 
 class TicketsDialog : DialogFragment() {
     @JvmField
@@ -22,8 +32,7 @@ class TicketsDialog : DialogFragment() {
     @BindView(R.id.image_ticket_2)
     var imgTicket2: ImageView? = null
 
-    var sCash = 0
-    var sTournament = 0
+    private lateinit var keyModel: KeyModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(STYLE_NORMAL, R.style.FullScreenDialog)
@@ -46,33 +55,100 @@ class TicketsDialog : DialogFragment() {
     ): View? {
         super.onCreateView(inflater, parent, state)
         val view = activity!!.layoutInflater.inflate(R.layout.dialog_tickets, parent, false)
-        if (getArguments() != null) {
+        if (arguments != null) {
             val mArgs = arguments
-            sCash= mArgs!!.getInt(HomeActivity.KEY_CASH)
-            sTournament= mArgs!!.getInt(HomeActivity.KEY_TOURNAMENT)
+            keyModel = mArgs!!.getSerializable(HomeActivity.KEY_MODEL) as KeyModel
         }
         ButterKnife.bind(this, view)
         return view
     }
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     @OnClick(R.id.image_ticket_1)
     fun onTicket1(view: View?) {
-        val intent = Intent(activity, PlayActivity::class.java)
-        intent.putExtra(KEY_TICKET,1)
-        intent.putExtra(HomeActivity.KEY_CASH,sCash)
-        intent.putExtra(HomeActivity.KEY_TOURNAMENT,sTournament)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-        activity!!.startActivity(intent)
+        val reqTicket = 1
+        callApi(reqTicket)
     }
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     @OnClick(R.id.image_ticket_2)
     fun onTicket2(view: View?) {
-        val intent = Intent(activity, PlayActivity::class.java)
-        intent.putExtra(KEY_TICKET,2)
-        intent.putExtra(HomeActivity.KEY_CASH,sCash)
-        intent.putExtra(HomeActivity.KEY_TOURNAMENT,sTournament)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-        activity!!.startActivity(intent)
+        val reqTicket = 2
+        callApi(reqTicket)
+    }
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private fun callApi(req_ticket: Int){
+        val context= requireContext()
+        val userId = SharedPrefManager.getInstance(context).result.id
+        val sessionId = SharedPrefManager.getInstance(context).result.sid
+        // add ticket type
+        keyModel.ticketType = req_ticket
+        if (sessionId.isNotBlank()) {
+            //TODO: Use this
+            gameRequestApi(
+                context,
+                userId,
+                sessionId,
+                keyModel.amount.toString(),
+                keyModel.ticketType,
+                keyModel.gameType.toString(),
+                keyModel.tournamentId
+            )
+        }else{
+            UtilMethods.ToastLong(context,"Session expired")
+            val intent = Intent(context, LoginActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            startActivity(intent)
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private fun gameRequestApi(context: Context, userid: String, sesid: String
+                               , amt: String, req_ticket: Int
+                               , game_type: String, tournament_id: String){
+        if (UtilMethods.isConnectedToInternet(context)) {
+            UtilMethods.showLoading(context)
+            val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
+            CoroutineScope(Dispatchers.IO).launch {
+                val response = service.gameRequest(
+                    userid,
+                    sesid,
+                    amt,
+                    req_ticket.toString(),
+                    game_type,
+                    tournament_id
+                )
+                withContext(Dispatchers.Main) {
+                    try {
+                        if (response.isSuccessful) {
+                            if (response.code() == 201) {
+
+                                UtilMethods.ToastLong(context, "${response.body()?.msg}")
+                                // redirect to loading screen by intent
+                                val intent = Intent(activity, LoadingActivity::class.java)
+                                intent.putExtra(HomeActivity.KEY_MODEL, keyModel)
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                                activity!!.startActivity(intent)
+                            } else {
+                                UtilMethods.ToastLong(context, "${response.body()?.msg}")
+                            }
+                        } else {
+                            UtilMethods.ToastLong(context, "${response.body()?.msg}")
+                        }
+                    } catch (e: HttpException) {
+                        UtilMethods.ToastLong(context, "Exception ${e.message}")
+                    } catch (e: Throwable) {
+                        UtilMethods.ToastLong(
+                            context,
+                            "Ooops: Something else went wrong : " + e.message
+                        )
+                    }
+                    UtilMethods.hideLoading()
+                }
+            }
+        }else{
+            UtilMethods.ToastLong(context,"No Internet Connection")
+        }
     }
 
     companion object {

@@ -5,29 +5,29 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import butterknife.ButterKnife
 import com.newitzone.tambola.adapter.*
-import com.newitzone.tambola.dialog.TicketsDialog
 import com.newitzone.tambola.utils.RecyclerItemClickListenr
-import org.jetbrains.annotations.TestOnly
-import java.util.Random
+import com.newitzone.tambola.utils.SharedPrefManager
+import model.KeyModel
+import java.util.*
 
 class PlayActivity : AppCompatActivity() {
     private var context: Context? = null
+    private lateinit var keyModel: KeyModel
     val random = Random()
     var claimTicket1 = true
     var claimTicket2 = true
-    var sCash = 0
-    var sTournament = 0
     private var i = 0
     private val handler = Handler()
     var randomNumList: MutableList<String> = mutableListOf<String>()
@@ -66,15 +66,15 @@ class PlayActivity : AppCompatActivity() {
         // Remember that you should never show the action bar if the
         // status bar is hidden, so hide that too if necessary.
         actionBar?.hide()
-        sCash = intent.getIntExtra(HomeActivity.KEY_CASH,0)
-        sTournament = intent.getIntExtra(HomeActivity.KEY_TOURNAMENT,0)
-        val ticket:Int = intent.getIntExtra(TicketsDialog.KEY_TICKET,0)
-        if (ticket == 1){
-            lLTicket1.visibility = View.VISIBLE
-            lLTicket2.visibility = View.GONE
-        }else if (ticket == 2){
-            lLTicket1.visibility = View.VISIBLE
-            lLTicket2.visibility = View.VISIBLE
+        keyModel = intent.getSerializableExtra(HomeActivity.KEY_MODEL) as KeyModel
+        if (keyModel != null) {
+            if (keyModel.ticketType == 1) {
+                lLTicket1.visibility = View.VISIBLE
+                lLTicket2.visibility = View.GONE
+            } else if (keyModel.ticketType == 2) {
+                lLTicket1.visibility = View.VISIBLE
+                lLTicket2.visibility = View.VISIBLE
+            }
         }
 //        progressBar.setOnClickListener { view ->
 //            onRecyclerViewRandomNumber()
@@ -84,7 +84,7 @@ class PlayActivity : AppCompatActivity() {
         // TODO: Live User
         onRecyclerViewLiveUser()
         // TODO: Number Grid
-        onRecyclerViewNumberGrid()
+        //onRecyclerViewNumberGrid()
         // TODO: Ticket 1
         //onTicket1()
         // TODO: Ticket 2
@@ -197,13 +197,16 @@ class PlayActivity : AppCompatActivity() {
     fun onRecyclerViewClaimTicket1(){
         // Initializing an empty ArrayList to be filled with items
         var prizeList: List<String> = emptyList()
-        if (sCash == 1){
+        if (keyModel.gameType == 1){
+            // todo: game type: cash
             prizeList = resources.getStringArray(R.array.cash_claim_ticket_list).asList()
             rVClaimTicket1.layoutManager = GridLayoutManager(context,2)
-        }else if (sTournament == 1){
+        }else if (keyModel.gameType == 2){
+            // todo: game type: tournament
             prizeList = resources.getStringArray(R.array.tournament_claim_ticket_list).asList()
             rVClaimTicket1.layoutManager = GridLayoutManager(context,3)
         }else {
+            // todo: game type: sample
             prizeList = resources.getStringArray(R.array.tournament_claim_ticket_list).asList()
             rVClaimTicket1.layoutManager = GridLayoutManager(context,3)
         }
@@ -213,13 +216,16 @@ class PlayActivity : AppCompatActivity() {
     fun onRecyclerViewClaimTicket2(){
         // Initializing an empty ArrayList to be filled with items
         var prizeList: List<String> = emptyList()
-        if (sCash == 1){
+        if (keyModel.gameType == 1){
+            // todo: game type: cash
             prizeList = resources.getStringArray(R.array.cash_claim_ticket_list).asList()
             rVClaimTicket2.layoutManager = GridLayoutManager(context,2)
-        }else if (sTournament == 1){
+        }else if (keyModel.gameType == 2){
+            // todo: game type: tournament
             prizeList = resources.getStringArray(R.array.tournament_claim_ticket_list).asList()
             rVClaimTicket2.layoutManager = GridLayoutManager(context,3)
         }else {
+            // todo: game type: sample
             prizeList = resources.getStringArray(R.array.tournament_claim_ticket_list).asList()
             rVClaimTicket2.layoutManager = GridLayoutManager(context,3)
         }
@@ -234,14 +240,42 @@ class PlayActivity : AppCompatActivity() {
         }
         // Initializing an empty ArrayList to be filled with items
         val adapter = NumberGridAdapter(numList,this)
-        recyclerViewRanNum.layoutManager = GridLayoutManager(context,3)
-        recyclerViewRanNum.adapter = adapter
+        recyclerViewNoGrid.layoutManager = GridLayoutManager(context,3)
+        recyclerViewNoGrid.adapter = adapter
     }
     fun rand(from: Int, to: Int) : Int {
         return random.nextInt(to - from) + from
     }
-    override fun onBackPressed() { // do something here and don't write super.onBackPressed()
-        super.onBackPressed()
-        finish()
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        return when (keyCode) {
+            KeyEvent.KEYCODE_BACK ->  {
+                // do something here
+                context?.let { dialogExit(it) }
+                true
+            }
+            else -> super.onKeyDown(keyCode, event)
+        }
+    }
+    private fun dialogExit(context: Context){
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle(R.string.app_name)
+        builder.setMessage("Do you want to exit?")
+        //builder.setPositiveButton("OK", DialogInterface.OnClickListener(function = x))
+
+        builder.setPositiveButton(android.R.string.yes) { dialog, which ->
+
+            val intent = Intent(context, HomeActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            intent.putExtra(HomeActivity.KEY_LOGIN, SharedPrefManager.getInstance(context).result)
+            startActivity(intent)
+            finish()
+        }
+
+        builder.setNegativeButton(android.R.string.no) { dialog, which ->
+            //Toast.makeText(applicationContext, android.R.string.no, Toast.LENGTH_SHORT).show()
+            dialog.dismiss()
+        }
+        builder.show()
     }
 }

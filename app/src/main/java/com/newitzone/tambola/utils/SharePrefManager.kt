@@ -1,6 +1,7 @@
 package com.newitzone.tambola.utils
 
 import android.content.Context
+import model.KeyModel
 import model.login.Result
 
 class SharedPrefManager private constructor(private val mCtx: Context) {
@@ -69,6 +70,29 @@ class SharedPrefManager private constructor(private val mCtx: Context) {
 
     }
 
+    val keyModel: KeyModel
+        get() {
+            val sPref = mCtx.getSharedPreferences(SHARED_PREF_KEY_MODEL, Context.MODE_PRIVATE)
+            return KeyModel(
+                sPref.getInt("gameType", 0),
+                sPref.getFloat("amount", 0f),
+                sPref.getInt("ticketType", 0),
+                sPref.getString("tournamentId", "").toString()
+            )
+        }
+
+    fun keyModel(keyModel: KeyModel){
+        val sPref = mCtx.getSharedPreferences(SHARED_PREF_KEY_MODEL, Context.MODE_PRIVATE)
+        val editor = sPref.edit()
+
+        editor.putInt("gameType", keyModel.gameType)
+        editor.putFloat("amount", keyModel.amount)
+        editor.putInt("ticketType", keyModel.ticketType)
+        editor.putString("tournamentId", keyModel.tournamentId)
+
+        editor.apply()
+    }
+
     fun clear() {
         val sPref = mCtx.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
         val editor = sPref.edit()
@@ -78,6 +102,7 @@ class SharedPrefManager private constructor(private val mCtx: Context) {
 
     companion object {
         private val SHARED_PREF_NAME = "my_shared_preff"
+        private val SHARED_PREF_KEY_MODEL = "key_model_shared_preff"
         private var mInstance: SharedPrefManager? = null
         @Synchronized
         fun getInstance(mCtx: Context): SharedPrefManager {

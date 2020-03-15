@@ -271,7 +271,7 @@ class ProfileActivity : AppCompatActivity() {
         private val IMAGE_DIRECTORY = "/dt"
     }
 
-    val quickPermissionsOption = QuickPermissionsOptions(
+    private val quickPermissionsOption = QuickPermissionsOptions(
         handleRationale = false,
         rationaleMessage = "Custom rational message",
         permanentlyDeniedMessage = "Custom permanently denied message",

@@ -21,6 +21,7 @@ import com.newitzone.tambola.dialog.CashGamesDialog
 import com.newitzone.tambola.dialog.TicketsDialog
 import com.newitzone.tambola.dialog.TournamentGamesDialog
 import com.squareup.picasso.Picasso
+import model.KeyModel
 import model.login.Result
 import java.io.Serializable
 
@@ -94,48 +95,57 @@ class HomeActivity : AppCompatActivity() {
             onAddCash(view)
         }
     }
-    fun onProfileUpdate(){
+    private fun onProfileUpdate(){
         val intent = Intent(context, ProfileActivity::class.java)
         intent.putExtra(KEY_LOGIN, login)
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
         startActivity(intent)
     }
-    fun onCash(view: View){
-        //Snackbar.make(imgCash,"for Cash",Snackbar.LENGTH_SHORT).show()
+    private fun onCash(view: View){
+        var keyModel = KeyModel(0,0f,0,"")
+        keyModel.gameType = 1
+
         val dialog = CashGamesDialog()
         val ft: FragmentTransaction = supportFragmentManager.beginTransaction()
+        val args = Bundle()
+        args?.putSerializable(KEY_MODEL, keyModel)
+        dialog.arguments = args
         dialog.show(ft, CashGamesDialog.TAG)
     }
-    fun onTournament(view: View){
-        //Snackbar.make(imgTournament,"for Tournament",Snackbar.LENGTH_SHORT).show()
+    private fun onTournament(view: View){
+        var keyModel = KeyModel(0,0f,0,"")
+        keyModel.gameType = 2
+
         val dialog = TournamentGamesDialog()
         val ft: FragmentTransaction = supportFragmentManager.beginTransaction()
         val args = Bundle()
-        args?.putInt(KEY_CASH, 0)
-        args?.putInt(KEY_TOURNAMENT, 1)
-        dialog.setArguments(args)
+        args?.putSerializable(KEY_MODEL, keyModel)
+        dialog.arguments = args
         dialog.show(ft, TournamentGamesDialog.TAG)
     }
-    fun onPractice(view: View){
-        //Snackbar.make(imgPractice,"for Practice",Snackbar.LENGTH_SHORT).show()
+    private fun onPractice(view: View){
+        var keyModel = KeyModel(0,0f,0,"")
+        keyModel.gameType = 0
+
         val dialog = TicketsDialog()
         val ft: FragmentTransaction = supportFragmentManager.beginTransaction()
+        val args = Bundle()
+        args?.putSerializable(KEY_MODEL, keyModel)
+        dialog.arguments = args
         dialog.show(ft, TicketsDialog.TAG)
     }
-    fun onMenu(view: View){
-        //Snackbar.make(imgMenu,"for Menu",Snackbar.LENGTH_SHORT).show()
+    private fun onMenu(view: View){
         showPopupMenu(view)
     }
-    fun onCashAvailAmt(view: View){
+    private fun onCashAvailAmt(view: View){
         Snackbar.make(tvCashAvailAmt,"Available Cash amount is ₹"+tvCashAvailAmt.text,Snackbar.LENGTH_SHORT).show()
     }
-    fun onAddCash(view: View){
-        //Snackbar.make(tvGemsCount,"for Gems",Snackbar.LENGTH_SHORT).show()
+    private fun onAddCash(view: View){
         val intent = Intent(context, AddCashActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
         startActivity(intent)
     }
-    fun showPopupMenu(view: View) {
+    private fun showPopupMenu(view: View) {
         var popup: PopupMenu? = null;
         popup = PopupMenu(this, view)
         popup.inflate(R.menu.setting_menu)
@@ -165,8 +175,6 @@ class HomeActivity : AppCompatActivity() {
     companion object {
         const val TAG = "HomeScreen"
         const val KEY_LOGIN = "Key_Login"
-        const val KEY_CASH = "Key_Cash"
-        const val KEY_TOURNAMENT = "Key_Tournament"
-
+        const val KEY_MODEL = "Key_Model"
     }
 }

@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.drawable.ColorDrawable
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.os.Build
@@ -36,6 +37,7 @@ object UtilMethods {
         progressDialogBuilder.setView(R.layout.layout_loading_dialog)
 
         progressDialog = progressDialogBuilder.create()
+        progressDialog.window?.setBackgroundDrawable(ColorDrawable(android.graphics.Color.TRANSPARENT));
         progressDialog.show()
     }
 
