@@ -3,6 +3,7 @@ package retrofit
 import com.google.gson.GsonBuilder
 import com.newitzone.tambola.utils.Constants
 import model.DefaultResponse
+import model.gamein.GameIn
 import model.gamestatus.ResGameStatus
 import model.login.ResLogin
 import okhttp3.OkHttpClient
@@ -20,6 +21,15 @@ interface TambolaApiService {
     /**
      * Companion object to create the TambolaApiService
      */
+
+    @FormUrlEncoded
+    @POST("game-in")
+    suspend fun gameIn(@Field("userid") userid: String,
+                                  @Field("sesid") sesid: String,
+                                  @Field("game_type") game_type: String,
+                                  @Field("amt") amt: String,
+                                  @Field("tournament_id") tournament_id: String
+    ): Response<GameIn>
 
     @FormUrlEncoded
     @POST("game-request-status")

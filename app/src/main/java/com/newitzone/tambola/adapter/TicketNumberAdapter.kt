@@ -24,11 +24,19 @@ class TicketNumberAdapter(val items : List<Int>, val context: Context) : Recycle
 
     // Binds each animal in the ArrayList to a view
     override fun onBindViewHolder(holder: ViewHolderTicketNum, position: Int) {
-        holder?.tvNum?.text = ""+items.get(position)
+        if (items[position] == 0){
+            holder?.tvNum?.text = ""
+        }else{
+            holder?.tvNum?.text = items[position].toString()
+        }
+        holder.rL.setOnClickListener {
+
+        }
     }
 }
 
 class ViewHolderTicketNum (view: View) : RecyclerView.ViewHolder(view) {
     // Holds the TextView that will add each animal to
     val tvNum = view.text_num
+    val rL = view.relative_num
 }

@@ -17,6 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import model.KeyModel
+import model.gamein.Result
 import retrofit.TambolaApiService
 import retrofit2.HttpException
 
@@ -69,6 +70,28 @@ class LoadingActivity : AppCompatActivity() {
         }
     }
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private fun callGameInApi(){
+        val context= this@LoadingActivity
+        val userId = SharedPrefManager.getInstance(context).result.id
+        val sessionId = SharedPrefManager.getInstance(context).result.sid
+        if (sessionId.isNotBlank()) {
+            //TODO: Use this
+            gameInApi(
+                context,
+                userId,
+                sessionId,
+                keyModel.amount.toString(),
+                keyModel.gameType.toString(),
+                keyModel.tournamentId
+            )
+        }else{
+            UtilMethods.ToastLong(context,"Session expired")
+            val intent = Intent(context, LoginActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            startActivity(intent)
+        }
+    }
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun gameRequestStatusApi(context: Context, userid: String, sesid: String
                                      , amt: String, game_type: String, tournament_id: String) {
         if (UtilMethods.isConnectedToInternet(context)) {
@@ -80,15 +103,53 @@ class LoadingActivity : AppCompatActivity() {
                     try {
                         if (response.isSuccessful) {
                             if (response.code() == 200) {
+                                callGameInApi()
+                            } else {
                                 UtilMethods.ToastLong(context, "${response.body()?.msg}")
-                                // handler
-                                //Handler().postDelayed({
+                            }
+                        } else {
+                            UtilMethods.ToastLong(context, "${response.body()?.msg}")
+                        }
+                    } catch (e: HttpException) {
+                        UtilMethods.ToastLong(context, "Exception ${e.message}")
+                    } catch (e: Throwable) {
+                        UtilMethods.ToastLong(
+                            context,
+                            "Ooops: Something else went wrong : " + e.message
+                        )
+                    }
+//                    UtilMethods.hideLoading()
+                }
+            }
+        }else{
+            UtilMethods.ToastLong(context,"No Internet Connection")
+        }
+    }
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private fun gameInApi(context: Context, userid: String, sesid: String
+                                     , amt: String, game_type: String, tournament_id: String) {
+        if (UtilMethods.isConnectedToInternet(context)) {
+            //UtilMethods.showLoading(context)
+            val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
+            CoroutineScope(Dispatchers.IO).launch {
+                val response = service.gameIn(userid, sesid, game_type, amt, tournament_id)
+                withContext(Dispatchers.Main) {
+                    try {
+                        if (response.isSuccessful) {
+                            if (response.code() == 200) {
+                                UtilMethods.ToastLong(context, "${response.body()?.msg}")
+                                val result = response.body()?.result?.get(1)
+                                if (result != null) {
+                                    // handler
+                                    //Handler().postDelayed({
                                     // TODO Auto-generated method stub
                                     val intent = Intent(context, PlayActivity::class.java)
                                     intent.putExtra(HomeActivity.KEY_MODEL, keyModel)
+                                    intent.putExtra(HomeActivity.KEY_GAME_IN, result)
                                     intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                                     startActivity(intent)
-                                //}, DELAY_MS)
+                                    //}, DELAY_MS)
+                                }
                             } else {
                                 UtilMethods.ToastLong(context, "${response.body()?.msg}")
                             }

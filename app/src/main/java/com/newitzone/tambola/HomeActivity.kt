@@ -124,7 +124,7 @@ class HomeActivity : AppCompatActivity() {
         dialog.show(ft, TournamentGamesDialog.TAG)
     }
     private fun onPractice(view: View){
-        var keyModel = KeyModel(0,0f,0,"")
+        var keyModel = KeyModel(0,5f,0,"")
         keyModel.gameType = 0
 
         val dialog = TicketsDialog()
@@ -176,5 +176,6 @@ class HomeActivity : AppCompatActivity() {
         const val TAG = "HomeScreen"
         const val KEY_LOGIN = "Key_Login"
         const val KEY_MODEL = "Key_Model"
+        const val KEY_GAME_IN = "Key_Game_In"
     }
 }
