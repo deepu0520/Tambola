@@ -62,6 +62,9 @@ class TournamentGamesDialog : DialogFragment() {
         recyclerView.addOnItemTouchListener(RecyclerItemClickListenr(context, recyclerView, object : RecyclerItemClickListenr.OnItemClickListener {
 
             override fun onItemClick(view: View, position: Int) {
+                val tournamentId = menuList[position]
+                // set tournament id in key model
+                keyModel.tournamentId = tournamentId
                 //TODO: Use this
                 val intent = Intent(activity, PlayActivity::class.java)
                 intent.putExtra(HomeActivity.KEY_MODEL,keyModel)

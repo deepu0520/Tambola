@@ -113,7 +113,7 @@ class HomeActivity : AppCompatActivity() {
         dialog.show(ft, CashGamesDialog.TAG)
     }
     private fun onTournament(view: View){
-        var keyModel = KeyModel(0,0f,0,"")
+        var keyModel = KeyModel(0,0f,1,"")
         keyModel.gameType = 2
 
         val dialog = TournamentGamesDialog()
