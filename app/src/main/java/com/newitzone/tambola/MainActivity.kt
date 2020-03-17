@@ -101,7 +101,7 @@ class MainActivity : AppCompatActivity() {
                         } else {
                             UtilMethods.ToastLong(context,"Error: ${response.code()}"+"\nMsg:${response.body()?.msg}")
                         }
-                    } catch (e: HttpException) {
+                    } catch (e: Exception) {
                         UtilMethods.ToastLong(context,"Exception ${e.message}")
 
                     } catch (e: Throwable) {
