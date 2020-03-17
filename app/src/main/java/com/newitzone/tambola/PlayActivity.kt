@@ -20,6 +20,7 @@ import com.newitzone.tambola.adapter.*
 import com.newitzone.tambola.utils.RecyclerItemClickListenr
 import com.newitzone.tambola.utils.SharedPrefManager
 import model.KeyModel
+import model.NumModel
 import model.gamein.GameIn
 import model.gamein.Result
 import java.util.*
@@ -27,11 +28,13 @@ import java.util.*
 class PlayActivity : AppCompatActivity() {
     private var context: Context? = null
     private lateinit var keyModel: KeyModel
+    private lateinit var keyGameInResponse: GameIn
     private lateinit var keyGameInResult: Result
-    val random = Random()
+    private val random = Random()
     var claimTicket1 = true
     var claimTicket2 = true
     private var i = 0
+    private var posRanNum = 0
     private val handler = Handler()
     var randomNumList: MutableList<String> = mutableListOf<String>()
 
@@ -70,7 +73,7 @@ class PlayActivity : AppCompatActivity() {
         // status bar is hidden, so hide that too if necessary.
         actionBar?.hide()
         keyModel = intent.getSerializableExtra(HomeActivity.KEY_MODEL) as KeyModel
-        keyGameInResult = intent.getSerializableExtra(HomeActivity.KEY_GAME_IN) as Result
+        keyGameInResponse = intent.getSerializableExtra(HomeActivity.KEY_GAME_IN) as GameIn
         if (keyModel != null) {
             if (keyModel.ticketType == 1) {
                 lLTicket1.visibility = View.VISIBLE
@@ -80,8 +83,13 @@ class PlayActivity : AppCompatActivity() {
                 lLTicket2.visibility = View.VISIBLE
             }
         }
-        if (keyGameInResult != null){
-
+        if (keyGameInResponse != null){
+            for (elements in keyGameInResponse.result) {
+                if (elements.userId == SharedPrefManager.getInstance(context as PlayActivity).result.id) {
+                    keyGameInResult = elements
+                    break
+                }
+            }
         }
 //        progressBar.setOnClickListener { view ->
 //            onRecyclerViewRandomNumber()
@@ -109,75 +117,88 @@ class PlayActivity : AppCompatActivity() {
             onClaimTicket2(view)
         }
     }
-    fun onRecyclerViewRandomNumber(){
-        var ranNum = rand(1,90)
-        progressBar.progress = 1
-        i = progressBar.progress
-        Thread(Runnable {
-            while (i < 100) {
-                i += 1
-                // Update the progress bar and display the current value
-                handler.post(Runnable {
-                    progressBar.progress = i
-                    tvPer!!.text = i.toString()// + "%/" + progressBar!!.max
-                    tvRanNum!!.text = ""+ranNum
-                })
-                try {
-                    Thread.sleep(100)
-                } catch (e: InterruptedException) {
-                    e.printStackTrace()
+    private fun onRecyclerViewRandomNumber(){
+        //var ranNum = rand(1,90)
+        if (keyGameInResult != null) {
+            var ranNum = keyGameInResult.randNo[posRanNum]
+            progressBar.progress = 1
+            i = progressBar.progress
+            Thread(Runnable {
+                while (i < 100) {
+                    i += 1
+                    // Update the progress bar and display the current value
+                    handler.post(Runnable {
+                        progressBar.progress = i
+                        tvPer!!.text = i.toString()// + "%/" + progressBar!!.max
+                        tvRanNum!!.text = "" + ranNum
+                    })
+                    try {
+                        Thread.sleep(100)
+                    } catch (e: InterruptedException) {
+                        e.printStackTrace()
+                    }
                 }
-            }
-            handler.post {
-                randomNumList.add(ranNum.toString())
-                // Initializing an empty ArrayList to be filled with items
-                val adapter = RandomNumberAdapter(randomNumList,this)
-                recyclerViewRanNum.layoutManager = LinearLayoutManager(context,LinearLayoutManager.HORIZONTAL,false)
-                recyclerViewRanNum.adapter = adapter
-                recyclerViewRanNum.scrollToPosition(randomNumList.size - 1)
+                handler.post {
+                    randomNumList.add(ranNum.toString())
+                    // Initializing an empty ArrayList to be filled with items
+                    val adapter = RandomNumberAdapter(randomNumList, this)
+                    recyclerViewRanNum.layoutManager =
+                        LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+                    recyclerViewRanNum.adapter = adapter
+                    recyclerViewRanNum.scrollToPosition(randomNumList.size - 1)
 
-                if(randomNumList.size < 90) {
-                    // restart
-                    onRecyclerViewRandomNumber()
-                }else{
-                    rLProBar.visibility = View.INVISIBLE
+                    if (randomNumList.size < 90) {
+                        posRanNum++
+                        // restart
+                        onRecyclerViewRandomNumber()
+                    } else {
+                        rLProBar.visibility = View.INVISIBLE
+                    }
                 }
-            }
-        }).start()
+            }).start()
+        }
     }
-    fun onRecyclerViewLiveUser(){
-        // Initializing an empty ArrayList to be filled with items
-        val list: List<String> = resources.getStringArray(R.array.live_user_list).asList()
-        val adapter = LiveUserAdapter(list,this)
-        recyclerViewLiveUser.layoutManager = LinearLayoutManager(context)
-        recyclerViewLiveUser.adapter = adapter
-        recyclerViewLiveUser.addOnItemTouchListener(RecyclerItemClickListenr(this, recyclerViewLiveUser, object : RecyclerItemClickListenr.OnItemClickListener {
+    private fun onRecyclerViewLiveUser(){
+        if (keyGameInResponse != null) {
+            // Initializing an empty ArrayList to be filled with items
+            val list: List<Result> = keyGameInResponse.result
+            val adapter = LiveUserAdapter(list, this)
+            recyclerViewLiveUser.layoutManager = LinearLayoutManager(context)
+            recyclerViewLiveUser.adapter = adapter
+            recyclerViewLiveUser.addOnItemTouchListener(RecyclerItemClickListenr(this, recyclerViewLiveUser,
+                    object : RecyclerItemClickListenr.OnItemClickListener {
 
-            override fun onItemClick(view: View, position: Int) {
-                //TODO: Use this
-            }
-            override fun onItemLongClick(view: View?, position: Int) {
-                TODO("do nothing")
-            }
-        }))
+                        override fun onItemClick(view: View, position: Int) {
+                            //TODO: Use this
+                        }
+
+                        override fun onItemLongClick(view: View?, position: Int) {
+                            TODO("do nothing")
+                        }
+                    })
+            )
+        }
     }
-    fun onTicket1(){
+    private fun onTicket1(){
         if (keyGameInResult != null) {
             var i = 0
-            val numList: MutableList<Int> = mutableListOf()
+            val numList: MutableList<NumModel> = mutableListOf()
             val listRow1 = keyGameInResult.tick.ticket1[0] as List<Int>
             for (element in listRow1) {
-                numList.add(i,element)
+                val numModel = NumModel(element,false)
+                numList.add(i,numModel)
                 i++
             }
             val listRow2 = keyGameInResult.tick.ticket1[1] as List<Int>
             for (element in listRow2) {
-                numList.add(i,element)
+                val numModel = NumModel(element,false)
+                numList.add(i,numModel)
                 i++
             }
             val listRow3 = keyGameInResult.tick.ticket1[2] as List<Int>
             for (element in listRow3) {
-                numList.add(i,element)
+                val numModel = NumModel(element,false)
+                numList.add(i,numModel)
                 i++
             }
 //            print(numList)
@@ -198,23 +219,26 @@ class PlayActivity : AppCompatActivity() {
 //            }))
         }
     }
-    fun onTicket2(){
+    private fun onTicket2(){
         if (keyGameInResult != null && keyModel.ticketType == 2) {
             var i = 0
-            val numList: MutableList<Int> = mutableListOf()
+            val numList: MutableList<NumModel> = mutableListOf()
             val listRow1 = keyGameInResult.tick.ticket2[0] as List<Int>
             for (element in listRow1) {
-                numList.add(i, element)
+                val numModel = NumModel(element,false)
+                numList.add(i,numModel)
                 i++
             }
             val listRow2 = keyGameInResult.tick.ticket2[1] as List<Int>
             for (element in listRow2) {
-                numList.add(i, element)
+                val numModel = NumModel(element,false)
+                numList.add(i,numModel)
                 i++
             }
             val listRow3 = keyGameInResult.tick.ticket2[2] as List<Int>
             for (element in listRow3) {
-                numList.add(i, element)
+                val numModel = NumModel(element,false)
+                numList.add(i,numModel)
                 i++
             }
 //        for (i in 1..27){
@@ -225,7 +249,7 @@ class PlayActivity : AppCompatActivity() {
             rVTicket2.adapter = adapter
         }
     }
-    fun onClaimTicket1(view: View) {
+    private fun onClaimTicket1(view: View) {
         if (claimTicket1){
             rVClaimTicket1.visibility = View.VISIBLE
             claimTicket1 = false
@@ -236,7 +260,7 @@ class PlayActivity : AppCompatActivity() {
             tvBtnClaimTicket1.text = resources.getString(R.string.txt_ticket_1)
         }
     }
-    fun onClaimTicket2(view: View) {
+    private fun onClaimTicket2(view: View) {
         if (claimTicket2){
             rVClaimTicket2.visibility = View.VISIBLE
             claimTicket2 = false
@@ -247,7 +271,7 @@ class PlayActivity : AppCompatActivity() {
             tvBtnClaimTicket2.text = resources.getString(R.string.txt_ticket_2)
         }
     }
-    fun onRecyclerViewClaimTicket1(){
+    private fun onRecyclerViewClaimTicket1(){
         // Initializing an empty ArrayList to be filled with items
         var prizeList: List<String> = emptyList()
         if (keyModel.gameType == 1){
@@ -265,8 +289,17 @@ class PlayActivity : AppCompatActivity() {
         }
         val adapter = ClaimTicketAdapter(prizeList,this)
         rVClaimTicket1.adapter = adapter
+        rVClaimTicket1.addOnItemTouchListener(RecyclerItemClickListenr(context as PlayActivity, rVTicket1, object : RecyclerItemClickListenr.OnItemClickListener {
+            override fun onItemClick(view: View, position: Int) {
+                //todo: Claim the ticket 1
+                claimTicket1(keyModel.gameType, position)
+            }
+            override fun onItemLongClick(view: View?, position: Int) {
+                TODO("Not yet implemented")
+            }
+        }))
     }
-    fun onRecyclerViewClaimTicket2(){
+    private fun onRecyclerViewClaimTicket2(){
         // Initializing an empty ArrayList to be filled with items
         var prizeList: List<String> = emptyList()
         if (keyModel.gameType == 1){
@@ -284,8 +317,49 @@ class PlayActivity : AppCompatActivity() {
         }
         val adapter = ClaimTicketAdapter(prizeList,this)
         rVClaimTicket2.adapter = adapter
+        rVClaimTicket2.addOnItemTouchListener(RecyclerItemClickListenr(context as PlayActivity, rVTicket1, object : RecyclerItemClickListenr.OnItemClickListener {
+            override fun onItemClick(view: View, position: Int) {
+                //todo: Claim the ticket 2
+                claimTicket2(keyModel.gameType, position)
+            }
+            override fun onItemLongClick(view: View?, position: Int) {
+                TODO("Not yet implemented")
+            }
+        }))
     }
-    fun onRecyclerViewNumberGrid(){
+    private fun claimTicket1(gameType: Int, position: Int){
+        when (gameType) {
+            0 -> {
+                // todo: sample game
+                val claim = resources.getStringArray(R.array.tournament_claim_ticket_list).asList()[position]
+            }
+            1 -> {
+                // todo: cash game
+                val claim = resources.getStringArray(R.array.cash_claim_ticket_list).asList()[position]
+            }
+            2 -> {
+                // todo: tournament game
+                val claim = resources.getStringArray(R.array.tournament_claim_ticket_list).asList()[position]
+            }
+        }
+    }
+    private fun claimTicket2(gameType: Int, position: Int){
+        when (gameType) {
+            0 -> {
+                // todo: sample game
+                val claim = resources.getStringArray(R.array.tournament_claim_ticket_list).asList()[position]
+            }
+            1 -> {
+                // todo: cash game
+                val claim = resources.getStringArray(R.array.cash_claim_ticket_list).asList()[position]
+            }
+            2 -> {
+                // todo: tournament game
+                val claim = resources.getStringArray(R.array.tournament_claim_ticket_list).asList()[position]
+            }
+        }
+    }
+    private fun onRecyclerViewNumberGrid(){
         var numList: MutableList<String> = mutableListOf<String>()
         for (i in 1..90) {
             //println(i)
@@ -296,7 +370,7 @@ class PlayActivity : AppCompatActivity() {
         recyclerViewNoGrid.layoutManager = GridLayoutManager(context,3)
         recyclerViewNoGrid.adapter = adapter
     }
-    fun rand(from: Int, to: Int) : Int {
+    private fun rand(from: Int, to: Int) : Int {
         return random.nextInt(to - from) + from
     }
 

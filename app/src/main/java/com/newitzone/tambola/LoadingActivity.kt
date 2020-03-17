@@ -138,14 +138,14 @@ class LoadingActivity : AppCompatActivity() {
                         if (response.isSuccessful) {
                             if (response.code() == 200) {
                                 UtilMethods.ToastLong(context, "${response.body()?.msg}")
-                                val result = response.body()?.result?.get(1)
-                                if (result != null) {
+                                val gameInResponse = response.body()//?.result?//.get(1)
+                                if (gameInResponse != null) {
                                     // handler
                                     //Handler().postDelayed({
                                     // TODO Auto-generated method stub
                                     val intent = Intent(context, PlayActivity::class.java)
                                     intent.putExtra(HomeActivity.KEY_MODEL, keyModel)
-                                    intent.putExtra(HomeActivity.KEY_GAME_IN, result)
+                                    intent.putExtra(HomeActivity.KEY_GAME_IN ,gameInResponse)
                                     intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                                     startActivity(intent)
                                     //}, DELAY_MS)
