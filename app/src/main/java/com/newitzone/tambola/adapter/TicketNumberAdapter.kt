@@ -31,7 +31,7 @@ class TicketNumberAdapter(val items : List<NumModel>, val context: Context) : Re
         if (items[position].num == 0){
             holder?.tvNum?.text = ""
         }else{
-            holder?.tvNum?.text = items[position].toString()
+            holder?.tvNum?.text = items[position].num.toString()
         }
         // set background
         if (items[position].isChecked){
@@ -43,7 +43,7 @@ class TicketNumberAdapter(val items : List<NumModel>, val context: Context) : Re
         holder.rL.tag = items[position]
         holder.rL.setOnClickListener {
             val numModel = it.tag as NumModel
-            if (numModel != null){
+            if (numModel != null && numModel.num != 0){
                 items[position].isChecked = !numModel.isChecked
                 notifyDataSetChanged()
             }

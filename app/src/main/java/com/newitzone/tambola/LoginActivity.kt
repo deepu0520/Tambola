@@ -33,31 +33,16 @@ import java.io.Serializable
 class LoginActivity : AppCompatActivity() {
     private var context: Context? = null
     private var userType: Int = 0
-    private var loginType: Int = 0;
+    private var loginType: Int = 2;
     private var sesId: String = "";
     private var userId: String = "";
 
-    // linear layout
-    @BindView(R.id.linear_login) lateinit var lLLogin: LinearLayout
-    @BindView(R.id.linear_register) lateinit var lLRegister: LinearLayout
     // text view
     @BindView(R.id.text_login) lateinit var btnLogin: TextView
-    @BindView(R.id.text_login_from_reg) lateinit var tvLogin: TextView
     @BindView(R.id.text_register) lateinit var tvRegister: TextView
-    @BindView(R.id.text_register_for_free) lateinit var btnRegister: TextView
-    @BindView(R.id.text_terms_condition) lateinit var txtTnC: TextView
-    // check box
-    @BindView(R.id.checkBox_terms_condition) lateinit var cbTnC: CheckBox
     // TextInputLayout login
     @BindView(R.id.text_input_user_id) lateinit var tInputUserId: TextInputLayout
     @BindView(R.id.text_input_user_passkey) lateinit var tInputUserPassKey: TextInputLayout
-//    // TextInputLayout registration
-    @BindView(R.id.text_input_fname) lateinit var tInputfName: TextInputLayout
-    @BindView(R.id.text_input_lname) lateinit var tInputlName: TextInputLayout
-    @BindView(R.id.text_input_email) lateinit var tInputlEmail: TextInputLayout
-    @BindView(R.id.text_input_mobile) lateinit var tInputlMobile: TextInputLayout
-    @BindView(R.id.text_input_password) lateinit var tInputlPassword: TextInputLayout
-    @BindView(R.id.text_input_confirm_password) lateinit var tInputlConfirmPassword: TextInputLayout
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,21 +67,13 @@ class LoginActivity : AppCompatActivity() {
         btnLogin.setOnClickListener { view ->
             onLogin(view)
         }
-        tvLogin.setOnClickListener { view ->
-            lLLogin.visibility = View.VISIBLE
-            lLRegister.visibility = View.GONE
-        }
         // register from login screen
         tvRegister.setOnClickListener { view ->
-            lLLogin.visibility = View.GONE
-            lLRegister.visibility = View.VISIBLE
+            val intent = Intent(context, RegistrationActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            startActivity(intent)
+            finish()
         }
-        // register from login screen
-        btnRegister.setOnClickListener { view ->
-            onRegister(view)
-        }
-        // terms and condition
-        //txtTnC.text(R.string.txt_terms_condition)
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -142,65 +119,6 @@ class LoginActivity : AppCompatActivity() {
                 }
             }
         }
-
-        //updateProfileApi()
-    }
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    fun onRegister(view: View){
-        val fName = text_input_fname.editText!!.text.toString().trim()
-        val lName = text_input_lname.editText!!.text.toString().trim()
-        val email = text_input_email.editText!!.text.toString().trim()
-        val mobile = text_input_mobile.editText!!.text.toString().trim()
-        val dob = ""
-        val password = text_input_password.editText!!.text.toString().trim()
-        val confirmPassword = text_input_confirm_password.editText!!.text.toString().trim()
-        val img = ""
-        form {
-            inputLayout(R.id.text_input_fname , name = "First Name") {
-                isNotEmpty()
-            }
-            inputLayout(R.id.text_input_lname , name = "Last Name") {
-                isNotEmpty()
-            }
-            inputLayout(R.id.text_input_email , name = "Email(User name)") {
-                isNotEmpty()
-                isEmail()
-            }
-            inputLayout(R.id.text_input_password , name = "Password") {
-                isNotEmpty()
-            }
-            inputLayout(R.id.text_input_confirm_password , name = "Confirm Password") {
-                isNotEmpty()
-            }
-            checkable(R.id.checkBox_terms_condition , name = "Terms and Condition") {
-                isChecked()
-            }
-
-
-            submitWith(R.id.text_register_for_free) { result ->
-                // this block is only called if form is valid.
-                if (password.compareTo(confirmPassword) == 0) {
-                    // do something with a valid form state.
-                    context?.let {
-                        registerApi(
-                            it,
-                            fName,
-                            lName,
-                            email,
-                            mobile,
-                            password,
-                            dob,
-                            userType.toString(),
-                            img
-                        )
-                    }
-                }else{
-                    input(R.id.input_confirm_password , name = "Confirm Password") {
-                        context?.let { UtilMethods.ToastLong(it,"Password is not match") }
-                    }
-                }
-            }
-        }
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -236,38 +154,6 @@ class LoginActivity : AppCompatActivity() {
                         }
                     } catch (e: Exception) {
                         UtilMethods.ToastLong(context,"Exception ${e.message}")
-                    } catch (e: Throwable) {
-                        UtilMethods.ToastLong(context,"Ooops: Something else went wrong : " + e.message)
-                    }
-                    UtilMethods.hideLoading()
-                }
-            }
-        }else{
-            UtilMethods.ToastLong(context,"No Internet Connection")
-        }
-    }
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    @SuppressLint("CheckResult")
-    private fun registerApi(context: Context,fname: String,lname: String
-                         ,emailID: String,mobileNo: String,passkey: String,dob: String,userType: String,img: String){
-        if (UtilMethods.isConnectedToInternet(context)) {
-            UtilMethods.showLoading(context)
-            val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
-            CoroutineScope(Dispatchers.IO).launch {
-                val response = service.registration(fname, lname, emailID, mobileNo, passkey, dob,userType,img)
-                withContext(Dispatchers.Main) {
-                    try {
-                        if (response.isSuccessful) {
-                            // save the user details
-                            UtilMethods.ToastLong(context,"${response.body()?.msg}")
-                            lLLogin.visibility = View.VISIBLE
-                            lLRegister.visibility = View.GONE
-                        } else {
-                            UtilMethods.ToastLong(context,"Error: ${response.code()}"+"\nMsg:${response.body()?.msg}")
-                        }
-                    } catch (e: Exception) {
-                        UtilMethods.ToastLong(context,"Exception ${e.message}")
-
                     } catch (e: Throwable) {
                         UtilMethods.ToastLong(context,"Ooops: Something else went wrong : " + e.message)
                     }

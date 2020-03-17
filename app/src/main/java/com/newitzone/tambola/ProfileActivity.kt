@@ -29,6 +29,7 @@ import com.livinglifetechway.quickpermissions_kotlin.util.QuickPermissionsReques
 import com.newitzone.tambola.utils.UtilMethods
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_login.*
+import kotlinx.android.synthetic.main.activity_profile.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

@@ -44,7 +44,7 @@
     <string name="txt_ticket_2">Ticket\n2\nClaim</string>
     <string name="txt_ticket_hide_2">Ticket\n2\nHide</string>
 
-    <string name="menu_setting">Setting</string>
+    <string name="menu_setting">Settings</string>
     <string name="menu_sound">Sound</string>
     <string name="menu_logout">Logout</string>
 

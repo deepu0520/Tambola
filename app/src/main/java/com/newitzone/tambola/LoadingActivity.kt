@@ -4,12 +4,14 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
+import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import com.newitzone.tambola.dialog.TicketsDialog
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import com.newitzone.tambola.utils.Constants
 import com.newitzone.tambola.utils.SharedPrefManager
 import com.newitzone.tambola.utils.UtilMethods
 import kotlinx.coroutines.CoroutineScope
@@ -17,6 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import model.KeyModel
+import model.gamein.GameIn
 import model.gamein.Result
 import retrofit.TambolaApiService
 import retrofit2.HttpException
@@ -104,6 +107,7 @@ class LoadingActivity : AppCompatActivity() {
                         if (response.isSuccessful) {
                             if (response.code() == 200) {
                                 callGameInApi()
+                                //getGameInfromJson()
                             } else {
                                 UtilMethods.ToastLong(context, "${response.body()?.msg}")
                             }
@@ -124,6 +128,22 @@ class LoadingActivity : AppCompatActivity() {
         }else{
             UtilMethods.ToastLong(context,"No Internet Connection")
         }
+    }
+    private fun getGameInfromJson(){
+        val jsonFileString = Constants.getJsonDataFromAsset(applicationContext, "gameIn.json")
+        Log.i("data", jsonFileString)
+
+        val gson = Gson()
+        val GameInType = object : TypeToken<GameIn>() {}.type
+
+        var gameInResponse: GameIn = gson.fromJson(jsonFileString, GameInType)
+
+        Log.i("data", "> Item $gameInResponse")
+        val intent = Intent(context, PlayActivity::class.java)
+        intent.putExtra(HomeActivity.KEY_MODEL, keyModel)
+        intent.putExtra(HomeActivity.KEY_GAME_IN ,gameInResponse)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+        startActivity(intent)
     }
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun gameInApi(context: Context, userid: String, sesid: String
@@ -159,7 +179,7 @@ class LoadingActivity : AppCompatActivity() {
                     } catch (e: Exception) {
                         UtilMethods.ToastLong(context, "Exception ${e.message}")
                     } catch (e: Throwable) {
-                        UtilMethods.ToastLong(context,"Ooops: Something else went wrong : " + e.message)
+                        UtilMethods.ToastLong(context,"Oops: Something else went wrong : " + e.message)
                     }
 //                    UtilMethods.hideLoading()
                 }
