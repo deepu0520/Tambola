@@ -5,12 +5,14 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.FragmentTransaction
@@ -21,6 +23,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.newitzone.tambola.dialog.CashGamesDialog
 import com.newitzone.tambola.dialog.TicketsDialog
 import com.newitzone.tambola.dialog.TournamentGamesDialog
+import com.newitzone.tambola.utils.SharedPrefManager
 import com.squareup.picasso.Picasso
 import model.KeyModel
 import model.login.Result
@@ -176,6 +179,33 @@ class HomeActivity : AppCompatActivity() {
         }catch (e: Exception){
             Log.e("TAG","Exception: ${e.toString()}")
         }
+    }
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        return when (keyCode) {
+            KeyEvent.KEYCODE_BACK ->  {
+                // do something here
+                context?.let { dialogExit(it) }
+                true
+            }
+            else -> super.onKeyDown(keyCode, event)
+        }
+    }
+    private fun dialogExit(context: Context){
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle(R.string.app_name)
+        builder.setMessage("Do you want to exit the game?")
+        //builder.setPositiveButton("OK", DialogInterface.OnClickListener(function = x))
+
+        builder.setPositiveButton(android.R.string.yes) { dialog, which ->
+
+            finish()
+        }
+
+        builder.setNegativeButton(android.R.string.no) { dialog, which ->
+            //Toast.makeText(applicationContext, android.R.string.no, Toast.LENGTH_SHORT).show()
+            dialog.dismiss()
+        }
+        builder.show()
     }
     companion object {
         const val TAG = "HomeScreen"

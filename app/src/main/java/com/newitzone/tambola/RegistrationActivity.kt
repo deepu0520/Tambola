@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Html
 import android.text.method.LinkMovementMethod
+import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
 import android.widget.CheckBox
@@ -168,6 +169,19 @@ class RegistrationActivity : AppCompatActivity() {
             }
         }else{
             UtilMethods.ToastLong(context,"No Internet Connection")
+        }
+    }
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        return when (keyCode) {
+            KeyEvent.KEYCODE_BACK ->  {
+                // do something here
+                val intent = Intent(context, LoginActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                startActivity(intent)
+                finish()
+                true
+            }
+            else -> super.onKeyDown(keyCode, event)
         }
     }
 }
