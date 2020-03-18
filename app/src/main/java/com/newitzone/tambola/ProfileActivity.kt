@@ -149,19 +149,27 @@ class ProfileActivity : AppCompatActivity() {
                                  ,sessionId: String,dob: String,img: String){
         val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
         CoroutineScope(Dispatchers.IO).launch {
-            val response = service.updateProfile(fname,lname,mobileNo,passkey,userid,sessionId,dob,img)
-            withContext(Dispatchers.Main) {
-                try {
-                    if (response.isSuccessful) {
-                        UtilMethods.ToastLong(context,"${response.body()?.msg}")
-                    } else {
-                        UtilMethods.ToastLong(context,"${response.body()?.msg}")
+            try{
+                val response = service.updateProfile(fname,lname,mobileNo,passkey,userid,sessionId,dob,img)
+                withContext(Dispatchers.Main) {
+                    try {
+                        if (response.isSuccessful) {
+                            UtilMethods.ToastLong(context,"${response.body()?.msg}")
+                        } else {
+                            UtilMethods.ToastLong(context,"${response.body()?.msg}")
+                        }
+                    } catch (e: Exception) {
+                        UtilMethods.ToastLong(context,"Exception ${e.message}")
+                    } catch (e: Throwable) {
+                        UtilMethods.ToastLong(context,"Ooops: Something else went wrong : " + e.message)
                     }
-                } catch (e: Exception) {
-                    UtilMethods.ToastLong(context,"Exception ${e.message}")
-                } catch (e: Throwable) {
-                    UtilMethods.ToastLong(context,"Ooops: Something else went wrong : " + e.message)
                 }
+            }catch (e: Throwable) {
+                runOnUiThread {
+                    UtilMethods.ToastLong(context,"Server or Internet error : ${e.message}")
+                }
+                Log.e("TAG","Throwable : $e")
+                UtilMethods.hideLoading()
             }
         }
     }

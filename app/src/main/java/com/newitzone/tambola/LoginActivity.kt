@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Html
 import android.text.method.LinkMovementMethod
+import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.widget.CheckBox
@@ -21,6 +22,8 @@ import com.afollestad.vvalidator.form
 import com.google.android.material.textfield.TextInputLayout
 import com.newitzone.tambola.utils.SharedPrefManager
 import com.newitzone.tambola.utils.UtilMethods
+import com.wajahatkarim3.easyvalidation.core.collection_ktx.nonEmptyList
+import com.wajahatkarim3.easyvalidation.core.view_ktx.validator
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -90,11 +93,12 @@ class LoginActivity : AppCompatActivity() {
                 isNotEmpty()
             }
 
-            submitWith(R.id.text_login) { result ->
+            submitWith(R.id.text_login) {
                 // this block is only called if form is valid.
                 // do something with a valid form state.
                 val  context = this@LoginActivity
-                if (SharedPrefManager.getInstance(context).userId.isNullOrBlank()) {
+                val uId = SharedPrefManager.getInstance(context).userId
+                if (uId.isNullOrBlank()) {
                         loginApi(
                             context,
                             email,
@@ -129,34 +133,50 @@ class LoginActivity : AppCompatActivity() {
             UtilMethods.showLoading(context)
             val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
             CoroutineScope(Dispatchers.IO).launch {
-                val response = service.getlogin(userID, passKey, userType, loginType, sesId, userId)
-                withContext(Dispatchers.Main) {
-                    try {
-                        if (response.isSuccessful) {
-                            // save the user details
-                            response.body()?.result?.let {
-                                SharedPrefManager.getInstance(context).saveUser(
-                                    it,passKey)
-                            }
+                try {
+                    val response = service.getlogin(userID, passKey, userType, loginType, sesId, userId)
+                    withContext(Dispatchers.Main) {
+                        try {
+                            if (response.isSuccessful) {
+                                // save the user details
+                                response.body()?.result?.let {
+                                    SharedPrefManager.getInstance(context).saveUser(
+                                        it, passKey
+                                    )
+                                }
 
-                            if (SharedPrefManager.getInstance(context).isLoggedIn) {
+                                if (SharedPrefManager.getInstance(context).isLoggedIn) {
 
-                                val intent = Intent(context, HomeActivity::class.java)
-                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                                intent.putExtra(HomeActivity.KEY_LOGIN,SharedPrefManager.getInstance(context).result)
-                                startActivity(intent)
-                                finish()
-                            }else{
-                                UtilMethods.ToastLong(context,"Your cannot login because your account is blocked")
+                                    val intent = Intent(context, HomeActivity::class.java)
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                    intent.putExtra(
+                                        HomeActivity.KEY_LOGIN,
+                                        SharedPrefManager.getInstance(context).result
+                                    )
+                                    startActivity(intent)
+                                    finish()
+                                } else {
+                                    UtilMethods.ToastLong(
+                                        context,
+                                        "Your cannot login because your account is blocked"
+                                    )
+                                }
+                            } else {
+                                UtilMethods.ToastLong(
+                                    context,
+                                    "Error: ${response.code()}" + "\nMsg:${response.body()?.msg}"
+                                )
                             }
-                        } else {
-                            UtilMethods.ToastLong(context,"Error: ${response.code()}"+"\nMsg:${response.body()?.msg}")
+                        } catch (e: Exception) {
+                            UtilMethods.ToastLong(context, "Exception ${e.message}")
                         }
-                    } catch (e: Exception) {
-                        UtilMethods.ToastLong(context,"Exception ${e.message}")
-                    } catch (e: Throwable) {
-                        UtilMethods.ToastLong(context,"Ooops: Something else went wrong : " + e.message)
+                        UtilMethods.hideLoading()
                     }
+                }catch (e: Throwable) {
+                    runOnUiThread {
+                        UtilMethods.ToastLong(context,"Server or Internet error : ${e.message}")
+                    }
+                    Log.e("TAG","Throwable : $e")
                     UtilMethods.hideLoading()
                 }
             }

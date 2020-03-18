@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Html
 import android.text.method.LinkMovementMethod
+import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
@@ -145,25 +146,33 @@ class RegistrationActivity : AppCompatActivity() {
             UtilMethods.showLoading(context)
             val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
             CoroutineScope(Dispatchers.IO).launch {
-                val response = service.registration(fname, lname, emailID, mobileNo, passkey, dob,userType,img)
-                withContext(Dispatchers.Main) {
-                    try {
-                        if (response.isSuccessful) {
-                            // save the user details
-                            UtilMethods.ToastLong(context,"${response.body()?.msg}")
-                            val intent = Intent(context, LoginActivity::class.java)
-                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                            startActivity(intent)
-                            finish()
-                        } else {
-                            UtilMethods.ToastLong(context,"Error: ${response.code()}"+"\nMsg:${response.body()?.msg}")
-                        }
-                    } catch (e: Exception) {
-                        UtilMethods.ToastLong(context,"Exception ${e.message}")
+                try{
+                    val response = service.registration(fname, lname, emailID, mobileNo, passkey, dob,userType,img)
+                    withContext(Dispatchers.Main) {
+                        try {
+                            if (response.isSuccessful) {
+                                // save the user details
+                                UtilMethods.ToastLong(context,"${response.body()?.msg}")
+                                val intent = Intent(context, LoginActivity::class.java)
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                startActivity(intent)
+                                finish()
+                            } else {
+                                UtilMethods.ToastLong(context,"Error: ${response.code()}"+"\nMsg:${response.body()?.msg}")
+                            }
+                        } catch (e: Exception) {
+                            UtilMethods.ToastLong(context,"Exception ${e.message}")
 
-                    } catch (e: Throwable) {
-                        UtilMethods.ToastLong(context,"Oops: Something else went wrong : " + e.message)
+                        } catch (e: Throwable) {
+                            UtilMethods.ToastLong(context,"Oops: Something else went wrong : " + e.message)
+                        }
+                        UtilMethods.hideLoading()
                     }
+                }catch (e: Throwable) {
+                    runOnUiThread {
+                        UtilMethods.ToastLong(context,"Server or Internet error : ${e.message}")
+                    }
+                    Log.e("TAG","Throwable : $e")
                     UtilMethods.hideLoading()
                 }
             }

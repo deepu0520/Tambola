@@ -101,28 +101,35 @@ class LoadingActivity : AppCompatActivity() {
             //UtilMethods.showLoading(context)
             val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
             CoroutineScope(Dispatchers.IO).launch {
-                val response = service.gameRequestStatus(userid, sesid, game_type, amt, tournament_id)
-                withContext(Dispatchers.Main) {
-                    try {
-                        if (response.isSuccessful) {
-                            if (response.code() == 200) {
-                                callGameInApi()
-                                //getGameInfromJson()
+                try {
+                    val response = service.gameRequestStatus(userid, sesid, game_type, amt, tournament_id)
+                    withContext(Dispatchers.Main) {
+                        try {
+                            if (response.isSuccessful) {
+                                if (response.code() == 200) {
+                                    callGameInApi()
+                                    //getGameInfromJson()
+                                } else {
+                                    UtilMethods.ToastLong(context, "${response.body()?.msg}")
+                                }
                             } else {
                                 UtilMethods.ToastLong(context, "${response.body()?.msg}")
                             }
-                        } else {
-                            UtilMethods.ToastLong(context, "${response.body()?.msg}")
+                        } catch (e: Exception) {
+                            UtilMethods.ToastLong(context, "Exception ${e.message}")
+                        } catch (e: Throwable) {
+                            UtilMethods.ToastLong(
+                                context,
+                                "Ooops: Something else went wrong : " + e.message
+                            )
                         }
-                    } catch (e: Exception) {
-                        UtilMethods.ToastLong(context, "Exception ${e.message}")
-                    } catch (e: Throwable) {
-                        UtilMethods.ToastLong(
-                            context,
-                            "Ooops: Something else went wrong : " + e.message
-                        )
+    //                    UtilMethods.hideLoading()
                     }
-//                    UtilMethods.hideLoading()
+                }catch (e: Throwable) {
+                    runOnUiThread {
+                        UtilMethods.ToastLong(context,"Server or Internet error : ${e.message}")
+                    }
+                    Log.e("TAG","Throwable : $e")
                 }
             }
         }else{
@@ -152,36 +159,44 @@ class LoadingActivity : AppCompatActivity() {
             //UtilMethods.showLoading(context)
             val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
             CoroutineScope(Dispatchers.IO).launch {
-                val response = service.gameIn(userid, sesid, game_type, amt, tournament_id)
-                withContext(Dispatchers.Main) {
-                    try {
-                        if (response.isSuccessful) {
-                            if (response.code() == 200) {
-                                UtilMethods.ToastLong(context, "${response.body()?.msg}")
-                                val gameInResponse = response.body()//?.result?//.get(1)
-                                if (gameInResponse != null) {
-                                    // handler
-                                    //Handler().postDelayed({
-                                    // TODO Auto-generated method stub
-                                    val intent = Intent(context, PlayActivity::class.java)
-                                    intent.putExtra(HomeActivity.KEY_MODEL, keyModel)
-                                    intent.putExtra(HomeActivity.KEY_GAME_IN ,gameInResponse)
-                                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                                    startActivity(intent)
-                                    //}, DELAY_MS)
+                try{
+                    val response = service.gameIn(userid, sesid, game_type, amt, tournament_id)
+                    withContext(Dispatchers.Main) {
+                        try {
+                            if (response.isSuccessful) {
+                                if (response.code() == 200) {
+                                    UtilMethods.ToastLong(context, "${response.body()?.msg}")
+                                    val gameInResponse = response.body()//?.result?//.get(1)
+                                    if (gameInResponse != null) {
+                                        // handler
+                                        //Handler().postDelayed({
+                                        // TODO Auto-generated method stub
+                                        val intent = Intent(context, PlayActivity::class.java)
+                                        intent.putExtra(HomeActivity.KEY_MODEL, keyModel)
+                                        intent.putExtra(HomeActivity.KEY_GAME_IN ,gameInResponse)
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                                        startActivity(intent)
+                                        //}, DELAY_MS)
+                                    }
+                                } else {
+                                    UtilMethods.ToastLong(context, "${response.body()?.msg}")
                                 }
                             } else {
                                 UtilMethods.ToastLong(context, "${response.body()?.msg}")
                             }
-                        } else {
-                            UtilMethods.ToastLong(context, "${response.body()?.msg}")
+                        } catch (e: Exception) {
+                            UtilMethods.ToastLong(context, "Exception ${e.message}")
+                        } catch (e: Throwable) {
+                            UtilMethods.ToastLong(context,"Oops: Something else went wrong : " + e.message)
                         }
-                    } catch (e: Exception) {
-                        UtilMethods.ToastLong(context, "Exception ${e.message}")
-                    } catch (e: Throwable) {
-                        UtilMethods.ToastLong(context,"Oops: Something else went wrong : " + e.message)
+    //                    UtilMethods.hideLoading()
                     }
-//                    UtilMethods.hideLoading()
+                }catch (e: Throwable) {
+                    runOnUiThread {
+                        UtilMethods.ToastLong(context,"Server or Internet error : ${e.message}")
+                    }
+                    Log.e("TAG","Throwable : $e")
+                    UtilMethods.hideLoading()
                 }
             }
         }else{
