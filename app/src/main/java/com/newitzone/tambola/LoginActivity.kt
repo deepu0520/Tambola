@@ -22,8 +22,6 @@ import com.afollestad.vvalidator.form
 import com.google.android.material.textfield.TextInputLayout
 import com.newitzone.tambola.utils.SharedPrefManager
 import com.newitzone.tambola.utils.UtilMethods
-import com.wajahatkarim3.easyvalidation.core.collection_ktx.nonEmptyList
-import com.wajahatkarim3.easyvalidation.core.view_ktx.validator
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
