@@ -386,7 +386,7 @@ class PlayActivity : AppCompatActivity() {
         try {
             if (earlyFiveList.size == 5){
                 // todo: Do the claim
-            }else{
+            }else if (earlyFiveList.size < 5){
                 for (element in randomNumList){
 
                 }
