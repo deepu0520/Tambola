@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
@@ -21,6 +22,7 @@ import com.newitzone.tambola.utils.RecyclerItemClickListenr
 import com.newitzone.tambola.utils.SharedPrefManager
 import model.KeyModel
 import model.NumModel
+import model.claim.*
 import model.gamein.GameIn
 import model.gamein.Result
 import java.util.*
@@ -31,12 +33,18 @@ class PlayActivity : AppCompatActivity() {
     private lateinit var keyGameInResponse: GameIn
     private lateinit var keyGameInResult: Result
     private val random = Random()
-    var claimTicket1 = true
-    var claimTicket2 = true
+    private var claimTicket1 = true
+    private var claimTicket2 = true
     private var i = 0
     private var posRanNum = 0
     private val handler = Handler()
-    var randomNumList: MutableList<String> = mutableListOf<String>()
+    private var randomNumList: MutableList<String> = mutableListOf<String>()
+    private lateinit var earlyFiveList: List<EarlyFiveModel>
+    private lateinit var topLineList: List<TopLineModel>
+    private lateinit var middleLineList: List<MiddleLineModel>
+    private lateinit var bottomLineList: List<BottomLineModel>
+    private lateinit var fourCornerList: List<FourCornersModel>
+    private lateinit var fullHouseList: List<FullHouseModel>
 
     @BindView(R.id.progress_bar) lateinit var progressBar: ProgressBar
     @BindView(R.id.text_per) lateinit var tvPer: TextView
@@ -373,6 +381,57 @@ class PlayActivity : AppCompatActivity() {
     private fun rand(from: Int, to: Int) : Int {
         return random.nextInt(to - from) + from
     }
+
+    private fun claimEarlyFive(num: Int, position: Int){
+        try {
+            if (earlyFiveList.size == 5){
+                // todo: Do the claim
+            }else{
+                for (element in randomNumList){
+
+                }
+            }
+
+        } catch (e: Exception) {
+            Log.e("Claim Early 5","Exception: {$e}")
+        }
+    }
+    private fun claimTopLine(num: Int, position: Int){
+        try {
+
+        } catch (e: Exception) {
+            Log.e("Claim Top Line","Exception: {$e}")
+        }
+    }
+    private fun claimMiddleLine(num: Int, position: Int){
+        try {
+
+        } catch (e: Exception) {
+            Log.e("Claim Top Line","Exception: {$e}")
+        }
+    }
+    private fun claimBottomLine(num: Int, position: Int){
+        try {
+
+        } catch (e: Exception) {
+            Log.e("Claim Top Line","Exception: {$e}")
+        }
+    }
+    private fun claimFourCorners(num: Int, position: Int){
+        try {
+
+        } catch (e: Exception) {
+            Log.e("Claim Top Line","Exception: {$e}")
+        }
+    }
+    private fun claimFullHouse(num: Int, position: Int){
+        try {
+
+        } catch (e: Exception) {
+            Log.e("Claim Top Line","Exception: {$e}")
+        }
+    }
+
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         return when (keyCode) {
