@@ -23,15 +23,16 @@ import com.newitzone.tambola.utils.SharedPrefManager
 import model.KeyModel
 import model.NumModel
 import model.claim.*
-import model.gamein.GameIn
-import model.gamein.Result
+import model.gameinv2.GameInV2
+import model.gameinv2.Result
+import model.gameinv2.UserData
 import java.util.*
 
 class PlayActivity : AppCompatActivity() {
     private var context: Context? = null
     private lateinit var keyModel: KeyModel
-    private lateinit var keyGameInResponse: GameIn
-    private lateinit var keyGameInResult: Result
+    private lateinit var keyGameInResponse: GameInV2
+    private lateinit var userData: UserData
     private val random = Random()
     private var claimTicket1 = true
     private var claimTicket2 = true
@@ -81,7 +82,7 @@ class PlayActivity : AppCompatActivity() {
         // status bar is hidden, so hide that too if necessary.
         actionBar?.hide()
         keyModel = intent.getSerializableExtra(HomeActivity.KEY_MODEL) as KeyModel
-        keyGameInResponse = intent.getSerializableExtra(HomeActivity.KEY_GAME_IN) as GameIn
+        keyGameInResponse = intent.getSerializableExtra(HomeActivity.KEY_GAME_IN) as GameInV2
         if (keyModel != null) {
             if (keyModel.ticketType == 1) {
                 lLTicket1.visibility = View.VISIBLE
@@ -92,9 +93,9 @@ class PlayActivity : AppCompatActivity() {
             }
         }
         if (keyGameInResponse != null){
-            for (elements in keyGameInResponse.result) {
+            for (elements in keyGameInResponse.result.userData) {
                 if (elements.userId == SharedPrefManager.getInstance(context as PlayActivity).result.id) {
-                    keyGameInResult = elements
+                    userData = elements
                     break
                 }
             }
@@ -111,7 +112,7 @@ class PlayActivity : AppCompatActivity() {
         // TODO: Ticket 1
         onTicket1()
         // TODO: Ticket 2
-        onTicket2()
+        //onTicket2()
         // TODO: Recycler view Claim Ticket 1
         onRecyclerViewClaimTicket1()
         // TODO: Recycler view Claim Ticket 2
@@ -127,8 +128,8 @@ class PlayActivity : AppCompatActivity() {
     }
     private fun onRecyclerViewRandomNumber(){
         //var ranNum = rand(1,90)
-        if (keyGameInResult != null) {
-            var ranNum = keyGameInResult.randNo[posRanNum]
+        if (keyGameInResponse != null) {
+            var ranNum = keyGameInResponse.result.randNo[posRanNum]
             progressBar.progress = 1
             i = progressBar.progress
             Thread(Runnable {
@@ -169,7 +170,7 @@ class PlayActivity : AppCompatActivity() {
     private fun onRecyclerViewLiveUser(){
         if (keyGameInResponse != null) {
             // Initializing an empty ArrayList to be filled with items
-            val list: List<Result> = keyGameInResponse.result
+            val list: List<UserData> = keyGameInResponse.result.userData
             val adapter = LiveUserAdapter(list, this)
             recyclerViewLiveUser.layoutManager = LinearLayoutManager(context)
             recyclerViewLiveUser.adapter = adapter
@@ -188,27 +189,25 @@ class PlayActivity : AppCompatActivity() {
         }
     }
     private fun onTicket1(){
-        if (keyGameInResult != null) {
-            var i = 0
+        if (userData != null) {
             val numList: MutableList<NumModel> = mutableListOf()
-            val listRow1 = keyGameInResult.tick.ticket1[0] as List<Int>
-            for (element in listRow1) {
+            val listRow1 = userData.tick.ticket1 as List<Int>
+            for ((i, element) in listRow1.withIndex()) {
                 val numModel = NumModel(element,false)
                 numList.add(i,numModel)
-                i++
             }
-            val listRow2 = keyGameInResult.tick.ticket1[1] as List<Int>
-            for (element in listRow2) {
-                val numModel = NumModel(element,false)
-                numList.add(i,numModel)
-                i++
-            }
-            val listRow3 = keyGameInResult.tick.ticket1[2] as List<Int>
-            for (element in listRow3) {
-                val numModel = NumModel(element,false)
-                numList.add(i,numModel)
-                i++
-            }
+//            val listRow2 = keyGameInResult.tick.ticket1[1] as List<Int>
+//            for (element in listRow2) {
+//                val numModel = NumModel(element,false)
+//                numList.add(i,numModel)
+//                i++
+//            }
+//            val listRow3 = keyGameInResult.tick.ticket1[2] as List<Int>
+//            for (element in listRow3) {
+//                val numModel = NumModel(element,false)
+//                numList.add(i,numModel)
+//                i++
+//            }
 //            print(numList)
 //            for (i in 1..27) {
 //                numList.add(rand(1, 90))
@@ -228,30 +227,13 @@ class PlayActivity : AppCompatActivity() {
         }
     }
     private fun onTicket2(){
-        if (keyGameInResult != null && keyModel.ticketType == 2) {
-            var i = 0
+        if (userData != null && keyModel.ticketType == 2) {
             val numList: MutableList<NumModel> = mutableListOf()
-            val listRow1 = keyGameInResult.tick.ticket2[0] as List<Int>
-            for (element in listRow1) {
+            val listRow1 = userData.tick.ticket1 as List<Int>
+            for ((i, element) in listRow1.withIndex()) {
                 val numModel = NumModel(element,false)
                 numList.add(i,numModel)
-                i++
             }
-            val listRow2 = keyGameInResult.tick.ticket2[1] as List<Int>
-            for (element in listRow2) {
-                val numModel = NumModel(element,false)
-                numList.add(i,numModel)
-                i++
-            }
-            val listRow3 = keyGameInResult.tick.ticket2[2] as List<Int>
-            for (element in listRow3) {
-                val numModel = NumModel(element,false)
-                numList.add(i,numModel)
-                i++
-            }
-//        for (i in 1..27){
-//            numList.add(rand(1,90))
-//        }
             val adapter = TicketNumberAdapter(numList, this)
             rVTicket2.layoutManager = GridLayoutManager(context, 9)
             rVTicket2.adapter = adapter

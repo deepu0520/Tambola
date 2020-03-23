@@ -4,6 +4,7 @@ import com.google.gson.GsonBuilder
 import com.newitzone.tambola.utils.Constants
 import model.DefaultResponse
 import model.gamein.GameIn
+import model.gameinv2.GameInV2
 import model.gamestatus.ResGameStatus
 import model.login.ResLogin
 import okhttp3.OkHttpClient
@@ -21,6 +22,15 @@ interface TambolaApiService {
     /**
      * Companion object to create the TambolaApiService
      */
+
+    @FormUrlEncoded
+    @POST("game-in-v2")
+    suspend fun gameInV2(@Field("userid") userid: String,
+                       @Field("sesid") sesid: String,
+                       @Field("game_type") game_type: String,
+                       @Field("amt") amt: String,
+                       @Field("tournament_id") tournament_id: String
+    ): Response<GameInV2>
 
     @FormUrlEncoded
     @POST("game-in")

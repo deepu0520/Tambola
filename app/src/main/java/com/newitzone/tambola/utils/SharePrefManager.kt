@@ -39,7 +39,7 @@ class SharedPrefManager private constructor(private val mCtx: Context) {
                 sPref.getFloat("AcBal", 0f),
                 sPref.getString("onlineUser", "0").toString(),
                 sPref.getString("login_st", "0").toString(),
-                sPref.getString("sid", "").toString()
+                sPref.getString("sid", "00000000-0000-0000-0000-000000000000").toString()
             )
         }
 

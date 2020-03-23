@@ -160,7 +160,7 @@ class LoadingActivity : AppCompatActivity() {
             val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
             CoroutineScope(Dispatchers.IO).launch {
                 try{
-                    val response = service.gameIn(userid, sesid, game_type, amt, tournament_id)
+                    val response = service.gameInV2(userid, sesid, game_type, amt, tournament_id)
                     withContext(Dispatchers.Main) {
                         try {
                             if (response.isSuccessful) {

@@ -11,8 +11,9 @@ import kotlinx.android.synthetic.main.cardview_live_user.view.*
 import kotlinx.android.synthetic.main.cardview_open_random_number.view.*
 import kotlinx.android.synthetic.main.cardview_tournament_item.view.*
 import model.gamein.Result
+import model.gameinv2.UserData
 
-class LiveUserAdapter(val items : List<Result>, val context: Context) : RecyclerView.Adapter<ViewHolderLiveUser>() {
+class LiveUserAdapter(val items : List<UserData>, val context: Context) : RecyclerView.Adapter<ViewHolderLiveUser>() {
 
     // Gets the number of animals in the list
     override fun getItemCount(): Int {

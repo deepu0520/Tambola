@@ -34,7 +34,7 @@ import java.io.Serializable
 class LoginActivity : AppCompatActivity() {
     private var context: Context? = null
     private var userType: Int = 0
-    private var loginType: Int = 2;
+    private var loginType: Int = 0;
     private var sesId: String = "";
     private var userId: String = "";
 
