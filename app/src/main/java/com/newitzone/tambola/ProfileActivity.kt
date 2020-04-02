@@ -11,10 +11,8 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
-import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
-import android.view.contentcapture.ContentCaptureSessionId
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -28,19 +26,17 @@ import com.livinglifetechway.quickpermissions_kotlin.util.QuickPermissionsOption
 import com.livinglifetechway.quickpermissions_kotlin.util.QuickPermissionsRequest
 import com.newitzone.tambola.utils.UtilMethods
 import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.activity_profile.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import model.login.Result
 import retrofit.TambolaApiService
-import retrofit2.HttpException
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import model.login.Result
 import java.util.*
 
 class ProfileActivity : AppCompatActivity() {

@@ -95,30 +95,15 @@ class LoginActivity : AppCompatActivity() {
                 // this block is only called if form is valid.
                 // do something with a valid form state.
                 val  context = this@LoginActivity
-                val uId = SharedPrefManager.getInstance(context).userId
-                if (uId.isNullOrBlank()) {
-                        loginApi(
-                            context,
-                            email,
-                            password,
-                            userType.toString(),
-                            loginType.toString(),
-                            sesId,
-                            userId
-                        )
-                }else{
-                    loginType = 1
-                    userId = SharedPrefManager.getInstance(context).userId.toString()
-                    loginApi(
-                        context,
-                        email,
-                        password,
-                        userType.toString(),
-                        loginType.toString(),
-                        sesId,
-                        userId
-                    )
-                }
+                loginApi(
+                    context,
+                    email,
+                    password,
+                    userType.toString(),
+                    loginType.toString(),
+                    sesId,
+                    userId
+                )
             }
         }
     }
@@ -138,32 +123,32 @@ class LoginActivity : AppCompatActivity() {
                             if (response.isSuccessful) {
                                 // save the user details
                                 response.body()?.result?.let {
-                                    SharedPrefManager.getInstance(context).saveUser(
-                                        it, passKey
-                                    )
+                                    SharedPrefManager.getInstance(context).saveUser(it,passKey)
                                 }
 
                                 if (SharedPrefManager.getInstance(context).isLoggedIn) {
 
-                                    val intent = Intent(context, HomeActivity::class.java)
-                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                                    intent.putExtra(
-                                        HomeActivity.KEY_LOGIN,
-                                        SharedPrefManager.getInstance(context).result
-                                    )
-                                    startActivity(intent)
-                                    finish()
+                                    if(loginType == "1") {
+                                        val intent = Intent(context, HomeActivity::class.java)
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                        intent.putExtra(HomeActivity.KEY_LOGIN,SharedPrefManager.getInstance(context).result)
+                                        startActivity(intent)
+                                        finish()
+                                    }else {
+                                        loginApi(context
+                                            , SharedPrefManager.getInstance(context).result.emailId
+                                            , SharedPrefManager.getInstance(context).passKey.toString()
+                                            , SharedPrefManager.getInstance(context).result.userType
+                                            , "1"
+                                            , SharedPrefManager.getInstance(context).result.sid
+                                            , SharedPrefManager.getInstance(context).result.id
+                                        )
+                                    }
                                 } else {
-                                    UtilMethods.ToastLong(
-                                        context,
-                                        "Your cannot login because your account is blocked"
-                                    )
+                                    UtilMethods.ToastLong(context,"Your cannot login because your account is blocked")
                                 }
                             } else {
-                                UtilMethods.ToastLong(
-                                    context,
-                                    "Error: ${response.code()}" + "\nMsg:${response.body()?.msg}"
-                                )
+                                UtilMethods.ToastLong(context, "Error: ${response.code()}" + "\nMsg:${response.body()?.msg}")
                             }
                         } catch (e: Exception) {
                             UtilMethods.ToastLong(context, "Exception ${e.message}")

@@ -6,7 +6,7 @@ import java.io.Serializable
 
 data class Tick(
     @SerializedName("ticket1")
-    val ticket1: List<Any>,
+    var ticket1: List<List<Int>>,
     @SerializedName("ticket2")
-    val ticket2: List<Any>
+    var ticket2: List<List<Int>>
 ) : Serializable

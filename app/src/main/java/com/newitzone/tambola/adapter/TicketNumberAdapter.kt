@@ -39,15 +39,15 @@ class TicketNumberAdapter(val items : List<NumModel>, val context: Context) : Re
         }else{
             holder?.tvNum.setBackgroundResource(android.R.color.transparent)
         }
-        // onClick
-        holder.rL.tag = items[position]
-        holder.rL.setOnClickListener {
-            val numModel = it.tag as NumModel
-            if (numModel != null && numModel.num != 0){
-                items[position].isChecked = !numModel.isChecked
-                notifyDataSetChanged()
-            }
-        }
+//        // onClick
+//        holder.rL.tag = items[position]
+//        holder.rL.setOnClickListener {
+//            val numModel = it.tag as NumModel
+//            if (numModel != null && numModel.num != 0){
+//                items[position].isChecked = !numModel.isChecked
+//                notifyDataSetChanged()
+//            }
+//        }
     }
 }
 

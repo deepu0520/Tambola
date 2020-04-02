@@ -4,11 +4,21 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.os.CountDownTimer
+import android.os.Handler
 import android.util.Log
+import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
+import android.widget.ProgressBar
+import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import butterknife.BindView
+import butterknife.ButterKnife
+import com.github.anastr.flattimelib.CountDownTimerView
+import com.github.anastr.flattimelib.intf.OnTimeFinish
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.newitzone.tambola.utils.Constants
@@ -19,15 +29,25 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import model.KeyModel
+import model.fixuser.ResFixUser
 import model.gamein.GameIn
-import model.gamein.Result
 import retrofit.TambolaApiService
 import retrofit2.HttpException
+import java.util.*
+import java.util.concurrent.TimeUnit
+
 
 class LoadingActivity : AppCompatActivity() {
     private var context: Context? = null
     private val DELAY_MS: Long = 4000  //delay in milliseconds before task is to be executed
+    private var i = 0
+    private val handler = Handler()
+    private var timeout = false
     private lateinit var keyModel: KeyModel
+    private lateinit var grStatus: model.gamerequeststatus.Result
+    @BindView(R.id.text_message) lateinit var tvMsg: TextView
+    @BindView(R.id.text_timer) lateinit var tvTimer: TextView
+    @BindView(R.id.countDown_TimerView) lateinit var mCountDownTimer: CountDownTimerView
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +60,7 @@ class LoadingActivity : AppCompatActivity() {
         setContentView(R.layout.activity_loading)
         supportActionBar?.hide()
         this.context = this@LoadingActivity
+        ButterKnife.bind(this)
         // Hide the status bar.
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
         // Remember that you should never show the action bar if the
@@ -47,29 +68,107 @@ class LoadingActivity : AppCompatActivity() {
         actionBar?.hide()
         keyModel = intent.getSerializableExtra(HomeActivity.KEY_MODEL) as KeyModel
         if (keyModel != null){
-            callApi()
+            tvMsg.text = "Loading..."
+            callTimers(60)  // call for 60 sec
+            callGameRequestStatusApiFromCurrentUser(0)
+            // TODO:("Get fix user details")
+            callFixUserGameRequestApi()
         }
     }
+    private fun callTimers(sec: Long){
+        // 60 seconds (1 minute)
+        val minute:Long = 1000 * sec // 1000 milliseconds = 1 second
+        // Count down interval 1 second
+        val countDownInterval: Long = 1000
+
+        timer(minute,countDownInterval).start()
+        countDown(minute)
+        //tvMsg.text = "Loading..."
+    }
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    private fun callApi(){
-        val context= this@LoadingActivity
-        val userId = SharedPrefManager.getInstance(context).result.id
-        val sessionId = SharedPrefManager.getInstance(context).result.sid
+    private fun callGameRequestStatusApi(context: Context, userId: String, sessionId: String, amt: String
+                                         , gameType: String, tournamentId: String, gameReqId: String, fixType: Int){
         if (sessionId.isNotBlank()) {
             //TODO: Use this
             gameRequestStatusApi(
                 context,
                 userId,
                 sessionId,
-                keyModel.amount.toString(),
-                keyModel.gameType.toString(),
-                keyModel.tournamentId
+                amt,
+                gameType,
+                tournamentId,
+                gameReqId,
+                fixType
             )
         }else{
             UtilMethods.ToastLong(context,"Session expired")
             val intent = Intent(context, LoginActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
             startActivity(intent)
+        }
+    }
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private fun callGameRequestStatusApiFromCurrentUser(fixType: Int){
+        val context= this@LoadingActivity
+        val userId = SharedPrefManager.getInstance(context).result.id
+        val sessionId = SharedPrefManager.getInstance(context).result.sid
+        val amt = keyModel.amount.toString()
+        val gameType = keyModel.gameType.toString()
+        val tournamentId = keyModel.tournamentId
+        val gameReqId = keyModel.gameRequestId
+        callGameRequestStatusApi(
+            context,
+            userId,
+            sessionId,
+            amt,
+            gameType,
+            tournamentId,
+            gameReqId,
+            fixType
+        )
+    }
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private fun gameRequestStatusApi(context: Context, userid: String, sesid: String
+                                     , amt: String, game_type: String, tournament_id: String, reqid: String,fixType: Int) {
+        if (UtilMethods.isConnectedToInternet(context)) {
+            //UtilMethods.showLoading(context)
+            val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val response = service.gameRequestStatus(userid, sesid, game_type, amt, tournament_id,reqid)
+                    withContext(Dispatchers.Main) {
+                        try {
+                            if (response.isSuccessful) {
+                                if (response.code() == 200) {
+                                    if (fixType == 0) {
+                                        response.body()?.result?.get(0)?.let { gameInCondition(it) }
+                                        grStatus = response.body()?.result?.get(0)!!
+                                    }
+                                } else {
+                                    UtilMethods.ToastLong(context, "${response.body()?.msg}")
+                                }
+                            } else {
+                                UtilMethods.ToastLong(context, "${response.body()?.msg}")
+                            }
+                        } catch (e: Exception) {
+                            UtilMethods.ToastLong(context, "Exception ${e.message}")
+                        } catch (e: Throwable) {
+                            UtilMethods.ToastLong(
+                                context,
+                                "Ooops: Something else went wrong : " + e.message
+                            )
+                        }
+                        //                    UtilMethods.hideLoading()
+                    }
+                }catch (e: Throwable) {
+                    runOnUiThread {
+                        UtilMethods.ToastLong(context,"Server or Internet error : ${e.message}")
+                    }
+                    Log.e("TAG","Throwable : $e")
+                }
+            }
+        }else{
+            UtilMethods.ToastLong(context,"No Internet Connection")
         }
     }
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -85,7 +184,8 @@ class LoadingActivity : AppCompatActivity() {
                 sessionId,
                 keyModel.amount.toString(),
                 keyModel.gameType.toString(),
-                keyModel.tournamentId
+                keyModel.tournamentId,
+                keyModel.gameRequestId
             )
         }else{
             UtilMethods.ToastLong(context,"Session expired")
@@ -95,72 +195,14 @@ class LoadingActivity : AppCompatActivity() {
         }
     }
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    private fun gameRequestStatusApi(context: Context, userid: String, sesid: String
-                                     , amt: String, game_type: String, tournament_id: String) {
-        if (UtilMethods.isConnectedToInternet(context)) {
-            //UtilMethods.showLoading(context)
-            val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    val response = service.gameRequestStatus(userid, sesid, game_type, amt, tournament_id)
-                    withContext(Dispatchers.Main) {
-                        try {
-                            if (response.isSuccessful) {
-                                if (response.code() == 200) {
-                                    callGameInApi()
-                                    //getGameInfromJson()
-                                } else {
-                                    UtilMethods.ToastLong(context, "${response.body()?.msg}")
-                                }
-                            } else {
-                                UtilMethods.ToastLong(context, "${response.body()?.msg}")
-                            }
-                        } catch (e: Exception) {
-                            UtilMethods.ToastLong(context, "Exception ${e.message}")
-                        } catch (e: Throwable) {
-                            UtilMethods.ToastLong(
-                                context,
-                                "Ooops: Something else went wrong : " + e.message
-                            )
-                        }
-    //                    UtilMethods.hideLoading()
-                    }
-                }catch (e: Throwable) {
-                    runOnUiThread {
-                        UtilMethods.ToastLong(context,"Server or Internet error : ${e.message}")
-                    }
-                    Log.e("TAG","Throwable : $e")
-                }
-            }
-        }else{
-            UtilMethods.ToastLong(context,"No Internet Connection")
-        }
-    }
-    private fun getGameInfromJson(){
-        val jsonFileString = Constants.getJsonDataFromAsset(applicationContext, "gameIn.json")
-        Log.i("data", jsonFileString)
-
-        val gson = Gson()
-        val GameInType = object : TypeToken<GameIn>() {}.type
-
-        var gameInResponse: GameIn = gson.fromJson(jsonFileString, GameInType)
-
-        Log.i("data", "> Item $gameInResponse")
-        val intent = Intent(context, PlayActivity::class.java)
-        intent.putExtra(HomeActivity.KEY_MODEL, keyModel)
-        intent.putExtra(HomeActivity.KEY_GAME_IN ,gameInResponse)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-        startActivity(intent)
-    }
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun gameInApi(context: Context, userid: String, sesid: String
-                                     , amt: String, game_type: String, tournament_id: String) {
+                                     , amt: String, game_type: String, tournament_id: String, reqid: String) {
         if (UtilMethods.isConnectedToInternet(context)) {
             //UtilMethods.showLoading(context)
             val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
             CoroutineScope(Dispatchers.IO).launch {
                 try{
-                    val response = service.gameInV2(userid, sesid, game_type, amt, tournament_id)
+                    val response = service.gameIn(userid, sesid, game_type, amt, tournament_id,reqid)
                     withContext(Dispatchers.Main) {
                         try {
                             if (response.isSuccessful) {
@@ -204,4 +246,173 @@ class LoadingActivity : AppCompatActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private fun gameInCondition(grStatus: model.gamerequeststatus.Result){
+        val player = grStatus.playersOnline.toInt()
+        val ticket = grStatus.totalTickets.toInt()
+        when {
+            player == 6 -> {
+                // Max player 6 then start game
+                callGameInApi()
+            }
+            ticket >= 6 -> {
+                // if tickets greater than 6 and wait 60 secs completed then start game
+                callGameInApi()
+            }
+            ticket < 6 && player < 6 -> {
+                // if tickets below 6 and players below 6 and time left 60 sec then please wait extra 30 secs with message
+                // 30 seconds
+//                val minute:Long = 1000 * 30 // 1000 milliseconds = 1 second
+//                // Count down interval 1 second
+//                val countDownInterval: Long = 1000
+//
+//                timer(minute,countDownInterval).start()
+            }
+//            ticket >= 6 && player < 6 -> {
+//                // if above conditions not fulfill and also elapsed 90 sec then show the "Opps something went wrong"
+//                UtilMethods.ToastLong(baseContext,"Oops something went wrong. Please request again")
+//                finish()
+//            }
+
+        }
+    }
+    private fun countDown(timer: Long){
+        // to start CountDownTimer "time in millisecond"
+
+        // to start CountDownTimer "time in millisecond"
+        mCountDownTimer.start(timer)
+        // on time finish
+        mCountDownTimer.setOnTimeFinish(OnTimeFinish {
+            //Toast.makeText(applicationContext,"finish",Toast.LENGTH_SHORT).show()
+        })
+
+        // on (success, failed) animation finish
+
+        // on (success, failed) animation finish
+        mCountDownTimer.setOnEndAnimationFinish(OnTimeFinish {
+            // ---
+        })
+    }
+    // Method to configure and return an instance of CountDownTimer object
+    private fun timer(millisInFuture:Long,countDownInterval:Long): CountDownTimer{
+        return object: CountDownTimer(millisInFuture,countDownInterval){
+
+            override fun onTick(millisUntilFinished: Long){
+                val timeRemaining = timeString(millisUntilFinished)
+                tvTimer.text = timeRemaining
+                if (timeout){
+                    tvMsg.text = "Give you $timeRemaining sec more time to join"
+                }
+            }
+
+            @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+            override fun onFinish() {
+                tvTimer.text = ""
+                if (grStatus.totalTickets < "6" && grStatus.playersOnline < "6"){
+                    if (timeout){
+                        tvMsg.text = "Oops something went wrong"
+                        finish()
+                    }else{
+                        timeout = true
+                        //tvMsg.text = "Give you 30 sec more time to join"
+                        // TODO:("Get fix user details")
+                        callFixUserGameRequestApi()
+                        callTimers(30)
+                    }
+                }else {
+                    callGameRequestStatusApiFromCurrentUser(0)
+                }
+            }
+        }
+    }
+    // Method to get days hours minutes seconds from milliseconds
+    private fun timeString(millisUntilFinished:Long):String{
+        var millisUntilFinished:Long = millisUntilFinished
+        val days = TimeUnit.MILLISECONDS.toDays(millisUntilFinished)
+        millisUntilFinished -= TimeUnit.DAYS.toMillis(days)
+
+        val hours = TimeUnit.MILLISECONDS.toHours(millisUntilFinished)
+        millisUntilFinished -= TimeUnit.HOURS.toMillis(hours)
+
+        val minutes = TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished)
+        millisUntilFinished -= TimeUnit.MINUTES.toMillis(minutes)
+
+        val seconds = TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished)
+
+        // Format the string
+        return String.format(Locale.getDefault(),"%02d",seconds)
+    }
+
+
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private fun callFixUserGameRequestApi(){
+        val jsonFileString = Constants.getJsonDataFromAsset(applicationContext, "fixUser.json")
+        Log.i("data", jsonFileString)
+
+        val gson = Gson()
+        val fixUser = object : TypeToken<ResFixUser>() {}.type
+
+        var fixUserResponse: ResFixUser = gson.fromJson(jsonFileString, fixUser)
+
+        Log.i("data", "> Item $fixUserResponse")
+        if (fixUserResponse.fixUsers != null) {
+            val context = this@LoadingActivity
+            for (elements in fixUserResponse.fixUsers) {
+                gameRequestApi(context,elements.userId,elements.sessionId,elements.amt.toString(),elements.ticketReq,elements.gameType.toString(),elements.tournamentId)
+            }
+        }
+    }
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private fun gameRequestApi(context: Context, userid: String, sesid: String
+                               , amt: String, req_ticket: Int
+                               , game_type: String, tournament_id: String){
+        if (UtilMethods.isConnectedToInternet(context)) {
+            //UtilMethods.showLoading(context)
+            val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
+            CoroutineScope(Dispatchers.IO).launch {
+                val response = service.gameRequest(userid,sesid,amt,req_ticket.toString(),game_type,tournament_id)
+                withContext(Dispatchers.Main) {
+                    try {
+                        if (response.isSuccessful) {
+                            if (response.code() == 201) {
+                                //UtilMethods.ToastLong(context, "${response.body()?.msg}")
+                                val gameReqId = response.body()?.result?.get(0)?.requestID!!
+                                callGameRequestStatusApi(context,userid,sesid,amt,game_type,tournament_id,gameReqId,1)
+                            } else {
+                                UtilMethods.ToastLong(context, "${response.body()?.msg}")
+                            }
+                        } else {
+                            UtilMethods.ToastLong(context, "${response.body()?.msg}")
+                        }
+                    } catch (e: HttpException) {
+                        UtilMethods.ToastLong(context, "Exception ${e.message}")
+                    } catch (e: Throwable) {
+                        UtilMethods.ToastLong(context,"Ooops: Something else went wrong : " + e.message)
+                    }
+                    //UtilMethods.hideLoading()
+                }
+            }
+        }else{
+            UtilMethods.ToastLong(context,"No Internet Connection")
+        }
+    }
+    override fun onStop() {
+        super.onStop()
+        finish()
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        finish()
+    }
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        return when (keyCode) {
+            KeyEvent.KEYCODE_BACK ->  {
+                // do something here
+                finish()
+                true
+            }
+            else -> super.onKeyDown(keyCode, event)
+        }
+    }
 }

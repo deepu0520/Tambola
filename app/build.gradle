@@ -67,6 +67,8 @@ dependencies {
     kapt 'com.jakewharton:butterknife-compiler:10.1.0'
     // circular progress bar
     implementation 'com.mikhaellopez:circularprogressbar:3.0.3'
+     // countdown timer
+    implementation 'com.github.anastr:flattimelib:1.0.3'
     // validator
     implementation 'com.afollestad:vvalidator:0.2.2'
     // picasso

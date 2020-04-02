@@ -4,8 +4,8 @@ import com.google.gson.GsonBuilder
 import com.newitzone.tambola.utils.Constants
 import model.DefaultResponse
 import model.gamein.GameIn
-import model.gameinv2.GameInV2
-import model.gamestatus.ResGameStatus
+import model.gamerequest.ResGameRequest
+import model.gamerequeststatus.ResGameReqStatus
 import model.login.ResLogin
 import okhttp3.OkHttpClient
 import retrofit2.Response
@@ -24,21 +24,13 @@ interface TambolaApiService {
      */
 
     @FormUrlEncoded
-    @POST("game-in-v2")
-    suspend fun gameInV2(@Field("userid") userid: String,
+    @POST("game-in")
+    suspend fun gameIn(@Field("userid") userid: String,
                        @Field("sesid") sesid: String,
                        @Field("game_type") game_type: String,
                        @Field("amt") amt: String,
-                       @Field("tournament_id") tournament_id: String
-    ): Response<GameInV2>
-
-    @FormUrlEncoded
-    @POST("game-in")
-    suspend fun gameIn(@Field("userid") userid: String,
-                                  @Field("sesid") sesid: String,
-                                  @Field("game_type") game_type: String,
-                                  @Field("amt") amt: String,
-                                  @Field("tournament_id") tournament_id: String
+                       @Field("tournament_id") tournament_id: String,
+                       @Field("reqid") reqid: String
     ): Response<GameIn>
 
     @FormUrlEncoded
@@ -47,8 +39,9 @@ interface TambolaApiService {
                                   @Field("sesid") sesid: String,
                                   @Field("game_type") game_type: String,
                                   @Field("amt") amt: String,
-                                  @Field("tournament_id") tournament_id: String
-    ): Response<ResGameStatus>
+                                  @Field("tournament_id") tournament_id: String,
+                                  @Field("reqid") reqid: String
+    ): Response<ResGameReqStatus>
 
     @FormUrlEncoded
     @POST("game-request")
@@ -58,7 +51,7 @@ interface TambolaApiService {
                             @Field("req_ticket") req_ticket: String,
                             @Field("game_type") game_type: String,
                             @Field("tournament_id") tournament_id: String
-    ): Response<DefaultResponse>
+    ): Response<ResGameRequest>
 
     @FormUrlEncoded
     @POST("profile-update")

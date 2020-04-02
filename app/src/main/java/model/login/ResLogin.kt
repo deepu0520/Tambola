@@ -6,9 +6,9 @@ import java.io.Serializable
 
 data class ResLogin(
     @SerializedName("msg")
-    val msg: String,
+    var msg: String,
     @SerializedName("Result")
-    val result: Result,
+    var result: Result,
     @SerializedName("status")
-    val status: Int
+    var status: Int
 ): Serializable

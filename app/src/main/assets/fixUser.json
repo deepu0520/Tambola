@@ -1,0 +1,34 @@
+{
+  "FixUsers": [
+    {
+      "userId": "FD56D766-3981-45E7-A1E9-8B3348DB1348",
+      "userName": "test1@gmail.com",
+      "passKey": "abc@123",
+      "sessionId": "94B82B2B-EB9A-4317-8C9C-63ACAD97F18A",
+      "ticketReq": 2,
+      "amt": 10,
+      "gameType": 0,
+      "tournamentId": ""
+    },
+    {
+      "userId": "7226B615-F150-4DF0-A2C0-66296693CA99",
+      "userName": "test2@gmail.com",
+      "passKey": "abc@123",
+      "sessionId": "9D55C107-D1AA-4BC1-B5BB-24750EC8E9B1",
+      "ticketReq": 2,
+      "amt": 10,
+      "gameType": 0,
+      "tournamentId": ""
+    },
+    {
+      "userId": "8BEA7C9E-6C12-4664-B83C-C67FC95587E9",
+      "userName": "test3@gmail.com",
+      "passKey": "abc@123",
+      "sessionId": "474AADE8-6ED8-4BD2-880B-6A9321268FB2",
+      "ticketReq": 2,
+      "amt": 10,
+      "gameType": 0,
+      "tournamentId": ""
+    }
+  ]
+}

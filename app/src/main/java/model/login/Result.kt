@@ -6,33 +6,35 @@ import java.io.Serializable
 
 data class Result(
     @SerializedName("id")
-    val id: String,
+    var id: String,
     @SerializedName("inactive")
-    val inactive: String,
+    var inactive: String,
     @SerializedName("fname")
-    val fname: String,
+    var fname: String,
     @SerializedName("lname")
-    val lname: String,
+    var lname: String,
     @SerializedName("dob")
-    val dob: String,
+    var dob: String,
     @SerializedName("email_id")
-    val emailId: String,
+    var emailId: String,
     @SerializedName("code")
-    val code: String,
+    var code: String,
     @SerializedName("mobile_no")
-    val mobileNo: String,
+    var mobileNo: String,
     @SerializedName("user_type")
-    val userType: String,
+    var userType: String,
     @SerializedName("img")
-    val img: String,
+    var img: String,
     @SerializedName("en_time")
-    val enTime: String,
+    var enTime: String,
     @SerializedName("AcBal")
-    val acBal: Float,
-    @SerializedName("onlineUser")
-    val onlineUser: String,
+    var acBal: Float,
+    @SerializedName("AcChipsBal")
+    var acChipsBal: String,
     @SerializedName("login_st")
-    val loginSt: String,
+    var loginSt: String,
+    @SerializedName("onlineUser")
+    var onlineUser: String,
     @SerializedName("sid")
-    val sid: String
-) : Serializable
+    var sid: String
+): Serializable

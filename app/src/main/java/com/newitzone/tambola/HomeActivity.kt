@@ -16,18 +16,15 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.FragmentTransaction
-import androidx.fragment.app.add
 import butterknife.BindView
 import butterknife.ButterKnife
 import com.google.android.material.snackbar.Snackbar
 import com.newitzone.tambola.dialog.CashGamesDialog
 import com.newitzone.tambola.dialog.TicketsDialog
 import com.newitzone.tambola.dialog.TournamentGamesDialog
-import com.newitzone.tambola.utils.SharedPrefManager
 import com.squareup.picasso.Picasso
 import model.KeyModel
 import model.login.Result
-import java.io.Serializable
 import java.lang.Exception
 
 /**
@@ -44,8 +41,8 @@ class HomeActivity : AppCompatActivity() {
     @BindView(R.id.image_practice) lateinit var imgPractice: ImageView
     @BindView(R.id.image_menu) lateinit var imgMenu: ImageView
     // text view
-    @BindView(R.id.text_cash_balance) lateinit var tvCashAvailAmt: TextView
-    @BindView(R.id.text_add_cash) lateinit var tvAddCash: TextView
+    @BindView(R.id.text_cash_balance) lateinit var tvCash: TextView
+    @BindView(R.id.text_chips_balance) lateinit var tvChips: TextView
     @BindView(R.id.text_profile_name) lateinit var tvProfileName: TextView
     @BindView(R.id.text_online_count) lateinit var tvOnlineCount: TextView
 
@@ -70,7 +67,8 @@ class HomeActivity : AppCompatActivity() {
         // Intent
         login = intent.getSerializableExtra(HomeActivity.KEY_LOGIN) as Result
         tvProfileName.text = login.fname+" "+login.lname
-        tvCashAvailAmt.text = "₹"+login.acBal.toString()
+        tvCash.text = "₹"+login.acBal.toString()
+        tvChips.text = login.acChipsBal.toString()
         tvOnlineCount.text = login.onlineUser.toString()
         if (login.img.isNotEmpty()) {
             // load the image with Picasso
@@ -93,11 +91,11 @@ class HomeActivity : AppCompatActivity() {
         imgMenu.setOnClickListener { view ->
             onMenu(view)
         }
-        tvCashAvailAmt.setOnClickListener { view ->
+        tvCash.setOnClickListener { view ->
             onCashAvailAmt(view)
         }
-        tvAddCash.setOnClickListener { view ->
-            onAddCash(view)
+        tvChips.setOnClickListener { view ->
+            onChips(view)
         }
     }
     private fun onProfileUpdate(){
@@ -107,7 +105,7 @@ class HomeActivity : AppCompatActivity() {
         startActivity(intent)
     }
     private fun onCash(view: View){
-        var keyModel = KeyModel(0,0f,0,"")
+        var keyModel = KeyModel("",0,0f,0,"")
         keyModel.gameType = 1
 
         val dialog = CashGamesDialog()
@@ -118,7 +116,7 @@ class HomeActivity : AppCompatActivity() {
         dialog.show(ft, CashGamesDialog.TAG)
     }
     private fun onTournament(view: View){
-        var keyModel = KeyModel(0,0f,1,"")
+        var keyModel = KeyModel("",0,0f,1,"")
         keyModel.gameType = 2
 
         val dialog = TournamentGamesDialog()
@@ -129,7 +127,7 @@ class HomeActivity : AppCompatActivity() {
         dialog.show(ft, TournamentGamesDialog.TAG)
     }
     private fun onPractice(view: View){
-        var keyModel = KeyModel(0,5f,0,"")
+        var keyModel = KeyModel("",0,10f,0,"")
         keyModel.gameType = 0
 
         val dialog = TicketsDialog()
@@ -143,12 +141,16 @@ class HomeActivity : AppCompatActivity() {
         showPopupMenu(view)
     }
     private fun onCashAvailAmt(view: View){
-        Snackbar.make(tvCashAvailAmt,"Available Cash amount is ₹"+tvCashAvailAmt.text,Snackbar.LENGTH_SHORT).show()
-    }
-    private fun onAddCash(view: View){
+        Snackbar.make(tvCash,"Available Cash amount is ₹"+tvCash.text,Snackbar.LENGTH_SHORT).show()
         val intent = Intent(context, AddCashActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
         startActivity(intent)
+    }
+    private fun onChips(view: View){
+        Snackbar.make(tvChips,"Available Chips is "+tvChips.text,Snackbar.LENGTH_SHORT).show()
+//        val intent = Intent(context, AddCashActivity::class.java)
+//        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+//        startActivity(intent)
     }
     private fun showPopupMenu(view: View) {
         var popup: PopupMenu? = null;

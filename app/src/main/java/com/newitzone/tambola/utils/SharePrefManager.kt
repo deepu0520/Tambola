@@ -21,10 +21,10 @@ class SharedPrefManager private constructor(private val mCtx: Context) {
             val sharedPreferences = mCtx.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
             return sharedPreferences.getString("id", "")
         }
-    val result: model.login.Result
+    val result: Result
         get() {
             val sPref = mCtx.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
-            return model.login.Result(
+            return Result(
                 sPref.getString("id", "").toString(),
                 sPref.getString("inactive", "0").toString(),
                 sPref.getString("fname", "").toString(),
@@ -37,6 +37,7 @@ class SharedPrefManager private constructor(private val mCtx: Context) {
                 sPref.getString("img", "").toString(),
                 sPref.getString("en_time", "").toString(),
                 sPref.getFloat("AcBal", 0f),
+                sPref.getString("AcChipsBal", "").toString(),
                 sPref.getString("onlineUser", "0").toString(),
                 sPref.getString("login_st", "0").toString(),
                 sPref.getString("sid", "00000000-0000-0000-0000-000000000000").toString()
@@ -61,6 +62,7 @@ class SharedPrefManager private constructor(private val mCtx: Context) {
         editor.putString("img", result.img)
         editor.putString("en_time", result.enTime)
         editor.putFloat("AcBal", result.acBal.toFloat())
+        editor.putString("AcChipsBal", result.acChipsBal)
         editor.putString("onlineUser", result.onlineUser)
         editor.putString("login_st", result.loginSt)
         editor.putString("sid", result.sid)
@@ -74,6 +76,7 @@ class SharedPrefManager private constructor(private val mCtx: Context) {
         get() {
             val sPref = mCtx.getSharedPreferences(SHARED_PREF_KEY_MODEL, Context.MODE_PRIVATE)
             return KeyModel(
+                sPref.getString("gameRequestId", "").toString(),
                 sPref.getInt("gameType", 0),
                 sPref.getFloat("amount", 0f),
                 sPref.getInt("ticketType", 0),

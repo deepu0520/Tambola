@@ -1,14 +1,13 @@
-package model.gameinv2
+package model.gamerequest
 
 
 import com.google.gson.annotations.SerializedName
-import java.io.Serializable
 
-data class GameInV2(
+data class ResGameRequest(
     @SerializedName("msg")
     var msg: String,
     @SerializedName("Result")
-    var result: Result,
+    var result: List<Result>,
     @SerializedName("status")
     var status: Int
-) : Serializable
+)

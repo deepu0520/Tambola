@@ -122,6 +122,7 @@ class TicketsDialog : DialogFragment() {
                     try {
                         if (response.isSuccessful) {
                             if (response.code() == 201) {
+                                keyModel.gameRequestId = response.body()?.result?.get(0)!!.requestID
 
                                 UtilMethods.ToastLong(context, "${response.body()?.msg}")
                                 // redirect to loading screen by intent
@@ -129,6 +130,7 @@ class TicketsDialog : DialogFragment() {
                                 intent.putExtra(HomeActivity.KEY_MODEL, keyModel)
                                 intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                                 activity!!.startActivity(intent)
+                                dialog?.dismiss()
                             } else {
                                 UtilMethods.ToastLong(context, "${response.body()?.msg}")
                             }

@@ -1,4 +1,4 @@
-package model.gameinv2
+package model.gamein
 
 
 import com.google.gson.annotations.SerializedName
@@ -21,4 +21,4 @@ data class UserData(
     var ticketCount: String,
     @SerializedName("user_id")
     var userId: String
-) : Serializable
+): Serializable

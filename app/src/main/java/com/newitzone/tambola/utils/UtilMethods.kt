@@ -38,7 +38,11 @@ object UtilMethods {
 
         progressDialog = progressDialogBuilder.create()
         progressDialog.window?.setBackgroundDrawable(ColorDrawable(android.graphics.Color.TRANSPARENT));
-        progressDialog.show()
+        try {
+            progressDialog.show()
+        }catch (ex: Exception){
+            Log.e(TAG, ex.toString())
+        }
     }
 
     /**
@@ -47,7 +51,7 @@ object UtilMethods {
     fun hideLoading(){
         try {
             progressDialog.dismiss()
-        }catch (ex: java.lang.Exception){
+        }catch (ex: Exception){
             Log.e(TAG, ex.toString())
         }
 

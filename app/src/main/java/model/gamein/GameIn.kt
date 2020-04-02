@@ -8,7 +8,7 @@ data class GameIn(
     @SerializedName("msg")
     val msg: String,
     @SerializedName("Result")
-    val result: List<Result>,
+    val result: Result,
     @SerializedName("status")
     val status: Int
 ) : Serializable

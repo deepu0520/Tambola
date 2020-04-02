@@ -8,6 +8,7 @@
     android:orientation="vertical"
     android:layout_margin="4dp">
     <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/image_live_user"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:visibility="visible"
