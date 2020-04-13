@@ -10,10 +10,13 @@ import android.net.NetworkInfo
 import android.os.Build
 import android.util.Base64
 import android.util.Log
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import com.newitzone.tambola.R
 import java.io.ByteArrayOutputStream
+import java.math.RoundingMode
+import java.text.DecimalFormat
 
 
 /**
@@ -40,7 +43,7 @@ object UtilMethods {
         progressDialog.window?.setBackgroundDrawable(ColorDrawable(android.graphics.Color.TRANSPARENT));
         try {
             progressDialog.show()
-        }catch (ex: Exception){
+        }catch (ex: WindowManager.BadTokenException){
             Log.e(TAG, ex.toString())
         }
     }
@@ -51,7 +54,7 @@ object UtilMethods {
     fun hideLoading(){
         try {
             progressDialog.dismiss()
-        }catch (ex: Exception){
+        }catch (ex: WindowManager.BadTokenException){
             Log.e(TAG, ex.toString())
         }
 
@@ -132,5 +135,16 @@ object UtilMethods {
         } catch (e: Exception) {
             return source
         }
+    }
+
+    fun roundOffDecimal(number: Double): Double? {
+        val df = DecimalFormat("#.##")
+        df.roundingMode = RoundingMode.CEILING
+        return df.format(number).toDouble()
+    }
+    fun roundOffDecimal(number: Float): Float? {
+        val df = DecimalFormat("#.##")
+        df.roundingMode = RoundingMode.CEILING
+        return df.format(number).toFloat()
     }
 }

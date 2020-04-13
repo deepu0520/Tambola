@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,177 +7,170 @@
     android:background="@drawable/splash_screen"
     android:fillViewport="true"
     android:scrollbars="none">
-    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scrollbars="none"
-        android:gravity="center">
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/content"
+        tools:context=".PlayActivity">
+        <!-- todo: top center-->
+        <RelativeLayout
+            android:id="@+id/relative_pro_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:indeterminate="false"
+                android:max="100"
+                android:progress="50"
+                android:layout_centerInParent="true"
+                android:progressDrawable="@drawable/circular"
+                android:secondaryProgress="100"/>
+            <TextView
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:id="@+id/text_per"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:text="90"
+                android:textColor="@color/color_blue"
+                android:visibility="invisible"
+                android:gravity="center"
+                android:layout_centerInParent="true"/>
+            <TextView
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:id="@+id/text_ran_num"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:textColor="@color/color_blue"
+                android:background="@drawable/whitecircle"
+                android:text="90"
+                android:visibility="visible"
+                android:gravity="center"
+                android:layout_centerInParent="true"/>
+        </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/relative_top"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:context=".PlayActivity">
-            <!-- todo: top center-->
-            <RelativeLayout
-                android:id="@+id/relative_top"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="end"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginStart="96dp">
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recycler_view_random_number"
-                    android:layout_width="wrap_content"
-                    android:layout_height="96dp"
-                    android:layout_toLeftOf="@+id/relative_pro_bar"
-                    android:gravity="end" />
-                <RelativeLayout
-                    android:id="@+id/relative_pro_bar"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true">
-                    <ProgressBar
-                        android:id="@+id/progress_bar"
-                        style="?android:attr/progressBarStyleHorizontal"
-                        android:layout_width="96dp"
-                        android:layout_height="96dp"
-                        android:indeterminate="false"
-                        android:max="100"
-                        android:progress="50"
-                        android:layout_centerInParent="true"
-                        android:progressDrawable="@drawable/circular"
-                        android:secondaryProgress="100"/>
-                    <TextView
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:id="@+id/text_per"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:text="90"
-                        android:visibility="invisible"
-                        android:gravity="center"
-                        android:layout_centerInParent="true"/>
-                    <TextView
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:id="@+id/text_ran_num"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:background="@drawable/whitecircle"
-                        android:text="90"
-                        android:visibility="visible"
-                        android:gravity="center"
-                        android:layout_centerInParent="true"/>
-                </RelativeLayout>
-            </RelativeLayout>
-            <!-- todo: start center-->
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:layout_marginEnd="@dimen/dimen_96dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler_view_live_user"
+                android:id="@+id/recycler_view_random_number"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:gravity="end"
+                app:stackFromEnd="true"/>
+        </RelativeLayout>
+        <!-- todo: start center-->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view_live_user"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:background="@drawable/round_corner"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+        <!-- todo: start center-->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            app:layout_constraintTop_toBottomOf="@+id/relative_top"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/recycler_view_live_user"
+            app:layout_constraintEnd_toStartOf="@+id/relative_pro_bar">
+            <LinearLayout
+                android:id="@+id/linear_ticket_1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="4dp"
-                android:background="@drawable/round_corner"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
-            <!-- todo: start center-->
+                android:layout_marginBottom="4dp"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@drawable/play_ticket">
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center">
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recycler_view_ticket_1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                    <TextView
+                        android:id="@+id/text_btn_ticket_claim_1"
+                        android:layout_width="84dp"
+                        android:layout_height="112dp"
+                        android:gravity="center"
+                        android:padding="8dp"
+                        android:layout_marginEnd="4dp"
+                        android:background="@drawable/btn_claim"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/black"
+                        android:text="@string/txt_ticket_1"/>
+                </LinearLayout>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_view_claim_ticket_1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"/>
+            </LinearLayout>
             <LinearLayout
+                android:id="@+id/linear_ticket_2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
+                android:layout_margin="4dp"
                 android:gravity="center"
-                android:layout_marginTop="48dp"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
+                android:background="@drawable/play_ticket">
                 <LinearLayout
-                    android:id="@+id/linear_ticket_1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="4dp"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:background="@drawable/play_ticket">
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center">
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/recycler_view_ticket_1"
-                            android:layout_width="364dp"
-                            android:layout_height="128dp"
-                            android:background="@drawable/g_ticket"/>
-                        <TextView
-                            android:id="@+id/text_btn_ticket_claim_1"
-                            android:layout_width="96dp"
-                            android:layout_height="122dp"
-                            android:gravity="center"
-                            android:padding="8dp"
-                            android:layout_marginEnd="4dp"
-                            android:background="@drawable/btn_claim"
-                            android:textSize="18sp"
-                            android:textStyle="bold"
-                            android:textColor="@android:color/black"
-                            android:text="@string/txt_ticket_1"/>
-                    </LinearLayout>
+                    android:orientation="horizontal"
+                    android:gravity="center">
                     <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/recycler_view_claim_ticket_1"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:visibility="gone"/>
+                        android:id="@+id/recycler_view_ticket_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                    <TextView
+                        android:id="@+id/text_btn_ticket_claim_2"
+                        android:layout_width="84dp"
+                        android:layout_height="112dp"
+                        android:gravity="center"
+                        android:padding="8dp"
+                        android:layout_marginEnd="4dp"
+                        android:background="@drawable/btn_claim"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/black"
+                        android:text="@string/txt_ticket_2"/>
                 </LinearLayout>
-                <LinearLayout
-                    android:id="@+id/linear_ticket_2"
-                    android:layout_width="wrap_content"
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_view_claim_ticket_2"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_margin="4dp"
-                    android:gravity="center"
-                    android:background="@drawable/play_ticket_2">
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center">
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/recycler_view_ticket_2"
-                            android:layout_width="364dp"
-                            android:layout_height="128dp"
-                            android:background="@drawable/g_ticket"/>
-                        <TextView
-                            android:id="@+id/text_btn_ticket_claim_2"
-                            android:layout_width="96dp"
-                            android:layout_height="122dp"
-                            android:gravity="center"
-                            android:padding="8dp"
-                            android:layout_marginEnd="4dp"
-                            android:background="@drawable/btn_claim"
-                            android:textSize="18sp"
-                            android:textStyle="bold"
-                            android:textColor="@android:color/black"
-                            android:text="@string/txt_ticket_2"/>
-                    </LinearLayout>
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/recycler_view_claim_ticket_2"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:visibility="gone"/>
-                </LinearLayout>
+                    android:visibility="gone"/>
             </LinearLayout>
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler_view_number_grid"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="@+id/relative_top"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
+        </LinearLayout>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view_number_grid"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:padding="@dimen/dimen_4dp"
+            android:background="@drawable/round_corner"
+            android:layout_marginTop="96dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
-    </ScrollView>
-</HorizontalScrollView>
+</ScrollView>

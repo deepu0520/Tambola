@@ -21,16 +21,16 @@
     </string-array>
     <string-array name="cash_claim_ticket_list">
         <item>Top Line</item>
-        <item>Middle Line</item>
         <item>Bottom Line</item>
+        <item>Middle Line</item>
         <item>Full House</item>
     </string-array>
     <string-array name="tournament_claim_ticket_list">
-        <item>Early Five</item>
         <item>Top Line</item>
-        <item>Middle Line</item>
         <item>Bottom Line</item>
+        <item>Middle Line</item>
         <item>4 Corners</item>
+        <item>Early Five</item>
         <item>Full House</item>
     </string-array>
 </resources>

@@ -1,11 +1,12 @@
 <resources>
     <string name="app_name">Desi Tambola</string>
-
+    <string name="speak_app_name">Welcome to Desi Tambola</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">TAMBOLA</string>
     <string name="title_activity_home">HomeActivity</string>
     <string name="profile_name">Rakesh Sharma</string>
     <string name="level">Level 1</string>
+
 
     <string name="txt_loading">Loading...</string>
     <string name="cash_games">Cash Games</string>
@@ -48,4 +49,17 @@
     <string name="menu_sound">Sound</string>
     <string name="menu_logout">Logout</string>
 
+    <string name="txt_result">Result</string>
+    <string name="txt_play_again">Play Again</string>
+
+    <!-- TODO: Paytm -->
+    <string name="merchant_id">GblQDP68212852342989</string>
+    <string name="merchant_key">#sFadf3f9Xz6k79R</string>
+    <string name="website">WEBSTAGING</string>
+    <string name="industry_type">Retail</string>
+    <string name="channel_id">WAP</string>
+
+    <!-- TODO: Facebook -->
+    <string name="facebook_app_id">601291377241746</string>
+    <string name="fb_login_protocol_scheme">fb601291377241746</string>
 </resources>

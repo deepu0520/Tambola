@@ -3,9 +3,13 @@ package com.newitzone.tambola
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.res.AssetFileDescriptor
+import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.speech.tts.TextToSpeech
+import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import androidx.annotation.RequiresApi
@@ -17,14 +21,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit.TambolaApiService
+import java.io.IOException
+import java.util.*
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity() ,TextToSpeech.OnInitListener{
+    private var tts: TextToSpeech? = null
     private var context: Context? = null
-    internal val DELAY_MS: Long = 5000  //delay in milliseconds before task is to be executed
+    internal val DELAY_MS: Long = 3000  //delay in milliseconds before task is to be executed
     /**
      * Touch listener to use for in-layout UI controls to delay hiding the
      * system UI. This is to prevent the jarring behavior of controls going away
@@ -50,26 +57,28 @@ class MainActivity : AppCompatActivity() {
         // status bar is hidden, so hide that too if necessary.
         actionBar?.hide()
 
-        // Api
-        if (SharedPrefManager.getInstance(context as MainActivity).isLoggedIn){
-            loginApi(
-                context as MainActivity
-                , SharedPrefManager.getInstance(context as MainActivity).result.emailId
-                , SharedPrefManager.getInstance(context as MainActivity).passKey.toString()
-                , SharedPrefManager.getInstance(context as MainActivity).result.userType
-                , SharedPrefManager.getInstance(context as MainActivity).result.loginSt
-                , SharedPrefManager.getInstance(context as MainActivity).result.sid
-                , SharedPrefManager.getInstance(context as MainActivity).result.id)
-        }else {
-            // handler
-            Handler().postDelayed({
+        //tts = TextToSpeech(this, this)
+        startSound("sounds/desi_tambola.mp3")
+        // handler
+        Handler().postDelayed({
+            // Api
+//            if (SharedPrefManager.getInstance(context as MainActivity).isLoggedIn){
+//                loginApi(
+//                    context as MainActivity
+//                    , SharedPrefManager.getInstance(context as MainActivity).result.emailId
+//                    , SharedPrefManager.getInstance(context as MainActivity).passKey.toString()
+//                    , SharedPrefManager.getInstance(context as MainActivity).result.userType
+//                    , SharedPrefManager.getInstance(context as MainActivity).result.loginSt
+//                    , SharedPrefManager.getInstance(context as MainActivity).result.sid
+//                    , SharedPrefManager.getInstance(context as MainActivity).result.id)
+//            }else {
                 // TODO Auto-generated method stub
                 val intent = Intent(context, LoginActivity::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                 startActivity(intent)
                 finish()
-            }, DELAY_MS)
-        }
+//            }
+        }, DELAY_MS)
     }
 
     fun FullScreencall() {
@@ -94,7 +103,7 @@ class MainActivity : AppCompatActivity() {
                     try {
                         if (response.isSuccessful) {
                             // save the user details
-                            response.body()?.result?.let {
+                            response.body()?.result?.get(0)?.let {
                                 SharedPrefManager.getInstance(context).saveUser(it,passKey)
                             }
 
@@ -134,4 +143,68 @@ class MainActivity : AppCompatActivity() {
             UtilMethods.ToastLong(context,"No Internet Connection")
         }
     }
+
+    private fun startSound(filename: String) {
+        var afd: AssetFileDescriptor? = null
+        try {
+            afd = resources.assets.openFd(filename)
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        val player = MediaPlayer()
+        try {
+            assert(afd != null)
+            player.setDataSource(afd!!.fileDescriptor, afd.startOffset, afd.length)
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        try {
+            player.prepare()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        player.start()
+    }
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    override fun onInit(status: Int) {
+
+        if (status == TextToSpeech.SUCCESS) {
+            // set US English as language for tts
+            val result = tts!!.setLanguage(Locale.US)
+
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Log.e("TTS","The Language specified is not supported!")
+            } else {
+                //buttonSpeak!!.isEnabled = true
+                speakOut(getString(R.string.speak_app_name))
+            }
+
+        } else {
+            Log.e("TTS", "Initilization Failed!")
+        }
+
+    }
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private fun speakOut(text: String) {
+        tts!!.speak(text, TextToSpeech.QUEUE_FLUSH, null,"")
+    }
+
+    override fun onStop() {
+        // Shutdown TTS
+        if (tts != null) {
+            tts!!.stop()
+            tts!!.shutdown()
+        }
+        super.onStop()
+    }
+    public override fun onDestroy() {
+        // Shutdown TTS
+        if (tts != null) {
+            tts!!.stop()
+            tts!!.shutdown()
+        }
+        super.onDestroy()
+    }
+
 }

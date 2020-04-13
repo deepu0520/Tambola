@@ -3,16 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/relative_num"
     android:gravity="center"
-    android:background="@android:color/transparent"
+    android:background="@drawable/round_corner_1"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp">
     <TextView
         android:textSize="18sp"
         android:textStyle="bold"
         android:id="@+id/text_num"
         android:layout_width="32dp"
         android:layout_height="32dp"
-        android:layout_margin="4dp"
+        android:padding="2dp"
         android:text="90"
         android:gravity="center"
         android:layout_centerInParent="true"/>

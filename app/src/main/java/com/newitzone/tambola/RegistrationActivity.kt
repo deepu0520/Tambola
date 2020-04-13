@@ -1,6 +1,7 @@
 package com.newitzone.tambola
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -17,10 +18,12 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.core.content.res.ResourcesCompat
 import butterknife.BindView
 import butterknife.ButterKnife
 import com.afollestad.vvalidator.form
 import com.google.android.material.textfield.TextInputLayout
+import com.newitzone.tambola.utils.KCustomToast
 import com.newitzone.tambola.utils.SharedPrefManager
 import com.newitzone.tambola.utils.UtilMethods
 import kotlinx.android.synthetic.main.activity_login.*
@@ -91,6 +94,7 @@ class RegistrationActivity : AppCompatActivity() {
         val password = text_input_password.editText!!.text.toString().trim()
         val confirmPassword = text_input_confirm_password.editText!!.text.toString().trim()
         val img = ""
+
         form {
             inputLayout(R.id.text_input_fname , name = "First Name") {
                 isNotEmpty()
@@ -152,7 +156,9 @@ class RegistrationActivity : AppCompatActivity() {
                         try {
                             if (response.isSuccessful) {
                                 // save the user details
-                                UtilMethods.ToastLong(context,"${response.body()?.msg}")
+                                //UtilMethods.ToastLong(context,"Congratulation you have earn 100 chips")
+                                KCustomToast.toastWithFont(context as Activity, "Congratulation you have earn 100 chips")
+                                //UtilMethods.ToastLong(context,"${response.body()?.msg}")
                                 val intent = Intent(context, LoginActivity::class.java)
                                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                                 startActivity(intent)

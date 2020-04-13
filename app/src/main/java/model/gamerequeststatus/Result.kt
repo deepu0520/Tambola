@@ -9,7 +9,7 @@ data class Result(
     @SerializedName("players_online")
     var playersOnline: String,
     @SerializedName("rand_no")
-    var randNo: String,
+    var randNo: List<Int>,
     @SerializedName("total_tickets")
     var totalTickets: String,
     @SerializedName("tournament_id")

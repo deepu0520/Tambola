@@ -3,6 +3,7 @@ package retrofit
 import com.google.gson.GsonBuilder
 import com.newitzone.tambola.utils.Constants
 import model.DefaultResponse
+import model.claim.ClaimPrize
 import model.gamein.GameIn
 import model.gamerequest.ResGameRequest
 import model.gamerequeststatus.ResGameReqStatus
@@ -22,6 +23,18 @@ interface TambolaApiService {
     /**
      * Companion object to create the TambolaApiService
      */
+    @FormUrlEncoded
+    @POST("game-prize-claim-and-claim-status")
+    suspend fun gamePrizeClaimOrStatus(@Field("userid") userid: String,
+                                       @Field("sesid") sesid: String,
+                                       @Field("game_type") game_type: String,
+                                       @Field("amt") amt: String,
+                                       @Field("tournament_id") tournament_id: String,
+                                       @Field("reqid") reqid: String,
+                                       @Field("game_id") gameId: String,
+                                       @Field("claimType") claimType: String,
+                                       @Field("type") type: Int
+    ): Response<ClaimPrize>
 
     @FormUrlEncoded
     @POST("game-in")

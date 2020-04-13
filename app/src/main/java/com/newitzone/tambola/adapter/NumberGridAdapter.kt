@@ -8,8 +8,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.newitzone.tambola.R
 import kotlinx.android.synthetic.main.cardview_number_grid.view.*
 import kotlinx.android.synthetic.main.cardview_open_random_number.view.*
+import model.NumModel
 
-class NumberGridAdapter(val items : MutableList<String>, val context: Context) : RecyclerView.Adapter<ViewHolderNG>() {
+class NumberGridAdapter(val items : MutableList<NumModel>, val context: Context) : RecyclerView.Adapter<ViewHolderNG>() {
 
     // Gets the number of animals in the list
     override fun getItemCount(): Int {
@@ -23,7 +24,10 @@ class NumberGridAdapter(val items : MutableList<String>, val context: Context) :
 
     // Binds each animal in the ArrayList to a view
     override fun onBindViewHolder(holder: ViewHolderNG, position: Int) {
-        holder?.tvNum?.text = items[position]
+        holder?.tvNum?.text = items[position].num.toString()
+        if (items[position].isChecked){
+            holder?.tvNum?.setBackgroundResource(R.color.color_yellow)
+        }
     }
 }
 
