@@ -80,8 +80,11 @@ dependencies {
     // permission
     implementation 'com.github.quickpermissions:quickpermissions-kotlin:0.4.0'
     // Paytm SdK
-    implementation 'com.paytm.appinvokesdk:appinvokesdk:1.2'
-    implementation files('libs/pg-checksum-1.0-jar-with-dependencies.jar')
+    //implementation 'com.paytm.appinvokesdk:appinvokesdk:1.2'
+    implementation ('com.paytm:pgplussdk:1.4.3') {
+        transitive = true;
+    }
+    //implementation files('libs/pg-checksum-1.0-jar-with-dependencies.jar')
     // Facebook
     implementation 'com.facebook.android:facebook-login:5.15.3'
 

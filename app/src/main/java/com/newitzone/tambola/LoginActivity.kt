@@ -211,7 +211,7 @@ class LoginActivity : AppCompatActivity() {
     private fun loginApi(context: Context,userID: String,passKey: String
                          ,userType: String,loginType: String,sesId: String, userId: String, name: String, birthday: String, imgUrl: String){
         if (UtilMethods.isConnectedToInternet(context)) {
-            UtilMethods.showLoading(context)
+            runOnUiThread { UtilMethods.showLoading(context) }
             val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
             CoroutineScope(Dispatchers.IO).launch {
                 try {

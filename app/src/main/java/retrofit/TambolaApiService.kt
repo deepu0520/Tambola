@@ -8,7 +8,10 @@ import model.gamein.GameIn
 import model.gamerequest.ResGameRequest
 import model.gamerequeststatus.ResGameReqStatus
 import model.login.ResLogin
+import model.paytm.Checksum
+import model.tournament.ResTournament
 import okhttp3.OkHttpClient
+import retrofit2.Call
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -21,8 +24,20 @@ import java.util.concurrent.TimeUnit
 interface TambolaApiService {
 
     /**
-     * Companion object to create the TambolaApiService
+     * Companion object to create the Tambola Api Service
      */
+    @FormUrlEncoded
+    @POST("http://192.168.0.100:82/paytm/generateChecksum.php")
+    suspend fun getChecksum(@Field("MID") mId: String,
+                            @Field("ORDER_ID") orderId: String,
+                            @Field("CUST_ID") custId: String,
+                            @Field("CHANNEL_ID") channelId: String,
+                            @Field("TXN_AMOUNT") txnAmount: String,
+                            @Field("WEBSITE") website: String,
+                            @Field("CALLBACK_URL") callbackUrl: String,
+                            @Field("INDUSTRY_TYPE_ID") industryTypeId: String
+    ): Response<Checksum>
+
     @FormUrlEncoded
     @POST("game-prize-claim-and-claim-status")
     suspend fun gamePrizeClaimOrStatus(@Field("userid") userid: String,
@@ -65,6 +80,21 @@ interface TambolaApiService {
                             @Field("game_type") game_type: String,
                             @Field("tournament_id") tournament_id: String
     ): Response<ResGameRequest>
+
+    @FormUrlEncoded
+    @POST("add-money")
+    suspend fun addCash(@Field("userid") userid:String,
+                         @Field("sesid") sesid: String,
+                         @Field("transid") transid: String,
+                         @Field("remarks") remarks: String,
+                         @Field("amt") amt: String
+    ): Response<DefaultResponse>
+
+    @FormUrlEncoded
+    @POST("tournament-list")
+    suspend fun getTournament(@Field("userid") userid:String,
+                        @Field("sesid") sesid: String
+    ): Response<ResTournament>
 
     @FormUrlEncoded
     @POST("profile-update")

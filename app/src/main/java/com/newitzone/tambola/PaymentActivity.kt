@@ -2,241 +2,199 @@ package com.newitzone.tambola
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
-import android.webkit.WebView
+import android.util.Log
+import android.view.WindowManager
+import android.widget.Button
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import butterknife.BindView
-import com.paytm.pg.merchant.CheckSumServiceHelper
+import butterknife.ButterKnife
+import com.newitzone.tambola.utils.Constants
+import com.newitzone.tambola.utils.UtilMethods
 import com.paytm.pgsdk.PaytmOrder
+import com.paytm.pgsdk.PaytmPGService
 import com.paytm.pgsdk.PaytmPaymentTransactionCallback
-import com.paytm.pgsdk.TransactionManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import model.login.Result
-import org.json.JSONObject
-import java.io.BufferedReader
-import java.io.DataOutputStream
-import java.io.InputStream
-import java.io.InputStreamReader
-import java.net.HttpURLConnection
-import java.net.URL
-import java.util.*
+import model.paytm.Paytm
+import model.paytm.ResPaytmTrans
+import retrofit.TambolaApiService
 
 
-class PaymentActivity : AppCompatActivity() {
+class PaymentActivity : AppCompatActivity() , PaytmPaymentTransactionCallback {
     private var context: Context? = null
     private lateinit var login: Result
     private lateinit var amt: String
-    private val ActivityRequestCode = 200
 
-    private val MID = "GblQDP68212852342989"
-    private val MercahntKey = "#sFadf3f9Xz6k79R"
-    private val INDUSTRY_TYPE_ID = "Retail"
-    private val CHANNLE_ID = "WAP"
-    private val WEBSITE = "APPSTAGING"
-    private val CALLBACK_URL = "https://securegw-stage.paytm.in/theia/paytmCallback?ORDER_ID=ORDER12345"
-
-    @BindView(R.id.webview_paytm) lateinit var webView: WebView
+    @BindView(R.id.start_transaction) lateinit var btnStartTranscation: Button
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_payment)
+        ButterKnife.bind(this)
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+        this.context = this@PaymentActivity
         login = intent.getSerializableExtra(HomeActivity.KEY_LOGIN) as Result
         amt = intent.getStringExtra(AddCashActivity.KEY_ADD_CASH_AMT)
         if(login != null && amt != null){
-            val orderId = login.id+System.currentTimeMillis()
-//            orderGenerate(getString(R.string.merchant_id)
-//                        , getString(R.string.merchant_key)
-//                        , orderId
-//                        , amt
-//                        , login.id)
-            getCheckSum()
+            generateCheckSum(context as PaymentActivity, UtilMethods.roundOffDecimal(amt.toDouble()).toString())
+//            btnStartTranscation.setOnClickListener {
+//                generateCheckSum(context as PaymentActivity, amt)
+//            }
         }
     }
-    private fun paytmOrder(orderId: String, mId: String, txnToken: String, amount: String, callbackurl: String){
-
-        val paytmOrder = PaytmOrder(orderId, mId, txnToken, amount, callbackurl)
-        val transactionManager = TransactionManager(paytmOrder, object : PaytmPaymentTransactionCallback{
-            override fun onTransactionResponse(p0: Bundle?) {
-                TODO("Not yet implemented")
-            }
-
-            override fun clientAuthenticationFailed(p0: String?) {
-                TODO("Not yet implemented")
-            }
-
-            override fun someUIErrorOccurred(p0: String?) {
-                TODO("Not yet implemented")
-            }
-
-            override fun onTransactionCancel(p0: String?, p1: Bundle?) {
-                TODO("Not yet implemented")
-            }
-
-            override fun networkNotAvailable() {
-                TODO("Not yet implemented")
-            }
-
-            override fun onErrorProceed(p0: String?) {
-                TODO("Not yet implemented")
-            }
-
-            override fun onErrorLoadingWebPage(p0: Int, p1: String?, p2: String?) {
-                TODO("Not yet implemented")
-            }
-
-            override fun onBackPressedCancelTransaction() {
-                TODO("Not yet implemented")
-            }
-
-        }) // code statement);
-        transactionManager.startTransaction(this, ActivityRequestCode);
+    override fun onStart() {
+        super.onStart()
+        //initOrderId();
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
     }
-    private fun orderGenerate(merchantId: String, merchantKey: String, orderId: String, amount: String, custId: String){
-        /* initialize an object */
-        val paytmParams = JSONObject()
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private fun generateCheckSum(context: Context, txnAmount: String){
+        //creating paytm object
+        //containing all the values required
+        val paytm = Paytm(
+            Constants.M_ID,
+            Constants.CHANNEL_ID,
+            txnAmount,
+            Constants.WEBSITE,
+            Constants.CALLBACK_URL,
+            Constants.INDUSTRY_TYPE_ID
+        )
 
-        /* body parameters */
-        val body = JSONObject()
+        if (UtilMethods.isConnectedToInternet(context)) {
+            UtilMethods.showLoading(context)
+            val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
+            try {
+                CoroutineScope(Dispatchers.IO).launch {
+                    val response = service.getChecksum( paytm.getmId(),
+                        paytm.getOrderId(),
+                        paytm.getCustId(),
+                        paytm.getChannelId(),
+                        paytm.getTxnAmount(),
+                        paytm.getWebsite(),
+                        paytm.getCallBackUrl(),
+                        paytm.getIndustryTypeId())
+                    withContext(Dispatchers.Main) {
+                        try {
+                            if (response.isSuccessful) {
+                                Log.i(TAG , "Checksum: "+response.body()?.checksumHash)
+                                UtilMethods.ToastLong(context,"Checksum: "+response.body()?.checksumHash)
+                                // TODO: Initialize Paytm Payment
+                                response.body()?.checksumHash?.let { onStartTransaction(context, it, paytm) };
+                            } else {
+                                UtilMethods.ToastLong(context,"Error: ${response.code()}")
+                            }
+                        } catch (e: Exception) {
+                            UtilMethods.ToastLong(context,"Exception ${e.message}")
 
-        /* for custom checkout value is 'Payment' and for intelligent router is 'UNI_PAY' */
-        body.put("requestType","Payment")
-
-        /* Find your MID in your Paytm Dashboard at https://dashboard.paytm.com/next/apikeys */
-        body.put("mid", merchantId)
-
-        /* Find your Website Name in your Paytm Dashboard at https://dashboard.paytm.com/next/apikeys */
-        body.put("websiteName", "desitambola.com")
-
-        /* Enter your unique order id */
-        body.put("orderId", orderId)
-
-        /* on completion of transaction, we will send you the response on this URL */
-        // stage
-        body.put("callbackUrl","https://securegw-stage.paytm.in/theia/paytmCallback?ORDER_ID=$orderId")
-        // production
-        //body.put("callbackUrl","https://securegw.paytm.in/theia/paytmCallback?ORDER_ID=$orderId")
-
-        /* initialize an object for txnAmount */
-        val txnAmount = JSONObject()
-
-        /* Transaction Amount Value */
-        txnAmount.put("value", "$amount.00")
-
-        /* Transaction Amount Currency */
-        txnAmount.put("currency", "INR")
-
-        /* initialize an object for userInfo */
-        val userInfo = JSONObject()
-
-        /* unique id that belongs to your customer */
-        userInfo.put("custId", "cust_$custId")
-
-        /* put txnAmount object in body */
-        body.put("txnAmount", txnAmount)
-
-        /* put userInfo object in body */
-        body.put("userInfo", userInfo)
-        /**
-         * Generate checksum by parameters we have in body
-         * You can get Checksum JAR from https://developer.paytm.com/docs/checksum/
-         * Find your Merchant Key in your Paytm Dashboard at https://dashboard.paytm.com/next/apikeys
-         */
-
-        /* initialize a TreeMap object */
-        var paytmParamsChecksum: TreeMap<String, String> = TreeMap<String, String>()
-
-        /* put checksum parameters in TreeMap */
-        paytmParamsChecksum["mid"] = merchantId
-        paytmParamsChecksum["orderId"] = orderId
-
-        /**
-         * Generate checksum by parameters we have
-         * Find your Merchant Key in your Paytm Dashboard at https://dashboard.paytm.com/next/apikeys
-         */
-        val checksum: String = CheckSumServiceHelper.getCheckSumServiceHelper().genrateCheckSum(merchantKey, paytmParamsChecksum)
-        //val checksum: String = CheckSumServiceHelper.getCheckSumServiceHelper().genrateCheckSum("YOUR_KEY_HERE", body.toString())
-
-        /* head parameters */
-        val head = JSONObject()
-
-        /* put generated checksum value here */
-        head.put("signature", checksum)
-
-        /* prepare JSON string for request */
-        paytmParams.put("body", body)
-        paytmParams.put("head", head)
-        val postData = paytmParams.toString()
-
-        /* for Staging */
-        val url = URL("https://securegw-stage.paytm.in/theia/api/v1/initiateTransaction?mid=$merchantId&orderId=$orderId")
-
-        /* for Production */
-        // URL url = new URL("https://securegw.paytm.in/theia/api/v1/initiateTransaction?mid=YOUR_MID_HERE&orderId=YOUR_ORDER_ID");
-        try {
-            val connection: HttpURLConnection = url.openConnection() as HttpURLConnection
-            connection.requestMethod = "POST"
-            connection.setRequestProperty("Content-Type", "application/json")
-            connection.doOutput = true
-            val requestWriter = DataOutputStream(connection.outputStream)
-            requestWriter.writeBytes(postData)
-            requestWriter.close()
-            var responseData = ""
-            val iStream: InputStream = connection.inputStream
-            val responseReader = BufferedReader(InputStreamReader(iStream))
-            if (responseReader.readLine().also { responseData = it } != null) {
-                System.out.append("Response: $responseData")
+                        } catch (e: Throwable) {
+                            UtilMethods.ToastLong(context,"Oops: Something else went wrong : " + e.message)
+                        }
+                        UtilMethods.hideLoading()
+                    }
+                }
+            } catch (e: Throwable) {
+                UtilMethods.ToastLong(context,"Oops: Something else went wrong : " + e.message)
             }
-            // System.out.append("Request: " + post_data);
-            responseReader.close()
-        } catch (exception: Exception) {
-            exception.printStackTrace()
+        }else{
+            UtilMethods.ToastLong(context,"No Internet Connection")
         }
     }
-    fun getCheckSum(): String? {
-        var checkSum: String? = null
-        val paramMap = TreeMap<String, String?>()
-        paramMap["MID"] = MID
-        paramMap["ORDER_ID"] = "ORDER12345"
-        paramMap["CUST_ID"] = "CUST02513"
-        paramMap["INDUSTRY_TYPE_ID"] = INDUSTRY_TYPE_ID
-        paramMap["CHANNEL_ID"] = CHANNLE_ID
-        paramMap["TXN_AMOUNT"] = "1.00"
-        paramMap["WEBSITE"] = WEBSITE
-        paramMap["EMAIL"] = "rakesh@gmail.com"
-        paramMap["MOBILE_NO"] = "9013448426"
-        paramMap["CALLBACK_URL"] = CALLBACK_URL
-        try {
-            println("ChecksumGeneration.java getCheckSum-method Starts")
-            checkSum = CheckSumServiceHelper.getCheckSumServiceHelper().genrateCheckSum(MercahntKey, paramMap)
-            println("checkSum: $checkSum")
-            paramMap["CHECKSUMHASH"] = checkSum
-            println("ChecksumGeneration.java getCheckSum-method Ends")
-        } catch (e: java.lang.Exception) {
-            // TODO Auto-generated catch block
-            e.printStackTrace()
-        }
-        return checkSum
+    private fun onStartTransaction(context: Context, checksumHash: String, paytm: Paytm) {
+        val pgService = PaytmPGService.getProductionService()
+        val paramMap: HashMap<String, String> = HashMap()
+
+        // these are mandatory parameters
+        paramMap["CALLBACK_URL"] = paytm.callBackUrl
+        paramMap["CHANNEL_ID"] = paytm.channelId
+        paramMap["CHECKSUMHASH"] = checksumHash
+        paramMap["CUST_ID"] = paytm.custId
+        paramMap["INDUSTRY_TYPE_ID"] = paytm.industryTypeId
+        paramMap["MID"] = paytm.getmId()
+        paramMap["ORDER_ID"] = paytm.orderId
+        paramMap["TXN_AMOUNT"] = paytm.txnAmount
+        paramMap["WEBSITE"] = paytm.website
+
+        /*
+        paramMap.put("MID" , "WorldP64425807474247");
+        paramMap.put("ORDER_ID" , "210lkldfka2a27");
+        paramMap.put("CUST_ID" , "mkjNYC1227");
+        paramMap.put("INDUSTRY_TYPE_ID" , "Retail");
+        paramMap.put("CHANNEL_ID" , "WAP");
+        paramMap.put("TXN_AMOUNT" , "1");
+        paramMap.put("WEBSITE" , "worldpressplg");
+        paramMap.put("CALLBACK_URL" , "https://pguat.paytm.com/paytmchecksum/paytmCheckSumVerify.jsp");*/
+        val paytmOrder = PaytmOrder(paramMap)
+
+        /*PaytmMerchant Merchant = new PaytmMerchant(
+				"https://pguat.paytm.com/paytmchecksum/paytmCheckSumGenerator.jsp",
+				"https://pguat.paytm.com/paytmchecksum/paytmCheckSumVerify.jsp");*/
+        pgService.initialize(paytmOrder, null)
+        pgService.startPaymentTransaction(this, true, true, this)
     }
 
-    override fun onActivityResult(
-        requestCode: Int,
-        resultCode: Int,
-        data: Intent?
+
+    override fun onTransactionResponse(inResponse: Bundle?) {
+        // TODO:("Not yet implemented")
+        context?.let { UtilMethods.ToastLong(it, "inResponse : ${inResponse.toString()}") }
+        Log.d("LOG", "Payment Transaction is successful $inResponse")
+        val resPaytmTrans = ResPaytmTrans(inResponse?.getString("BANKTXNID")!!
+                                        , inResponse.getString("CHECKSUMHASH")!!
+                                        , inResponse.getString("CURRENCY")!!
+                                        , inResponse.getString("MID")!!
+                                        , inResponse.getString("ORDERID")!!
+                                        , inResponse.getInt("RESPCODE")
+                                        , inResponse.getString("RESPMSG")!!
+                                        , inResponse.getString("STATUS")!!
+                                        , inResponse.getDouble("TXNAMOUNT"))
+
+        context?.let { UtilMethods.ToastLong(it, "Payment Transaction response $resPaytmTrans") }
+        val intent = Intent(context, AddCashActivity::class.java)
+        intent.putExtra(AddCashActivity.PAYTM_TRANSACTION, resPaytmTrans)
+        setResult(AddCashActivity.REQ_CODE_ADD_CASH, intent)
+        finish()
+    }
+
+    override fun clientAuthenticationFailed(inErrorMessage: String?) {
+        // TODO:("Not yet implemented")
+        context?.let { UtilMethods.ToastLong(it, "inErrorMessage : ${inErrorMessage.toString()}") }
+    }
+
+    override fun someUIErrorOccurred(inErrorMessage: String?) {
+        // TODO:("Not yet implemented")
+        context?.let { UtilMethods.ToastLong(it, "inErrorMessage : ${inErrorMessage.toString()}") }
+    }
+
+    override fun onTransactionCancel(inErrorMessage: String?, inResponse: Bundle?) {
+        // TODO:("Not yet implemented")
+        context?.let { UtilMethods.ToastLong(it, "inErrorMessage : ${inErrorMessage.toString()}") }
+        context?.let { UtilMethods.ToastLong(it, "inResponse : ${inResponse.toString()}") }
+    }
+
+    override fun networkNotAvailable() {
+        // TODO:("Not yet implemented")
+    }
+
+    override fun onErrorLoadingWebPage(
+        iniErrorCode: Int,
+        inErrorMessage: String?,
+        inFailingUrl: String?
     ) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == ActivityRequestCode && data != null) {
-            Toast.makeText(
-                this,
-                data.getStringExtra("nativeSdkForMerchantMessage") + data.getStringExtra("response"),
-                Toast.LENGTH_SHORT
-            ).show()
-        }
+        // TODO:("Not yet implemented")
+        context?.let { UtilMethods.ToastLong(it, "inErrorMessage : ${inErrorMessage.toString()}") }
     }
-    fun onTransactionResponse(inResponse: Bundle) {
-        /*Display the message as below */
-        Toast.makeText(
-            applicationContext,
-            "Payment Transaction response $inResponse",
-            Toast.LENGTH_LONG
-        ).show()
+
+    override fun onBackPressedCancelTransaction() {
+        // TODO:("Not yet implemented")
+    }
+
+    companion object{
+        const val TAG = "PaymentScreen"
     }
 }

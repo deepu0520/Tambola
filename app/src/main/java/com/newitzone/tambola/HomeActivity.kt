@@ -58,6 +58,7 @@ class HomeActivity : AppCompatActivity() {
     @BindView(R.id.text_online_count) lateinit var tvOnlineCount: TextView
 
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (Build.VERSION.SDK_INT < 16) {
@@ -143,17 +144,11 @@ class HomeActivity : AppCompatActivity() {
             //KCustomToast.toastWithFont(context as Activity, "Insufficient balance in your account to play Cash game")
         }
     }
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun onTournament(view: View){
         if (login.acBal.toDouble() > 5) {
-            var keyModel = KeyModel("", 0, 0f, 1, "")
-            keyModel.gameType = 2
-
-            val dialog = TournamentGamesDialog()
-            val ft: FragmentTransaction = supportFragmentManager.beginTransaction()
-            val args = Bundle()
-            args?.putSerializable(KEY_MODEL, keyModel)
-            dialog.arguments = args
-            dialog.show(ft, TournamentGamesDialog.TAG)
+            val context = this@HomeActivity
+            tournamentApi(context, login.id, login.sid)
         }else{
             val context = this@HomeActivity
             //UtilMethods.ToastLong(context,"Insufficient balance in your account to play Tournament game")
@@ -274,6 +269,7 @@ class HomeActivity : AppCompatActivity() {
         const val KEY_LOGIN = "Key_Login"
         const val KEY_MODEL = "Key_Model"
         const val KEY_GAME_IN = "Key_Game_In"
+        const val KEY_TOURNAMENT = "Key_tournament"
     }
 
     // TODO: login Api
@@ -284,21 +280,82 @@ class HomeActivity : AppCompatActivity() {
             //UtilMethods.showLoading(context)
             val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
             CoroutineScope(Dispatchers.IO).launch {
-                val response = service.getlogin(userID, passKey, userType, loginType, sesId, userId)
-                withContext(Dispatchers.Main) {
-                    try {
-                        if (response.isSuccessful) {
-                            onLoadAccountDetails(response.body()?.result?.get(0)!!)
-                        } else {
-                            UtilMethods.ToastLong(context,"Error: ${response.code()}"+"\nMsg:${response.body()?.msg}")
-                        }
-                    } catch (e: Exception) {
-                        UtilMethods.ToastLong(context,"Exception ${e.message}")
+                try {
+                    val response = service.getlogin(userID, passKey, userType, loginType, sesId, userId)
+                    withContext(Dispatchers.Main) {
+                        try {
+                            if (response.isSuccessful) {
+                                onLoadAccountDetails(response.body()?.result?.get(0)!!)
+                            } else {
+                                UtilMethods.ToastLong(
+                                    context,
+                                    "Error: ${response.code()}" + "\nMsg:${response.body()?.msg}"
+                                )
+                            }
+                        } catch (e: Exception) {
+                            UtilMethods.ToastLong(context, "Exception ${e.message}")
 
-                    } catch (e: Throwable) {
-                        UtilMethods.ToastLong(context,"Oops: Something else went wrong : " + e.message)
+                        } catch (e: Throwable) {
+                            UtilMethods.ToastLong(
+                                context,
+                                "Oops: Something else went wrong : " + e.message
+                            )
+                        }
+                        //UtilMethods.hideLoading()
                     }
-                    //UtilMethods.hideLoading()
+                }catch (e: Throwable) {
+                    Log.e("TAG","Throwable : $e")
+                }
+            }
+        }else{
+            UtilMethods.ToastLong(context,"No Internet Connection")
+        }
+    }
+    // TODO: tournament Api
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private fun tournamentApi(context: Context, userId: String, sesId: String){
+        if (UtilMethods.isConnectedToInternet(context)) {
+            UtilMethods.showLoading(context)
+            val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val response = service.getTournament(userId, sesId)
+                    withContext(Dispatchers.Main) {
+                        try {
+                            if (response.isSuccessful) {
+                                if (response.body()?.status == 1) {
+                                    // TODO: Call Tournament dialog
+                                    var keyModel = KeyModel("", 0, 0f, 1, "")
+                                    keyModel.gameType = 2
+
+                                    val dialog = TournamentGamesDialog()
+                                    val ft: FragmentTransaction = supportFragmentManager.beginTransaction()
+                                    val args = Bundle()
+                                    args?.putSerializable(KEY_LOGIN, login)
+                                    args?.putSerializable(KEY_MODEL, keyModel)
+                                    args?.putSerializable(KEY_TOURNAMENT, response.body())
+                                    dialog.arguments = args
+                                    dialog.show(ft, TournamentGamesDialog.TAG)
+                                }else{
+                                    UtilMethods.ToastLong(context,"Msg:${response.body()?.msg}")
+                                }
+                            } else {
+                                UtilMethods.ToastLong(context,"Error: ${response.code()}" + "\nMsg:${response.body()?.msg}")
+                            }
+                        } catch (e: Exception) {
+                            UtilMethods.ToastLong(context, "Exception ${e.message}")
+
+                        } catch (e: Throwable) {
+                            UtilMethods.ToastLong(context,"Oops: Something else went wrong : " + e.message)
+                        }
+                        UtilMethods.hideLoading()
+                    }
+                }catch (e: Throwable) {
+                    runOnUiThread {
+                        UtilMethods.ToastLong(context,"Server or Internet error : ${e.message}")
+                    }
+                    Log.e("TAG","Throwable : $e")
+                    UtilMethods.hideLoading()
                 }
             }
         }else{

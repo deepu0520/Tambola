@@ -6,7 +6,7 @@
     android:background="@drawable/round_corner_1"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_margin="4dp">
+    android:layout_margin="@dimen/dimen_4dp">
     <TextView
         android:textStyle="bold"
         android:id="@+id/text_num"
@@ -17,5 +17,5 @@
         android:gravity="center"
         android:layout_centerInParent="true"
         app:autoSizeTextType="uniform"
-        app:autoSizePresetSizes="@array/auto_size_text_sizes"/>
+        android:autoSizePresetSizes="@array/auto_size_text_sizes"/>
 </RelativeLayout>

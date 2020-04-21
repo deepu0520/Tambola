@@ -62,22 +62,22 @@ class MainActivity : AppCompatActivity() ,TextToSpeech.OnInitListener{
         // handler
         Handler().postDelayed({
             // Api
-//            if (SharedPrefManager.getInstance(context as MainActivity).isLoggedIn){
-//                loginApi(
-//                    context as MainActivity
-//                    , SharedPrefManager.getInstance(context as MainActivity).result.emailId
-//                    , SharedPrefManager.getInstance(context as MainActivity).passKey.toString()
-//                    , SharedPrefManager.getInstance(context as MainActivity).result.userType
-//                    , SharedPrefManager.getInstance(context as MainActivity).result.loginSt
-//                    , SharedPrefManager.getInstance(context as MainActivity).result.sid
-//                    , SharedPrefManager.getInstance(context as MainActivity).result.id)
-//            }else {
+            if (SharedPrefManager.getInstance(context as MainActivity).isLoggedIn){
+                loginApi(
+                    context as MainActivity
+                    , SharedPrefManager.getInstance(context as MainActivity).result.emailId
+                    , SharedPrefManager.getInstance(context as MainActivity).passKey.toString()
+                    , SharedPrefManager.getInstance(context as MainActivity).result.userType
+                    , SharedPrefManager.getInstance(context as MainActivity).result.loginSt
+                    , SharedPrefManager.getInstance(context as MainActivity).result.sid
+                    , SharedPrefManager.getInstance(context as MainActivity).result.id)
+            }else {
                 // TODO Auto-generated method stub
                 val intent = Intent(context, LoginActivity::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                 startActivity(intent)
                 finish()
-//            }
+            }
         }, DELAY_MS)
     }
 

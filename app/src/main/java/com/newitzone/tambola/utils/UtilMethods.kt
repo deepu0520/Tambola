@@ -17,6 +17,9 @@ import com.newitzone.tambola.R
 import java.io.ByteArrayOutputStream
 import java.math.RoundingMode
 import java.text.DecimalFormat
+import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 
 /**
@@ -146,5 +149,44 @@ object UtilMethods {
         val df = DecimalFormat("#.##")
         df.roundingMode = RoundingMode.CEILING
         return df.format(number).toFloat()
+    }
+    fun getTime(inTime: String): String{
+        try {
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("hh:mm a")
+                println("get time: "+inTime.format(dateTimeFormatter))
+                inTime.format(dateTimeFormatter)
+            }else{
+                val formatDate = SimpleDateFormat("hh:mm a")
+                println("get time: "+inTime.format(formatDate))
+                inTime.format(formatDate)
+            }
+        }catch (e: Exception){
+            Log.e(TAG, "Time exception : $e")
+        }
+        return inTime
+    }
+    fun getDateInMS(inputDate: String?): Long? {
+        var inputMilliseconds = 0L
+        try {
+            val sdf = SimpleDateFormat("yyyy-MM-dd hh:mm:ss")
+            val date: Date = sdf.parse(inputDate)
+            inputMilliseconds = date.time
+        } catch (e: java.lang.Exception) {
+            Log.e(TAG, "Get Date Exception : $e")
+        }
+        return inputMilliseconds
+    }
+    fun getTimeAMPM(inputDatetime: String): String? {
+        var outputTime = inputDatetime
+        try {
+            var sdf = SimpleDateFormat("yyyy-MM-dd HH:mm")
+            val date = sdf.parse(inputDatetime)
+            sdf = SimpleDateFormat("hh:mm a")
+            outputTime = sdf.format(date)
+        } catch (e: java.lang.Exception) {
+            Log.e(TAG, "Get time exception : $e")
+        }
+        return outputTime.toUpperCase()
     }
 }
