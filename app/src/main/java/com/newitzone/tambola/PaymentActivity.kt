@@ -29,7 +29,7 @@ import retrofit.TambolaApiService
 
 class PaymentActivity : AppCompatActivity() , PaytmPaymentTransactionCallback {
     private var context: Context? = null
-    private lateinit var login: Result
+    private lateinit var paytm: Paytm
     private lateinit var amt: String
 
     @BindView(R.id.start_transaction) lateinit var btnStartTranscation: Button
@@ -40,13 +40,10 @@ class PaymentActivity : AppCompatActivity() , PaytmPaymentTransactionCallback {
         ButterKnife.bind(this)
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         this.context = this@PaymentActivity
-        login = intent.getSerializableExtra(HomeActivity.KEY_LOGIN) as Result
-        amt = intent.getStringExtra(AddCashActivity.KEY_ADD_CASH_AMT)
-        if(login != null && amt != null){
-            generateCheckSum(context as PaymentActivity, UtilMethods.roundOffDecimal(amt.toDouble()).toString())
-//            btnStartTranscation.setOnClickListener {
-//                generateCheckSum(context as PaymentActivity, amt)
-//            }
+        paytm = intent.getSerializableExtra(AddCashActivity.KEY_PAYTM) as Paytm
+        if(paytm != null){
+            //generateCheckSum(context as PaymentActivity, UtilMethods.roundOffDecimal(amt.toDouble()).toString())
+            onStartTransaction(paytm)
         }
     }
     override fun onStart() {
@@ -55,72 +52,21 @@ class PaymentActivity : AppCompatActivity() , PaytmPaymentTransactionCallback {
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
     }
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    private fun generateCheckSum(context: Context, txnAmount: String){
-        //creating paytm object
-        //containing all the values required
-        val paytm = Paytm(
-            Constants.M_ID,
-            Constants.CHANNEL_ID,
-            txnAmount,
-            Constants.WEBSITE,
-            Constants.CALLBACK_URL,
-            Constants.INDUSTRY_TYPE_ID
-        )
-
-        if (UtilMethods.isConnectedToInternet(context)) {
-            UtilMethods.showLoading(context)
-            val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
-            try {
-                CoroutineScope(Dispatchers.IO).launch {
-                    val response = service.getChecksum( paytm.getmId(),
-                        paytm.getOrderId(),
-                        paytm.getCustId(),
-                        paytm.getChannelId(),
-                        paytm.getTxnAmount(),
-                        paytm.getWebsite(),
-                        paytm.getCallBackUrl(),
-                        paytm.getIndustryTypeId())
-                    withContext(Dispatchers.Main) {
-                        try {
-                            if (response.isSuccessful) {
-                                Log.i(TAG , "Checksum: "+response.body()?.checksumHash)
-                                UtilMethods.ToastLong(context,"Checksum: "+response.body()?.checksumHash)
-                                // TODO: Initialize Paytm Payment
-                                response.body()?.checksumHash?.let { onStartTransaction(context, it, paytm) };
-                            } else {
-                                UtilMethods.ToastLong(context,"Error: ${response.code()}")
-                            }
-                        } catch (e: Exception) {
-                            UtilMethods.ToastLong(context,"Exception ${e.message}")
-
-                        } catch (e: Throwable) {
-                            UtilMethods.ToastLong(context,"Oops: Something else went wrong : " + e.message)
-                        }
-                        UtilMethods.hideLoading()
-                    }
-                }
-            } catch (e: Throwable) {
-                UtilMethods.ToastLong(context,"Oops: Something else went wrong : " + e.message)
-            }
-        }else{
-            UtilMethods.ToastLong(context,"No Internet Connection")
-        }
-    }
-    private fun onStartTransaction(context: Context, checksumHash: String, paytm: Paytm) {
-        val pgService = PaytmPGService.getProductionService()
+    private fun onStartTransaction(paytm: Paytm) { //(context: Context, checkSumResult: String, paytm: Paytm) {
+        val pgService = PaytmPGService.getStagingService()
+        //val pgService = PaytmPGService.getProductionService()
         val paramMap: HashMap<String, String> = HashMap()
 
         // these are mandatory parameters
-        paramMap["CALLBACK_URL"] = paytm.callBackUrl
+        paramMap["MID"] = paytm.mId
         paramMap["CHANNEL_ID"] = paytm.channelId
-        paramMap["CHECKSUMHASH"] = checksumHash
-        paramMap["CUST_ID"] = paytm.custId
         paramMap["INDUSTRY_TYPE_ID"] = paytm.industryTypeId
-        paramMap["MID"] = paytm.getmId()
-        paramMap["ORDER_ID"] = paytm.orderId
         paramMap["TXN_AMOUNT"] = paytm.txnAmount
         paramMap["WEBSITE"] = paytm.website
-
+        paramMap["CALLBACK_URL"] = paytm.callBackUrl
+        paramMap["ORDER_ID"] = paytm.orderId
+        paramMap["CUST_ID"] = paytm.custId
+        paramMap["CHECKSUMHASH"] = paytm.checkSumHash
         /*
         paramMap.put("MID" , "WorldP64425807474247");
         paramMap.put("ORDER_ID" , "210lkldfka2a27");
@@ -149,12 +95,17 @@ class PaymentActivity : AppCompatActivity() , PaytmPaymentTransactionCallback {
                                         , inResponse.getString("CURRENCY")!!
                                         , inResponse.getString("MID")!!
                                         , inResponse.getString("ORDERID")!!
-                                        , inResponse.getInt("RESPCODE")
+                                        , inResponse.getString("RESPCODE")!!
                                         , inResponse.getString("RESPMSG")!!
                                         , inResponse.getString("STATUS")!!
-                                        , inResponse.getDouble("TXNAMOUNT"))
+                                        , inResponse.getString("TXNAMOUNT")!!
+                                        , inResponse.getString("BANKNAME")!!
+                                        , inResponse.getString("TXNDATE")!!
+                                        , inResponse.getString("TXNID")!!
+                                        , inResponse.getString("PAYMENTMODE")!!
+                                        , inResponse.getString("GATEWAYNAME")!!)
 
-        context?.let { UtilMethods.ToastLong(it, "Payment Transaction response $resPaytmTrans") }
+        //context?.let { UtilMethods.ToastLong(it, "Payment Transaction response $resPaytmTrans") }
         val intent = Intent(context, AddCashActivity::class.java)
         intent.putExtra(AddCashActivity.PAYTM_TRANSACTION, resPaytmTrans)
         setResult(AddCashActivity.REQ_CODE_ADD_CASH, intent)

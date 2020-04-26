@@ -138,48 +138,6 @@ class LoadingActivity : AppCompatActivity() {
         )
     }
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    private fun gameRequestStatusApi(context: Context, userId: String, sessionId: String
-                                     , amt: String, gameType: String, tournamentId: String, gameRequestId: String,fixType: Int) {
-        if (UtilMethods.isConnectedToInternet(context)) {
-            //UtilMethods.showLoading(context)
-            val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    val response = service.gameRequestStatus(userId, sessionId, gameType, amt, tournamentId,gameRequestId)
-                    withContext(Dispatchers.Main) {
-                        try {
-                            if (response.isSuccessful) {
-                                if (response.code() == 200) {
-                                    if (fixType == CURRENT_USER) {
-                                        response.body()?.result?.get(0)?.let { gameInCondition(it) }
-                                        grStatus = response.body()?.result?.get(0)!!
-                                    }else if (fixType == FIX_USER) {
-                                        // TODO: Call Fix user gameIn Api
-                                        callGameInApi(context, userId, sessionId, amt, gameType, tournamentId, gameRequestId, fixType)
-                                    }
-                                } else {
-                                    UtilMethods.ToastLong(context, "${response.body()?.msg}")
-                                }
-                            } else {
-                                UtilMethods.ToastLong(context, "${response.body()?.msg}")
-                            }
-                        } catch (e: Exception) {
-                            UtilMethods.ToastLong(context, "Exception ${e.message}")
-                        } catch (e: Throwable) {
-                            UtilMethods.ToastLong(context,"Ooops: Something else went wrong : " + e.message)
-                        }
-                    }
-                }catch (e: Throwable) {
-                    runOnUiThread { UtilMethods.ToastLong(context,"Server or Internet error : ${e.message}") }
-                    Log.e("TAG","Throwable : $e")
-                    //callGameRequestStatusApiFromCurrentUser(CURRENT_USER)
-                }
-            }
-        }else{
-            UtilMethods.ToastLong(context,"No Internet Connection")
-        }
-    }
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun volleyGameRequestStatusApi(context: Context, userId: String, sessionId: String
                                      , amt: String, gameType: String, tournamentId: String, gameRequestId: String,fixType: Int) {
         //getting the record values

@@ -102,34 +102,54 @@ class MainActivity : AppCompatActivity() ,TextToSpeech.OnInitListener{
                 withContext(Dispatchers.Main) {
                     try {
                         if (response.isSuccessful) {
-                            // save the user details
-                            response.body()?.result?.get(0)?.let {
-                                SharedPrefManager.getInstance(context).saveUser(it,passKey)
-                            }
+                            if (response.body()?.status == 1) {
+                                // save the user details
+                                response.body()?.result?.get(0)?.let {
+                                    SharedPrefManager.getInstance(context).saveUser(it, passKey)
+                                }
 
-                            if (SharedPrefManager.getInstance(context).isLoggedIn) {
-                                if(loginType == "1") {
-                                    val intent = Intent(context, HomeActivity::class.java)
-                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                                    intent.putExtra(HomeActivity.KEY_LOGIN,SharedPrefManager.getInstance(context).result)
-                                    startActivity(intent)
-                                    finish()
-                                }else {
-                                    loginApi(context
-                                        , SharedPrefManager.getInstance(context as MainActivity).result.emailId
-                                        , SharedPrefManager.getInstance(context as MainActivity).passKey.toString()
-                                        , SharedPrefManager.getInstance(context as MainActivity).result.userType
-                                        , "1"
-                                        , SharedPrefManager.getInstance(context as MainActivity).result.sid
-                                        , SharedPrefManager.getInstance(context as MainActivity).result.id
+                                if (SharedPrefManager.getInstance(context).isLoggedIn) {
+                                    if (loginType == "1") {
+                                        val intent = Intent(context, HomeActivity::class.java)
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                        intent.putExtra(HomeActivity.KEY_LOGIN,SharedPrefManager.getInstance(context).result)
+                                        startActivity(intent)
+                                        finish()
+                                    } else {
+                                        loginApi(
+                                            context
+                                            ,
+                                            SharedPrefManager.getInstance(context as MainActivity).result.emailId
+                                            ,
+                                            SharedPrefManager.getInstance(context as MainActivity).passKey.toString()
+                                            ,
+                                            SharedPrefManager.getInstance(context as MainActivity).result.userType
+                                            ,
+                                            "1"
+                                            ,
+                                            SharedPrefManager.getInstance(context as MainActivity).result.sid
+                                            ,
+                                            SharedPrefManager.getInstance(context as MainActivity).result.id
+                                        )
+                                    }
+                                } else {
+                                    UtilMethods.ToastLong(
+                                        context,
+                                        "Your cannot login because your account is blocked"
                                     )
                                 }
-                            }else{
-                                UtilMethods.ToastLong(context,"Your cannot login because your account is blocked")
+                            } else {
+                                //UtilMethods.ToastLong(context,"${response.body()?.msg}")
+                                // TODO Auto-generated method stub
+                                val intent = Intent(context, LoginActivity::class.java)
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                startActivity(intent)
+                                finish()
                             }
                         } else {
                             UtilMethods.ToastLong(context,"Error: ${response.code()}"+"\nMsg:${response.body()?.msg}")
                         }
+
                     } catch (e: Exception) {
                         UtilMethods.ToastLong(context,"Exception ${e.message}")
 

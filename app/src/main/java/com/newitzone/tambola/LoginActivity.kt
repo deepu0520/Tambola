@@ -211,7 +211,7 @@ class LoginActivity : AppCompatActivity() {
     private fun loginApi(context: Context,userID: String,passKey: String
                          ,userType: String,loginType: String,sesId: String, userId: String, name: String, birthday: String, imgUrl: String){
         if (UtilMethods.isConnectedToInternet(context)) {
-            runOnUiThread { UtilMethods.showLoading(context) }
+            UtilMethods.showLoading(context)
             val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
             CoroutineScope(Dispatchers.IO).launch {
                 try {
@@ -231,12 +231,14 @@ class LoginActivity : AppCompatActivity() {
                                     if (SharedPrefManager.getInstance(context).isLoggedIn) {
 
                                         if (loginType == "1") {
+                                            UtilMethods.hideLoading()
                                             val intent = Intent(context, HomeActivity::class.java)
                                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                                             intent.putExtra(HomeActivity.KEY_LOGIN, SharedPrefManager.getInstance(context).result)
                                             startActivity(intent)
                                             finish()
                                         } else {
+                                            UtilMethods.hideLoading()
                                             loginApi(
                                                 context,
                                                 SharedPrefManager.getInstance(context).result.emailId,
@@ -255,6 +257,7 @@ class LoginActivity : AppCompatActivity() {
                                     }
                                 }else if (response.body()?.status == 0) {
                                     if (userType == "1") {
+                                        UtilMethods.hideLoading()
                                         registerApi(context,name, "", userID, "", "", birthday, userType, "")
                                     }else{
                                         KCustomToast.toastWithFont(context as Activity, ""+response.body()?.msg)
@@ -292,21 +295,29 @@ class LoginActivity : AppCompatActivity() {
                     withContext(Dispatchers.Main) {
                         try {
                             if (response.isSuccessful) {
-                                // save the user details
-                                //UtilMethods.ToastLong(context,"Congratulation you have earn 100 chips")
-                                KCustomToast.toastWithFont(context as Activity, "Congratulation you have earn 100 chips")
-                                loginApi(
-                                    context,
-                                    emailID,
-                                    passkey,
-                                    userType,
-                                    "0",
-                                    "",
-                                    "",
-                                    "",
-                                    "",
-                                    ""
-                                )
+                                if (response.body()?.status == 1) {
+                                    // save the user details
+                                    //UtilMethods.ToastLong(context,"Congratulation you have earn 100 chips")
+                                    KCustomToast.toastWithFont(
+                                        context as Activity,
+                                        "Congratulation you have earn 100 chips"
+                                    )
+                                    UtilMethods.hideLoading()
+                                    loginApi(
+                                        context,
+                                        emailID,
+                                        passkey,
+                                        userType,
+                                        "0",
+                                        "",
+                                        "",
+                                        "",
+                                        "",
+                                        ""
+                                    )
+                                } else {
+                                    UtilMethods.ToastLong(context,"${response.body()?.msg}")
+                                }
                             } else {
                                 UtilMethods.ToastLong(context,"Error: ${response.code()}"+"\nMsg:${response.body()?.msg}")
                             }

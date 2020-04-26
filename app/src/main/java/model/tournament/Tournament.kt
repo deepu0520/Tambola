@@ -20,6 +20,10 @@ data class Tournament(
     var totalRequestedTicket: String,
     @SerializedName("user_requested_tickets")
     var userRequestedTickets: String,
+    @SerializedName("req_id")
+    var req_id: String,
+    @SerializedName("game_id")
+    var game_id: String,
     @SerializedName("timer")
     var timer: Boolean = false
 ) : Serializable

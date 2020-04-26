@@ -9,6 +9,7 @@ import model.gamerequest.ResGameRequest
 import model.gamerequeststatus.ResGameReqStatus
 import model.login.ResLogin
 import model.paytm.Checksum
+import model.paytm.ResPaytmOrderChecksum
 import model.tournament.ResTournament
 import okhttp3.OkHttpClient
 import retrofit2.Call
@@ -27,16 +28,21 @@ interface TambolaApiService {
      * Companion object to create the Tambola Api Service
      */
     @FormUrlEncoded
-    @POST("http://192.168.0.100:82/paytm/generateChecksum.php")
-    suspend fun getChecksum(@Field("MID") mId: String,
-                            @Field("ORDER_ID") orderId: String,
-                            @Field("CUST_ID") custId: String,
-                            @Field("CHANNEL_ID") channelId: String,
-                            @Field("TXN_AMOUNT") txnAmount: String,
-                            @Field("WEBSITE") website: String,
-                            @Field("CALLBACK_URL") callbackUrl: String,
-                            @Field("INDUSTRY_TYPE_ID") industryTypeId: String
-    ): Response<Checksum>
+    @POST("paytm-add-money-checksum")
+    suspend fun getChecksum(@Field("userid") userid: String,
+                            @Field("sesid") sesid: String,
+                            @Field("amt") amt: String
+    ): Response<ResPaytmOrderChecksum>
+//    @POST("http://192.168.0.100:82/paytm/generateChecksum.php")
+//    suspend fun getChecksum(@Field("MID") mId: String,
+//                            @Field("ORDER_ID") orderId: String,
+//                            @Field("CUST_ID") custId: String,
+//                            @Field("CHANNEL_ID") channelId: String,
+//                            @Field("TXN_AMOUNT") txnAmount: String,
+//                            @Field("WEBSITE") website: String,
+//                            @Field("CALLBACK_URL") callbackUrl: String,
+//                            @Field("INDUSTRY_TYPE_ID") industryTypeId: String
+//    ): Response<Checksum>
 
     @FormUrlEncoded
     @POST("game-prize-claim-and-claim-status")
@@ -72,6 +78,24 @@ interface TambolaApiService {
     ): Response<ResGameReqStatus>
 
     @FormUrlEncoded
+    @POST("cancle-tournament-request")
+    suspend fun gameRequestTournamentCancel(@Field("userid") userid: String,
+                                            @Field("sesid") sesid: String,
+                                            @Field("tournament_id") tournament_id: String,
+                                            @Field("game_id") game_id: String
+    ): Response<DefaultResponse>
+
+    @FormUrlEncoded
+    @POST("tournament-game-request")
+    suspend fun gameRequestTournament(@Field("userid") userid: String,
+                            @Field("sesid") sesid: String,
+                            @Field("amt") amt: String,
+                            @Field("req_ticket") req_ticket: String,
+                            @Field("game_type") game_type: String,
+                            @Field("tournament_id") tournament_id: String
+    ): Response<ResGameRequest>
+
+    @FormUrlEncoded
     @POST("game-request")
     suspend fun gameRequest(@Field("userid") userid: String,
                             @Field("sesid") sesid: String,
@@ -87,9 +111,12 @@ interface TambolaApiService {
                          @Field("sesid") sesid: String,
                          @Field("transid") transid: String,
                          @Field("remarks") remarks: String,
-                         @Field("amt") amt: String
+                         @Field("amt") amt: String,
+                        @Field("docno") docNo: String,
+                        @Field("tran_status") tranStatus: String,
+                        @Field("getway_resp") getwayResp: String,
+                        @Field("type") type: String
     ): Response<DefaultResponse>
-
     @FormUrlEncoded
     @POST("tournament-list")
     suspend fun getTournament(@Field("userid") userid:String,

@@ -55,11 +55,11 @@
     <string name="txt_play_again">Play Again</string>
 
     <!-- TODO: Paytm -->
-<!--    <string name="merchant_id">GblQDP68212852342989</string>-->
-<!--    <string name="merchant_key">#sFadf3f9Xz6k79R</string>-->
-<!--    <string name="website">WEBSTAGING</string>-->
-<!--    <string name="industry_type">Retail</string>-->
-<!--    <string name="channel_id">WAP</string>-->
+    <!--    <string name="merchant_id">GblQDP68212852342989</string>-->
+    <!--    <string name="merchant_key">#sFadf3f9Xz6k79R</string>-->
+    <!--    <string name="website">WEBSTAGING</string>-->
+    <!--    <string name="industry_type">Retail</string>-->
+    <!--    <string name="channel_id">WAP</string>-->
 
     <!-- TODO: Facebook -->
     <string name="facebook_app_id">601291377241746</string>

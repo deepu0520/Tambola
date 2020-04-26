@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentTransaction
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
@@ -21,6 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import model.KeyModel
+import model.login.Result
 import retrofit.TambolaApiService
 import retrofit2.HttpException
 
@@ -32,6 +34,7 @@ class TicketsDialog : DialogFragment() {
     @BindView(R.id.image_ticket_2)
     var imgTicket2: ImageView? = null
 
+    private lateinit var login: Result
     private lateinit var keyModel: KeyModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,6 +60,7 @@ class TicketsDialog : DialogFragment() {
         val view = activity!!.layoutInflater.inflate(R.layout.dialog_tickets, parent, false)
         if (arguments != null) {
             val mArgs = arguments
+            login = mArgs!!.getSerializable(HomeActivity.KEY_LOGIN) as Result
             keyModel = mArgs!!.getSerializable(HomeActivity.KEY_MODEL) as KeyModel
         }
         ButterKnife.bind(this, view)
@@ -110,36 +114,43 @@ class TicketsDialog : DialogFragment() {
             UtilMethods.showLoading(context)
             val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
             CoroutineScope(Dispatchers.IO).launch {
-                val response = service.gameRequest(
-                    userid,
-                    sesid,
-                    amt,
-                    req_ticket.toString(),
-                    game_type,
-                    tournament_id
-                )
+                val response = if(keyModel.gameType == PlayActivity.TOURNAMENT_GAME)
+                                    service.gameRequestTournament(userid,sesid,amt,req_ticket.toString(),game_type,tournament_id)
+                               else
+                                    service.gameRequest(userid,sesid,amt,req_ticket.toString(),game_type,tournament_id)
                 withContext(Dispatchers.Main) {
                     try {
                         if (response.isSuccessful) {
                             if (response.code() == 201) {
-                                keyModel.gameRequestId = response.body()?.result?.get(0)!!.requestID
                                 UtilMethods.ToastLong(context, "${response.body()?.msg}")
-
                                 if (keyModel.gameType == PlayActivity.TOURNAMENT_GAME){
                                     UtilMethods.ToastLong(context, "You successfully join for the Tournament game with ticket $req_ticket")
+
+                                    //TODO: Call Ticket Dialog
+                                    val dialogT = TournamentGamesDialog()
+                                    val ft: FragmentTransaction = activity!!.supportFragmentManager.beginTransaction()
+                                    val args = Bundle()
+                                    args?.putSerializable(HomeActivity.KEY_LOGIN, login)
+                                    args?.putSerializable(HomeActivity.KEY_MODEL, keyModel)
+                                    dialogT.arguments = args
+                                    dialogT.show(ft, TicketsDialog.TAG)
+                                    // TODO: Current dialog dismiss
+                                    dialog?.dismiss()
                                 }else {
+                                    keyModel.gameRequestId = response.body()?.result?.get(0)!!.requestID
                                     // redirect to loading screen by intent
                                     val intent = Intent(activity, LoadingActivity::class.java)
                                     intent.putExtra(HomeActivity.KEY_MODEL, keyModel)
                                     intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                                     activity!!.startActivity(intent)
+                                    // TODO: Current dialog dismiss
+                                    dialog?.dismiss()
                                 }
-                                dialog?.dismiss()
                             } else {
                                 UtilMethods.ToastLong(context, "${response.body()?.msg}")
                             }
                         } else {
-                            UtilMethods.ToastLong(context, "${response.body()?.msg}")
+                            UtilMethods.ToastLong(context, "${response?.message()}")
                         }
                     } catch (e: HttpException) {
                         UtilMethods.ToastLong(context, "Exception ${e.message}")

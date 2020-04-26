@@ -19,4 +19,5 @@
     <dimen name="dimen_12sp">12sp</dimen>
     <dimen name="dimen_232dp">232dp</dimen>
     <dimen name="dimen_16dp">16dp</dimen>
+    <dimen name="dimen_64dp">64dp</dimen>
 </resources>

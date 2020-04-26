@@ -189,4 +189,7 @@ object UtilMethods {
         }
         return outputTime.toUpperCase()
     }
+    fun isAutoTime(context: Context): Int{
+        return android.provider.Settings.Global.getInt(context.contentResolver, android.provider.Settings.Global.AUTO_TIME, 0)
+    }
 }

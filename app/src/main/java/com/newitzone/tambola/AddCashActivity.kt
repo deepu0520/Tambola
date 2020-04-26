@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.widget.TextView
@@ -14,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import butterknife.BindView
 import butterknife.ButterKnife
 import com.google.android.material.textfield.TextInputLayout
+import com.newitzone.tambola.utils.Constants
 import com.newitzone.tambola.utils.KCustomToast
 import com.newitzone.tambola.utils.UtilMethods
 import kotlinx.coroutines.CoroutineScope
@@ -21,6 +23,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import model.login.Result
+import model.paytm.Paytm
+import model.paytm.ResPaytmOrderChecksum
 import model.paytm.ResPaytmTrans
 import retrofit.TambolaApiService
 
@@ -98,13 +102,10 @@ class AddCashActivity : AppCompatActivity() {
             // TODO: To add cash
             val context = this@AddCashActivity
             if (login != null){
-                // TODO: Call Payment Activity screen
-                val amt = inputAmount.editText?.text.toString()
-                val intent = Intent(context, PaymentActivity::class.java)
-                intent.putExtra(KEY_ADD_CASH_AMT, amt)
-                intent.putExtra(HomeActivity.KEY_LOGIN, login)
-                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                startActivityForResult(intent, REQ_CODE_ADD_CASH)
+
+                val amt = UtilMethods.roundOffDecimal(inputAmount.editText?.text.toString().toDouble()).toString()
+                // TODO: Call to generate checksum
+                getCheckSumApi(context, amt)
             }else{
                 UtilMethods.ToastLong(context, "Something went wrong")
             }
@@ -116,15 +117,79 @@ class AddCashActivity : AppCompatActivity() {
     private fun onSetPromoCode(promoCode: String){
         inputPromoCode.editText?.setText(promoCode)
     }
-    // TODO: add cash Api
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    private fun addCashApi(context: Context, userID: String, sessionId: String, transId: String, remarks: String, amt: String){
+    private fun getCheckSumApi(context: Context, txnAmount: String){
+
         if (UtilMethods.isConnectedToInternet(context)) {
             UtilMethods.showLoading(context)
             val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
             try {
                 CoroutineScope(Dispatchers.IO).launch {
-                    val response = service.addCash(userID, sessionId, transId, remarks, amt)
+//                    val response = service.getChecksum(paytm.getmId()
+//                        , paytm.orderId
+//                        , login.id
+//                        , paytm.channelId
+//                        , paytm.txnAmount
+//                        , paytm.website
+//                        , paytm.callBackUrl
+//                        , paytm.industryTypeId)
+                    val response = service.getChecksum( login.id, login.sid, txnAmount)
+                    withContext(Dispatchers.Main) {
+                        try {
+                            if (response.isSuccessful) {
+                                Log.i(PaymentActivity.TAG, "Checksum: "+ response.body())
+                                if (response.body()?.status == 1) {
+                                    // TODO: creating paytm object
+                                    val paytm = Paytm(
+                                        Constants.M_ID,
+                                        Constants.CHANNEL_ID,
+                                        txnAmount,
+                                        Constants.WEBSITE,
+                                        Constants.CALLBACK_URL,
+                                        Constants.INDUSTRY_TYPE_ID,
+                                        response.body()?.result?.get(0)?.ordno,
+                                        login.id,
+                                        response.body()?.result?.get(0)?.checkSum
+                                    )
+                                    // TODO: Call Payment Order
+                                    onPaymentOrder(context, paytm)
+                                }else{
+                                    UtilMethods.ToastLong(context,"${response.body()?.msg}")
+                                }
+                            } else {
+                                UtilMethods.ToastLong(context,"Error: ${response.code()}")
+                            }
+                        } catch (e: Exception) {
+                            UtilMethods.ToastLong(context,"Exception ${e.message}")
+
+                        } catch (e: Throwable) {
+                            UtilMethods.ToastLong(context,"Oops: Something else went wrong : " + e.message)
+                        }
+                        UtilMethods.hideLoading()
+                    }
+                }
+            } catch (e: Throwable) {
+                UtilMethods.ToastLong(context,"Oops: Something else went wrong : " + e.message)
+            }
+        }else{
+            UtilMethods.ToastLong(context,"No Internet Connection")
+        }
+    }
+    private fun onPaymentOrder(context: Context, paytm: Paytm){
+        val intent = Intent(context, PaymentActivity::class.java)
+        intent.putExtra(KEY_PAYTM, paytm)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+        startActivityForResult(intent, REQ_CODE_ADD_CASH)
+    }
+    // TODO: add cash Api
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private fun addCashApi(context: Context, userID: String, sessionId: String, transId: String, remarks: String, amt: String, docNo: String, tranStatus: String, getwayResp: String, type: String){
+        if (UtilMethods.isConnectedToInternet(context)) {
+            UtilMethods.showLoading(context)
+            val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
+            try {
+                CoroutineScope(Dispatchers.IO).launch {
+                    val response = service.addCash(userID, sessionId, transId, remarks, amt, docNo, tranStatus, getwayResp, type)
                     withContext(Dispatchers.Main) {
                         try {
                             if (response.isSuccessful) {
@@ -133,7 +198,7 @@ class AddCashActivity : AppCompatActivity() {
                                     finish()
                                 }
                                 KCustomToast.toastWithFont(context as Activity,""+response.body()?.msg)
-
+                                //UtilMethods.ToastLong(context,"Msg:${response.body()?.msg}")
                             } else {
                                 UtilMethods.ToastLong(context,"Error: ${response.code()}"+"\nMsg:${response.body()?.msg}")
                             }
@@ -154,32 +219,24 @@ class AddCashActivity : AppCompatActivity() {
         }
     }
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    override fun onActivityResult(
-        requestCode: Int,
-        resultCode: Int,
-        data: Intent?
-    ) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQ_CODE_ADD_CASH && data != null) {
             val resPaytmTrans =  data.getSerializableExtra(PAYTM_TRANSACTION) as ResPaytmTrans
             if (resPaytmTrans != null){
                 // TODO: Call add cash api
-                var  remarks = resPaytmTrans.bANKTXNID+"|"+resPaytmTrans.cHECKSUMHASH+"|"+resPaytmTrans.cURRENCY+"|"+resPaytmTrans.mID+"|"+resPaytmTrans.oRDERID+"|"+resPaytmTrans.rESPCODE+"|"+resPaytmTrans.rESPMSG+"|"+resPaytmTrans.sTATUS+"|"+resPaytmTrans.tXNAMOUNT
-//                if (resPaytmTrans.rESPCODE == 200) {
+                var  gatewayResponse = resPaytmTrans.toString()
+                var type = "1" // type 1 is cash and type 2 is chips
+                if (resPaytmTrans.rESPCODE == "01") { // Success
                     context?.let {
-                        addCashApi(
-                            it,
-                            login.id,
-                            login.sid,
-                            resPaytmTrans.oRDERID,
-                            remarks,
-                            resPaytmTrans.tXNAMOUNT.toString()
-                        )
+                        addCashApi(it, login.id, login.sid, resPaytmTrans.oRDERID,"testing", resPaytmTrans.tXNAMOUNT, "orderNo","1", gatewayResponse,type)
                     }
+                }else{
+                    context?.let {
+                        addCashApi(it, login.id, login.sid, resPaytmTrans.oRDERID,"testing", resPaytmTrans.tXNAMOUNT, "orderNo","2", gatewayResponse,type)
+                    }
+                }
                 context?.let { UtilMethods.ToastLong(it, "${resPaytmTrans.rESPMSG}") }
-//                }else{
-//
-//                }
             }
         }
     }
@@ -192,5 +249,6 @@ class AddCashActivity : AppCompatActivity() {
         const val KEY_ADD_CASH_AMT = "Key_add_cash_amount"
         const val REQ_CODE_ADD_CASH = 200
         const val PAYTM_TRANSACTION = "paytm_transaction"
+        const val KEY_PAYTM = "key_paytm"
     }
 }

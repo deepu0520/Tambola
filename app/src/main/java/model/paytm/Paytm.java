@@ -4,9 +4,10 @@ import android.util.Log;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.UUID;
 
-public class Paytm {
+public class Paytm implements Serializable {
  
     @SerializedName("MID")
     String mId;
@@ -31,22 +32,25 @@ public class Paytm {
  
     @SerializedName("INDUSTRY_TYPE_ID")
     String industryTypeId;
+
+    @SerializedName("CHECKSUMHASH")
+    String checkSumHash;
  
-    public Paytm(String mId, String channelId, String txnAmount, String website, String callBackUrl, String industryTypeId) {
+    public Paytm(String mId, String channelId, String txnAmount, String website, String callBackUrl, String industryTypeId,String orderId,String custId,String checkSumHash) {
         this.mId = mId;
-        this.orderId = generateString();
-        this.custId = generateString();
+        this.orderId = orderId;
+        this.custId = custId;
         this.channelId = channelId;
         this.txnAmount = txnAmount;
         this.website = website;
         this.callBackUrl = callBackUrl;
         this.industryTypeId = industryTypeId;
- 
+        this.checkSumHash = checkSumHash;
         Log.d("orderId", orderId);
         Log.d("customerId", custId);
     }
  
-    public String getmId() {
+    public String getMId() {
         return mId;
     }
  
@@ -76,6 +80,10 @@ public class Paytm {
  
     public String getIndustryTypeId() {
         return industryTypeId;
+    }
+
+    public String getCheckSumHash() {
+        return checkSumHash;
     }
  
     /*

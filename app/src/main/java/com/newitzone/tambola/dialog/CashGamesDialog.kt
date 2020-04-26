@@ -20,9 +20,11 @@ import com.newitzone.tambola.R
 import com.newitzone.tambola.adapter.PriceAdapter
 import com.newitzone.tambola.utils.RecyclerItemClickListenr
 import model.KeyModel
+import model.login.Result
 
 
 class CashGamesDialog : DialogFragment() {
+    private lateinit var login: Result
     private lateinit var keyModel: KeyModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +50,7 @@ class CashGamesDialog : DialogFragment() {
         val view = activity!!.layoutInflater.inflate(R.layout.dialog_cash_games, parent, false)
         if (arguments != null) {
             val mArgs = arguments
+            login = mArgs!!.getSerializable(HomeActivity.KEY_LOGIN) as Result
             keyModel = mArgs!!.getSerializable(HomeActivity.KEY_MODEL) as KeyModel
         }
         ButterKnife.bind(this, view)
@@ -67,6 +70,7 @@ class CashGamesDialog : DialogFragment() {
                 val dialog = TicketsDialog()
                 val ft: FragmentTransaction = activity!!.supportFragmentManager.beginTransaction()
                 val args = Bundle()
+                args?.putSerializable(HomeActivity.KEY_LOGIN, login)
                 args?.putSerializable(HomeActivity.KEY_MODEL, keyModel)
                 dialog.arguments = args
                 dialog.show(ft, TicketsDialog.TAG)

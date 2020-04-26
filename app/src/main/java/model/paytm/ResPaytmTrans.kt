@@ -15,11 +15,21 @@ data class ResPaytmTrans(
     @SerializedName("ORDERID")
     var oRDERID: String,
     @SerializedName("RESPCODE")
-    var rESPCODE: Int,
+    var rESPCODE: String,
     @SerializedName("RESPMSG")
     var rESPMSG: String,
     @SerializedName("STATUS")
     var sTATUS: String,
     @SerializedName("TXNAMOUNT")
-    var tXNAMOUNT: Double
+    var tXNAMOUNT: String,
+    @SerializedName("BANKNAME")
+    var bANKNAME: String,
+    @SerializedName("TXNDATE")
+    var tXNDATE: String,
+    @SerializedName("TXNID")
+    var tXNID: String,
+    @SerializedName("PAYMENTMODE")
+    var pAYMENTMODE: String,
+    @SerializedName("GATEWAYNAME")
+    var gATEWAYNAME: String
 ) : Serializable
