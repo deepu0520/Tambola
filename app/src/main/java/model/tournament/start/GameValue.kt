@@ -12,7 +12,7 @@ data class GameValue(
     @SerializedName("four_cor")
     var fourCor: Double,
     @SerializedName("full_house")
-    var fullHouse: Int,
+    var fullHouse: Double,
     @SerializedName("mid_line")
     var midLine: Double,
     @SerializedName("top_line")
