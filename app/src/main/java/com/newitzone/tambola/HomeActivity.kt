@@ -35,6 +35,7 @@ import kotlinx.coroutines.withContext
 import model.KeyModel
 import model.login.ResLogin
 import model.login.Result
+import model.tournament.Tournament
 import retrofit.TambolaApiService
 import java.lang.Exception
 
@@ -136,6 +137,7 @@ class HomeActivity : AppCompatActivity() {
             val dialog = CashGamesDialog()
             val ft: FragmentTransaction = supportFragmentManager.beginTransaction()
             val args = Bundle()
+            args?.putSerializable(KEY_LOGIN, login)
             args?.putSerializable(KEY_MODEL, keyModel)
             dialog.arguments = args
             dialog.show(ft, CashGamesDialog.TAG)
@@ -160,6 +162,13 @@ class HomeActivity : AppCompatActivity() {
             args?.putSerializable(KEY_MODEL, keyModel)
             dialog.arguments = args
             dialog.show(ft, TicketsDialog.TAG)
+//            // TODO for testing
+//            val intent = Intent(context, LoadingTournamentGameActivity::class.java)
+//            intent.putExtra(KEY_LOGIN, login)
+//            //intent.putExtra(KEY_TOURNAMENT, Tournament())
+//            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+//            startActivity(intent)
+//            finish()
         }else{
             val context = this@HomeActivity
             //UtilMethods.ToastLong(context,"Insufficient balance in your account to play Tournament game")
@@ -243,10 +252,16 @@ class HomeActivity : AppCompatActivity() {
                 , SharedPrefManager.getInstance(context as HomeActivity).result.emailId
                 , SharedPrefManager.getInstance(context as HomeActivity).passKey.toString()
                 , SharedPrefManager.getInstance(context as HomeActivity).result.userType
-                , "1"
+                , "0"
                 , SharedPrefManager.getInstance(context as HomeActivity).result.sid
                 , SharedPrefManager.getInstance(context as HomeActivity).result.id
             )
+        }
+    }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQ_CODE && data != null) {
+            onResume()
         }
     }
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
@@ -282,6 +297,7 @@ class HomeActivity : AppCompatActivity() {
         const val KEY_MODEL = "Key_Model"
         const val KEY_GAME_IN = "Key_Game_In"
         const val KEY_TOURNAMENT = "Key_tournament"
+        const val REQ_CODE = 100
     }
 
     // TODO: login Api
@@ -296,7 +312,7 @@ class HomeActivity : AppCompatActivity() {
                     withContext(Dispatchers.Main) {
                         try {
                             if (response.isSuccessful) {
-                                login = response.body()?.result?.get(0)!!
+                                //login = response.body()?.result?.get(0)!!
                                 onLoadAccountDetails(response.body()?.result?.get(0)!!)
                             } else {
                                 UtilMethods.ToastLong(

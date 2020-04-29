@@ -88,7 +88,7 @@ class PaymentActivity : AppCompatActivity() , PaytmPaymentTransactionCallback {
 
     override fun onTransactionResponse(inResponse: Bundle?) {
         // TODO:("Not yet implemented")
-        context?.let { UtilMethods.ToastLong(it, "inResponse : ${inResponse.toString()}") }
+        //context?.let { UtilMethods.ToastLong(it, "inResponse : ${inResponse.toString()}") }
         Log.d("LOG", "Payment Transaction is successful $inResponse")
         val resPaytmTrans = ResPaytmTrans(inResponse?.getString("BANKTXNID")!!
                                         , inResponse.getString("CHECKSUMHASH")!!

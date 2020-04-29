@@ -1,6 +1,7 @@
 package com.newitzone.tambola.dialog
 
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -15,6 +16,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.ButterKnife
 import com.newitzone.tambola.HomeActivity
+import com.newitzone.tambola.LoadingTournamentGameActivity
+import com.newitzone.tambola.PlayActivity
 import com.newitzone.tambola.R
 import com.newitzone.tambola.adapter.TournamentAdapter
 import com.newitzone.tambola.utils.RecyclerItemClickListenr
@@ -78,10 +81,6 @@ class TournamentGamesDialog : DialogFragment() {
         ButterKnife.bind(this, view)
         val context: Context = requireContext()
         recyclerView = view.findViewById(R.id.recycler_view) as RecyclerView
-//        if (resTournament !=null) {
-//            // TODO: Call To Load RecyclerView
-//            onLoadRecyclerView(context, resTournament)
-//        }
         return view
     }
     private fun onLoadRecyclerView(context: Context, resTournament: ResTournament){
@@ -91,73 +90,103 @@ class TournamentGamesDialog : DialogFragment() {
         recyclerView.adapter = adapter
         recyclerView.addOnItemTouchListener(RecyclerItemClickListenr(context, recyclerView, object : RecyclerItemClickListenr.OnItemClickListener {
 
+            @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
             override fun onItemClick(view: View, position: Int) {
+                val tournament = resTournament.result.list[position]
                 val tournamentId = resTournament.result.list[position].id
+                val gameId = resTournament.result.list[position].game_id
                 val amt = resTournament.result.list[position].amount
                 val reqOpen = resTournament.result.list[position].requestOpen.toInt()
                 val userReqTickets = resTournament.result.list[position].userRequestedTickets.toInt()
                 // set tournament id in key model
                 keyModel.tournamentId = tournamentId
                 keyModel.amount = amt.toFloat()
-
-                if (reqOpen == 1 && userReqTickets <= 0) {
-                    //TODO: Join the tournament
-                    //TODO: Call Ticket Dialog
-                    val dialogTicket = TicketsDialog()
-                    val ft: FragmentTransaction = activity!!.supportFragmentManager.beginTransaction()
-                    val args = Bundle()
-                    args?.putSerializable(HomeActivity.KEY_LOGIN, login)
-                    args?.putSerializable(HomeActivity.KEY_MODEL, keyModel)
-                    dialogTicket.arguments = args
-                    dialogTicket.show(ft, TicketsDialog.TAG)
-                    // TODO: dismiss current dialog
-                    dialog?.dismiss()
-
-                }else if(reqOpen == 1 && userReqTickets > 0){
-                    // TODO: Automatic time enable checking
-                    if (UtilMethods.isAutoTime(context) == 1) {
-
-                        val currentTime = System.currentTimeMillis()
-                        val tournamentTime =
-                            UtilMethods.getDateInMS(resTournament.result.date + " " + resTournament.result.list[position].startTime)
-                        var different = 0L
-                        if (currentTime > tournamentTime!!) {
-                            different = currentTime.minus(tournamentTime)
-                        } else if (tournamentTime!! > currentTime) {
-                            different = tournamentTime?.minus(currentTime)
+                // TODO: Automatic time enable checking
+                if (UtilMethods.isAutoTime(context) == 1) {
+                    if (reqOpen == 1) {
+                        // TODO: if request is open
+                        if (userReqTickets <= 0) {
+                            //TODO: Join the tournament
+                            //TODO: Call Ticket Dialog
+                            val dialogTicket = TicketsDialog()
+                            val ft: FragmentTransaction =
+                                activity!!.supportFragmentManager.beginTransaction()
+                            val args = Bundle()
+                            args?.putSerializable(HomeActivity.KEY_LOGIN, login)
+                            args?.putSerializable(HomeActivity.KEY_MODEL, keyModel)
+                            dialogTicket.arguments = args
+                            dialogTicket.show(ft, TicketsDialog.TAG)
+                            // TODO: dismiss current dialog
+                            dialog?.dismiss()
                         }
-                        val secondsInMilli: Long = 1000
-                        val minutesInMilli = secondsInMilli * 60
-
-                        val elapsedMinutes: Long = different / minutesInMilli
-                        different %= minutesInMilli
-
-                        if (elapsedMinutes < 5) {
-                            // TODO: start the game
-                            UtilMethods.ToastLong(context,"Your game is started in several minutes")
-                        } else {
-                            UtilMethods.ToastLong(
-                                context,
-                                "Your game start on " + UtilMethods.getTimeAMPM(resTournament.result.date + " " + resTournament.result.list[position].startTime)
+                        else if (userReqTickets > 0) {
+                            // TODO: Cancel Request
+                            val currentTime = System.currentTimeMillis()
+                            val tournamentTime =
+                                UtilMethods.getDateInMS(resTournament.result.date + " " + resTournament.result.list[position].startTime)
+                            // TODO: Time difference
+                            var different = UtilMethods.getTimeDifferenceInMinute(
+                                currentTime,
+                                tournamentTime!!,
+                                2
                             )
+
+                            if (different > 5) {
+                                // TODO: time difference is greater than 5 minutes
+                                // TODO: show dialog to cancel request
+                                dialogAlertCancel(
+                                    context,
+                                    login.id,
+                                    login.sid,
+                                    tournamentId,
+                                    gameId
+                                )
+                            }
                         }
-                    }else{
-                        UtilMethods.ToastLong(context,"Please enable automatic time of your device")
+                    } else if (reqOpen == 0) {
+                        // TODO: if request is close
+                        val currentTime = System.currentTimeMillis()
+                        val tournamentTime = UtilMethods.getDateInMS(resTournament.result.date + " " + resTournament.result.list[position].startTime)
+
+                        // TODO: Time difference for play
+                        var difPlay = UtilMethods.getTimeDifferenceInMinute(currentTime, tournamentTime!!, 1)
+                        if (difPlay <= 1) {
+                            // TODO: time difference is 1 minute and less than 1
+                            if (userReqTickets > 0) {
+                                // TODO: start the game
+                                //UtilMethods.ToastLong(context,"Your game is started in several minutes")
+                                val intent = Intent(context, LoadingTournamentGameActivity::class.java)
+                                intent.putExtra(HomeActivity.KEY_LOGIN, login)
+                                intent.putExtra(HomeActivity.KEY_TOURNAMENT, tournament)
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                                startActivity(intent)
+                                // TODO:
+                                dialog?.dismiss()
+                            }else{
+                                MessageDialog(context,"Alert","You have not participate this Tournament").show()
+                            }
+                        }else {
+                            // TODO: Time difference for tournament play soon
+                            var difPlaySoon = UtilMethods.getTimeDifferenceInMinute(currentTime, tournamentTime!!,2)
+                            if (difPlaySoon > 1) {
+                                MessageDialog(context,"Alert","Tournament will start in few minutes, Be ready").show()
+                            }
+                            // TODO: Time difference for tournament going
+                            var different = UtilMethods.getTimeDifferenceInMinute(currentTime,tournamentTime!!,0)
+                            if (different in 2..14) {
+                                MessageDialog(context,"Alert","Please wait...for the result").show()
+                            } else if (different > 14) {
+                                MessageDialog(context, "Alert", "Result is coming soon.....").show()
+                            }
+                        }
                     }
+                } else {
+                    MessageDialog(context,"Alert","Please enable automatic time of your device").show()
                 }
             }
             @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
             override fun onItemLongClick(view: View?, position: Int) {
-                //TODO : ("cancel request")
-                val tournamentId = resTournament.result.list[position].id
-                val gameId = resTournament.result.list[position].game_id
-                val reqOpen = resTournament.result.list[position].requestOpen.toInt()
-                val userReqTickets = resTournament.result.list[position].userRequestedTickets.toInt()
-
-                if(reqOpen == 1 && userReqTickets > 0){
-                    // TODO: show dialog to cancel request
-                    dialogAlertCancel(context, login.id, login.sid, tournamentId, gameId)
-                }
+                //TODO : "cancel request"
             }
         }))
     }
@@ -230,6 +259,7 @@ class TournamentGamesDialog : DialogFragment() {
                         try {
                             if (response.isSuccessful) {
                                 if (response.body()?.status == 1) {
+                                    UtilMethods.hideLoading()
                                     // TODO: cancel request response
                                     UtilMethods.ToastLong(context,"${response.body()?.msg}")
                                     onResume()

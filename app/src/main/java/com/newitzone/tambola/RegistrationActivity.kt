@@ -22,7 +22,10 @@ import androidx.core.content.res.ResourcesCompat
 import butterknife.BindView
 import butterknife.ButterKnife
 import com.afollestad.vvalidator.form
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
+import com.newitzone.tambola.dialog.MessageDialog
+import com.newitzone.tambola.utils.Constants
 import com.newitzone.tambola.utils.KCustomToast
 import com.newitzone.tambola.utils.SharedPrefManager
 import com.newitzone.tambola.utils.UtilMethods
@@ -80,6 +83,9 @@ class RegistrationActivity : AppCompatActivity() {
         btnRegister.setOnClickListener { view ->
             onRegister(view)
         }
+        txtTnC.setOnClickListener {
+            MessageDialog(context as RegistrationActivity, "Terms & Conditions", Constants.TERMS_CONDITIONS).show()
+        }
         // terms and condition
         //txtTnC.text(R.string.txt_terms_condition)
     }
@@ -95,50 +101,54 @@ class RegistrationActivity : AppCompatActivity() {
         val confirmPassword = text_input_confirm_password.editText!!.text.toString().trim()
         val img = ""
 
-        form {
-            inputLayout(R.id.text_input_fname , name = "First Name") {
-                isNotEmpty()
-            }
-            inputLayout(R.id.text_input_lname , name = "Last Name") {
-                isNotEmpty()
-            }
-            inputLayout(R.id.text_input_email , name = "Email(User name)") {
-                isNotEmpty()
-                isEmail()
-            }
-            inputLayout(R.id.text_input_password , name = "Password") {
-                isNotEmpty()
-            }
-            inputLayout(R.id.text_input_confirm_password , name = "Confirm Password") {
-                isNotEmpty()
-            }
-            checkable(R.id.checkBox_terms_condition , name = "Terms and Condition") {
-                isChecked()
-            }
+        text_input_fname.error = null
+        text_input_email.error = null
+        text_input_password.error = null
+        text_input_confirm_password.error = null
 
-            submitWith(R.id.text_register_for_free) {
-                // this block is only called if form is valid.
-                if (password.compareTo(confirmPassword) == 0) {
-                    // do something with a valid form state.
-                    context?.let {
-                        registerApi(
-                            it,
-                            fName,
-                            lName,
-                            email,
-                            mobile,
-                            password,
-                            dob,
-                            userType.toString(),
-                            img
-                        )
-                    }
-                }else{
-                    input(R.id.input_confirm_password , name = "Confirm Password") {
-                        context?.let { UtilMethods.ToastLong(it,"Password is not match") }
-                    }
-                }
-            }
+
+        var cancel = false
+        var focusable: View? = null
+
+        if(fName.isEmpty()){
+            text_input_fname.error = "First name cannot be blank"
+            focusable = text_input_fname
+            cancel = true
+        }
+        if(email.isEmpty()){
+            text_input_email.error = "Email cannot be blank"
+            focusable = text_input_email
+            cancel = true
+        }
+        if(password.isEmpty()){
+            text_input_password.error = "Password cannot be blank"
+            focusable = text_input_password
+            cancel = true
+        }
+        if(confirmPassword.isEmpty()){
+            text_input_confirm_password.error = "Confirm password cannot be blank"
+            focusable = text_input_confirm_password
+            cancel = true
+        }
+        if(password != confirmPassword){
+            text_input_confirm_password.error = "Confirm password is not match"
+            focusable = text_input_confirm_password
+            cancel = true
+        }
+        if(!cbTnC.isChecked){
+            Snackbar.make(checkBox_terms_condition, "Please check terms and condition", Snackbar.LENGTH_LONG).show()
+            focusable = checkBox_terms_condition
+            cancel = true
+        }
+
+        if (cancel){
+            focusable!!.requestFocus()
+        }else {
+            // TODO: To login
+            // this block is only called if form is valid.
+            // do something with a valid form state.
+            val context = this@RegistrationActivity
+            registerApi(context,fName,lName,email,mobile,password,dob,userType.toString(),img)
         }
     }
 

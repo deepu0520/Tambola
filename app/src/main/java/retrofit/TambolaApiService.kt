@@ -11,6 +11,7 @@ import model.login.ResLogin
 import model.paytm.Checksum
 import model.paytm.ResPaytmOrderChecksum
 import model.tournament.ResTournament
+import model.tournament.start.ResTournamentStart
 import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Response
@@ -56,6 +57,14 @@ interface TambolaApiService {
                                        @Field("claimType") claimType: String,
                                        @Field("type") type: Int
     ): Response<ClaimPrize>
+
+    @FormUrlEncoded
+    @POST("tournament-start")
+    suspend fun tournamentStart(@Field("userid") userid: String,
+                       @Field("sesid") sesid: String,
+                       @Field("tournament_id") tournament_id: String,
+                       @Field("game_id") game_id: String
+    ): Response<ResTournamentStart>
 
     @FormUrlEncoded
     @POST("game-in")

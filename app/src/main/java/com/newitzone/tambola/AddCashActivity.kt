@@ -234,9 +234,9 @@ class AddCashActivity : AppCompatActivity() {
                 }else{
                     context?.let {
                         addCashApi(it, login.id, login.sid, resPaytmTrans.oRDERID,"testing", resPaytmTrans.tXNAMOUNT, "orderNo","2", gatewayResponse,type)
+                        UtilMethods.ToastLong(it, "${resPaytmTrans.rESPMSG}")
                     }
                 }
-                context?.let { UtilMethods.ToastLong(it, "${resPaytmTrans.rESPMSG}") }
             }
         }
     }

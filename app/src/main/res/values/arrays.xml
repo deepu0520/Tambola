@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="price_list">
-        <item>5</item>
         <item>10</item>
         <item>20</item>
         <item>30</item>
         <item>50</item>
+        <item>80</item>
         <item>100</item>
     </string-array>
     <string-array name="random_number_list">

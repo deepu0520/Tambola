@@ -83,8 +83,8 @@ class TicketsDialog : DialogFragment() {
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun callApi(req_ticket: Int){
         val context= requireContext()
-        val userId = SharedPrefManager.getInstance(context).result.id
-        val sessionId = SharedPrefManager.getInstance(context).result.sid
+        val userId = login.id
+        val sessionId = login.sid
         // add ticket type
         keyModel.ticketType = req_ticket
         if (sessionId.isNotBlank()) {
@@ -121,10 +121,12 @@ class TicketsDialog : DialogFragment() {
                 withContext(Dispatchers.Main) {
                     try {
                         if (response.isSuccessful) {
-                            if (response.code() == 201) {
+                            if (response.body()?.status == 1) {
                                 UtilMethods.ToastLong(context, "${response.body()?.msg}")
                                 if (keyModel.gameType == PlayActivity.TOURNAMENT_GAME){
-                                    UtilMethods.ToastLong(context, "You successfully join for the Tournament game with ticket $req_ticket")
+
+                                    UtilMethods.ToastLong(context, "You are successfully join for the Tournament game with ticket $req_ticket")
+                                    //MessageDialog(context,"","You are successfully join for the Tournament game with ticket $req_ticket").show()
 
                                     //TODO: Call Ticket Dialog
                                     val dialogT = TournamentGamesDialog()
@@ -140,6 +142,7 @@ class TicketsDialog : DialogFragment() {
                                     keyModel.gameRequestId = response.body()?.result?.get(0)!!.requestID
                                     // redirect to loading screen by intent
                                     val intent = Intent(activity, LoadingActivity::class.java)
+                                    intent.putExtra(HomeActivity.KEY_LOGIN, login)
                                     intent.putExtra(HomeActivity.KEY_MODEL, keyModel)
                                     intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                                     activity!!.startActivity(intent)

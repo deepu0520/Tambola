@@ -97,8 +97,7 @@ class LoginActivity : AppCompatActivity() {
     }
     private fun onFacebookLogin(){
         try {
-            val info = packageManager.getPackageInfo(packageName,PackageManager.GET_SIGNATURES
-            )
+            val info = packageManager.getPackageInfo(packageName,PackageManager.GET_SIGNATURES)
             for (signature in info.signatures) {
                 val md: MessageDigest = MessageDigest.getInstance("SHA")
                 md.update(signature.toByteArray())

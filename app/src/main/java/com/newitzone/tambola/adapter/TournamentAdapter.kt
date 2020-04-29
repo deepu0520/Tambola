@@ -33,35 +33,69 @@ class TournamentAdapter(val items : List<Tournament>, private val date: String, 
     // Binds each animal in the ArrayList to a view
     override fun onBindViewHolder(holder: ViewHolderTournament, position: Int) {
         holder?.tvTourName?.text = items[position].name
-        holder?.tvTourPrizeAmt?.text = "₹" + items[position].maxTicket + "/-"
+        holder?.tvTourPrizeAmt?.text =  "Total Tickets : " + items[position].totalRequestedTicket
         holder?.tvEntryFee?.text = "₹" + items[position].amount + "/-"
         holder?.tvStartTime?.text = UtilMethods.getTimeAMPM(date+" "+items[position].startTime) + " " + day.toUpperCase()
         holder?.tvStatus?.text = context.getText(R.string.txt_fast_filling)
         if (items[position].requestOpen == "1") {
+            // TODO: Join or cancel request
             if (items[position].userRequestedTickets.toInt() > 0){
-                holder?.tvJoinOrStatus?.text = "You can play on "+UtilMethods.getTimeAMPM(date+" "+items[position].startTime)
+                // TODO: Cancel request
+                holder?.tvJoinOrStatus?.text = "Cancel"
                 holder?.tvStatus?.text = "You already join with "+items[position].userRequestedTickets+" ticket"
             }else {
+                // TODO: Join request
                 holder?.tvJoinOrStatus?.text = "JOIN"
                 holder?.tvStatus?.text = context.getText(R.string.txt_fast_filling)
             }
-            holder?.lLTourItem.visibility = View.GONE
-/*            // timer
-//            // 60 seconds (1 minute)
-//            val millisInFuture = UtilMethods.getDateInMS(date+" "+items[position].startTime)
-//            // Count down interval 1 second
-//            val countDownInterval: Long = 1000
-//            if (millisInFuture != null) {
-//                if (!items[position].timer) {
-//                    items[position].timer = true
-//                    //timer(millisInFuture, countDownInterval, holder?.tvRemainTime).start()
-//                }
-//            }
- */
-        }else{
-            holder?.tvJoinOrStatus?.text = "Tournament Over"
-            holder?.lLTourItem.visibility = View.VISIBLE
+        }else if (items[position].requestOpen == "0") {
+            // TODO: Play or Game over
+            val currentTime = System.currentTimeMillis()
+            val tournamentTime = UtilMethods.getDateInMS(date + " " + items[position].startTime)
+            // TODO: Time difference for play
+            var difPlay = UtilMethods.getTimeDifferenceInMinute(currentTime, tournamentTime!!, 1)
+            if (difPlay <= 1){
+                holder?.tvJoinOrStatus?.text = "Play"
+                holder?.tvStatus?.text = "You already join with "+items[position].userRequestedTickets+" ticket"
+            }
+            // TODO: Time difference for tournament going
+            var different = UtilMethods.getTimeDifferenceInMinute(currentTime, tournamentTime!!, 0)
+            if (different in 2..14){
+                holder?.tvJoinOrStatus?.text = "Tournament is going "
+                holder?.tvStatus?.text = "Please wait for the result"
+            }else if (different > 14){
+                holder?.tvJoinOrStatus?.text = "Result"
+                holder?.tvStatus?.text = "Tournament Over"
+            }
         }
+
+//        if (items[position].requestOpen == "1") {
+//            if (items[position].userRequestedTickets.toInt() > 0){
+//                //holder?.tvJoinOrStatus?.text = "You can play on "+UtilMethods.getTimeAMPM(date+" "+items[position].startTime)
+//                holder?.tvJoinOrStatus?.text = "Long press to cancel"
+//                holder?.tvStatus?.text = "You already join with "+items[position].userRequestedTickets+" ticket"
+//            }else {
+//                holder?.tvJoinOrStatus?.text = "JOIN"
+//                holder?.tvStatus?.text = context.getText(R.string.txt_fast_filling)
+//            }
+//            holder?.lLTourItem.visibility = View.GONE
+///*            // timer
+////            // 60 seconds (1 minute)
+////            val millisInFuture = UtilMethods.getDateInMS(date+" "+items[position].startTime)
+////            // Count down interval 1 second
+////            val countDownInterval: Long = 1000
+////            if (millisInFuture != null) {
+////                if (!items[position].timer) {
+////                    items[position].timer = true
+////                    //timer(millisInFuture, countDownInterval, holder?.tvRemainTime).start()
+////                }
+////            }
+// */
+//        }else{
+//            holder?.tvJoinOrStatus?.text = "Tournament Over"
+//            holder?.tvStatus?.text = "Tournament Ended"
+//            holder?.lLTourItem.visibility = View.VISIBLE
+//        }
     }
     // Method to configure and return an instance of CountDownTimer object
     private fun timer(millisInFuture:Long, countDownInterval:Long, tvTimer: TextView): CountDownTimer {

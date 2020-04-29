@@ -189,6 +189,36 @@ object UtilMethods {
         }
         return outputTime.toUpperCase()
     }
+    fun getTimeDifferenceInMinute(fromTime: Long, toTime: Long, type: Int): Long {
+        var different = 0L
+        try {
+            if (type == 0) { // type 0 is fromTime is greater than toTime
+                if (fromTime > toTime!!) {
+                    different = fromTime.minus(toTime)
+                }
+            }else if (type == 1) { // type 1 is greater value of fromTime and toTime
+                if (fromTime > toTime!!) {
+                    different = fromTime.minus(toTime)
+                }else if (toTime!! > fromTime) {
+                    different = toTime?.minus(fromTime)
+                }
+            }else if (type == 2) { // type 2 is toTime is greater than fromTime
+                if (toTime!! > fromTime) {
+                    different = toTime?.minus(fromTime)
+                }
+            }
+            val secondsInMilli: Long = 1000
+            val minutesInMilli = secondsInMilli * 60
+
+            val elapsedMinutes: Long = different / minutesInMilli
+            different %= elapsedMinutes
+            // TODO: Final value
+            different = elapsedMinutes
+        } catch (e: java.lang.Exception) {
+            Log.e(TAG, "Get time exception : $e")
+        }
+        return different
+    }
     fun isAutoTime(context: Context): Int{
         return android.provider.Settings.Global.getInt(context.contentResolver, android.provider.Settings.Global.AUTO_TIME, 0)
     }
