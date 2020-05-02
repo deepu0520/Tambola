@@ -459,7 +459,9 @@ class PlayTournamentGameActivity : AppCompatActivity(){
                         if (i in 0..8) {
                             if (elements.num != 0) {
                                 if (elements.isChecked) {
-                                    tCheckedNum++
+                                    if (randomNumList.contains(elements.num.toString())) {
+                                        tCheckedNum++
+                                    }
                                 }
                                 tNum++
                             }
@@ -487,7 +489,9 @@ class PlayTournamentGameActivity : AppCompatActivity(){
                         if (i in 18..26) {
                             if (elements.num != 0) {
                                 if (elements.isChecked) {
-                                    tCheckedNum++
+                                    if (randomNumList.contains(elements.num.toString())) {
+                                        tCheckedNum++
+                                    }
                                 }
                                 tNum++
                             }
@@ -514,7 +518,9 @@ class PlayTournamentGameActivity : AppCompatActivity(){
                         if (i in 9..17) {
                             if (elements.num != 0) {
                                 if (elements.isChecked) {
-                                    tCheckedNum++
+                                    if (randomNumList.contains(elements.num.toString())) {
+                                        tCheckedNum++
+                                    }
                                 }
                                 tNum++
                             }
@@ -544,8 +550,10 @@ class PlayTournamentGameActivity : AppCompatActivity(){
                     for((i, elements) in numList.withIndex()){
                         if (i in 0..2) {
                             if (elements.num != 0) {
-                                topLeft = elements.isChecked
-                                break
+                                if (randomNumList.contains(elements.num.toString())) {
+                                    topLeft = elements.isChecked
+                                    break
+                                }
                             }
                         }
                     }
@@ -553,8 +561,10 @@ class PlayTournamentGameActivity : AppCompatActivity(){
                     for((i, elements) in numList.asReversed().withIndex()){
                         if (i in 8 downTo 6) {
                             if (elements.num != 0) {
-                                topRight = elements.isChecked
-                                break
+                                if (randomNumList.contains(elements.num.toString())) {
+                                    topRight = elements.isChecked
+                                    break
+                                }
                             }
                         }
                     }
@@ -562,8 +572,10 @@ class PlayTournamentGameActivity : AppCompatActivity(){
                     for((i, elements) in numList.withIndex()){
                         if (i in 18..20) {
                             if (elements.num != 0) {
-                                bottomLeft = elements.isChecked
-                                break
+                                if (randomNumList.contains(elements.num.toString())) {
+                                    bottomLeft = elements.isChecked
+                                    break
+                                }
                             }
                         }
                     }
@@ -572,8 +584,10 @@ class PlayTournamentGameActivity : AppCompatActivity(){
                     for((i, elements) in numList.asReversed().withIndex()){
                         if (i in 26 downTo 24) {
                             if (elements.num != 0) {
-                                bottomRight = elements.isChecked
-                                break
+                                if (randomNumList.contains(elements.num.toString())) {
+                                    bottomRight = elements.isChecked
+                                    break
+                                }
                             }
                         }
                     }
@@ -614,7 +628,9 @@ class PlayTournamentGameActivity : AppCompatActivity(){
                         if (i in 0..26) {
                             if (elements.num != 0) {
                                 if (elements.isChecked) {
-                                    tCheckedNum++
+                                    if (randomNumList.contains(elements.num.toString())) {
+                                        tCheckedNum++
+                                    }
                                 }
                                 tNum++
                             }

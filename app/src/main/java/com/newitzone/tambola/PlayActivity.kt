@@ -555,7 +555,9 @@ class PlayActivity : AppCompatActivity(){
                         if (i in 0..8) {
                             if (elements.num != 0) {
                                 if (elements.isChecked) {
-                                    tCheckedNum++
+                                    if (randomNumList.contains(elements.num.toString())) {
+                                        tCheckedNum++
+                                    }
                                 }
                                 tNum++
                             }
@@ -583,7 +585,9 @@ class PlayActivity : AppCompatActivity(){
                         if (i in 18..26) {
                             if (elements.num != 0) {
                                 if (elements.isChecked) {
-                                    tCheckedNum++
+                                    if (randomNumList.contains(elements.num.toString())) {
+                                        tCheckedNum++
+                                    }
                                 }
                                 tNum++
                             }
@@ -610,7 +614,9 @@ class PlayActivity : AppCompatActivity(){
                         if (i in 9..17) {
                             if (elements.num != 0) {
                                 if (elements.isChecked) {
-                                    tCheckedNum++
+                                    if (randomNumList.contains(elements.num.toString())) {
+                                        tCheckedNum++
+                                    }
                                 }
                                 tNum++
                             }
@@ -644,7 +650,9 @@ class PlayActivity : AppCompatActivity(){
                         if (i in 0..26) {
                             if (elements.num != 0) {
                                 if (elements.isChecked) {
-                                    tCheckedNum++
+                                    if (randomNumList.contains(elements.num.toString())) {
+                                        tCheckedNum++
+                                    }
                                 }
                                 tNum++
                             }

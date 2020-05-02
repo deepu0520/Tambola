@@ -136,7 +136,7 @@ class RegistrationActivity : AppCompatActivity() {
             cancel = true
         }
         if(!cbTnC.isChecked){
-            Snackbar.make(checkBox_terms_condition, "Please check terms and condition", Snackbar.LENGTH_LONG).show()
+            Snackbar.make(checkBox_terms_condition, "Please accept terms and condition", Snackbar.LENGTH_LONG).show()
             focusable = checkBox_terms_condition
             cancel = true
         }

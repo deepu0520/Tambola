@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -15,10 +16,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.res.ResourcesCompat
+import androidx.fragment.app.FragmentActivity
 import butterknife.BindView
 import butterknife.ButterKnife
-import com.afollestad.vvalidator.form
 import com.facebook.*
 import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
@@ -96,16 +96,8 @@ class LoginActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
     }
     private fun onFacebookLogin(){
-        try {
-            val info = packageManager.getPackageInfo(packageName,PackageManager.GET_SIGNATURES)
-            for (signature in info.signatures) {
-                val md: MessageDigest = MessageDigest.getInstance("SHA")
-                md.update(signature.toByteArray())
-                Log.i("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT))
-            }
-        } catch (e: PackageManager.NameNotFoundException) {
-        } catch (e: NoSuchAlgorithmException) {
-        }
+        // TODO: print hashkey
+        context?.let { printHashKey(it) }
 
         // Facebook
         callbackManager = CallbackManager.Factory.create()
@@ -338,6 +330,22 @@ class LoginActivity : AppCompatActivity() {
             }
         }else{
             UtilMethods.ToastLong(context,"No Internet Connection")
+        }
+    }
+
+    private fun printHashKey(pContext: Context) {
+        try {
+            val info: PackageInfo = pContext.packageManager.getPackageInfo(pContext.packageName, PackageManager.GET_SIGNATURES)
+            for (signature in info.signatures) {
+                val md = MessageDigest.getInstance("SHA")
+                md.update(signature.toByteArray())
+                val hashKey = String(Base64.encode(md.digest(), 0))
+                Log.i(TAG, "printHashKey() Hash Key: $hashKey")
+            }
+        } catch (e: NoSuchAlgorithmException) {
+            Log.e(TAG, "printHashKey()", e)
+        } catch (e: java.lang.Exception) {
+            Log.e(TAG, "printHashKey()", e)
         }
     }
     companion object{
