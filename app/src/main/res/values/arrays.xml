@@ -45,4 +45,9 @@
         <item>32sp</item>
         <item>40sp</item>
     </array>
+    <string-array name="transaction_type">
+        <item>Cash</item>
+        <item>Chips</item>
+        <item>Payment</item>
+    </string-array>
 </resources>

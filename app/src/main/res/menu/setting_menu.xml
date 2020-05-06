@@ -12,6 +12,11 @@
         android:icon="@drawable/ic_action_sound"
         android:title="@string/menu_sound"
         app:showAsAction="ifRoom"/>
+    <!-- add contact us -->
+    <item android:id="@+id/menu_contact_us"
+        android:icon="@drawable/ic_action_contact_us"
+        android:title="@string/menu_contact_us"
+        app:showAsAction="ifRoom"/>
     <!-- add logout -->
     <item android:id="@+id/menu_logout"
         android:icon="@drawable/ic_action_logout"

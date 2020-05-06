@@ -42,6 +42,12 @@
     <string name="txt_terms_condition">By registering, you accept you are 18+ and agree to our T&amp;C and Privacy and Policy</string>
     <string name="txt_register_for_free"><u>REGISTER FOR FREE</u></string>
 
+    <string name="txt_bank_name">Bank name</string>
+    <string name="txt_ac_holder_name">Account holder name</string>
+    <string name="txt_ac_no">Account no</string>
+    <string name="txt_confirm_ac_no">Confirm account no</string>
+    <string name="txt_ifsc_code">IFSC Code</string>
+
     <string name="txt_ticket_1">Ticket\n1\nClaim</string>
     <string name="txt_ticket_hide_1">Ticket\n1\nHide</string>
     <string name="txt_ticket_2">Ticket\n2\nClaim</string>
@@ -49,6 +55,7 @@
 
     <string name="menu_setting">Settings</string>
     <string name="menu_sound">Sound</string>
+    <string name="menu_contact_us">Contact Us</string>
     <string name="menu_logout">Logout</string>
 
     <string name="txt_result">Result</string>

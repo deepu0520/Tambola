@@ -3,6 +3,7 @@
     <dimen name="dimen_20sp">20sp</dimen>
     <dimen name="dimen_84dp">84dp</dimen>
     <dimen name="dimen_112dp">112dp</dimen>
+    <dimen name="dimen_256dp">256dp</dimen>
     <dimen name="dimen_8dp">8dp</dimen>
     <dimen name="dimen_1dp">1dp</dimen>
     <dimen name="dimen_96dp">96dp</dimen>

@@ -1,19 +1,20 @@
 package retrofit
 
 import com.google.gson.GsonBuilder
-import com.newitzone.tambola.utils.Constants
+import com.newitzone.desitambola.utils.Constants
 import model.DefaultResponse
+import model.bankdetails.BankDetails
 import model.claim.ClaimPrize
 import model.gamein.GameIn
 import model.gamerequest.ResGameRequest
 import model.gamerequeststatus.ResGameReqStatus
 import model.login.ResLogin
-import model.paytm.Checksum
+import model.money.transaction.MoneyTrans
 import model.paytm.ResPaytmOrderChecksum
 import model.tournament.ResTournament
 import model.tournament.start.ResTournamentStart
+import model.transaction.CashOrChipsTrans
 import okhttp3.OkHttpClient
-import retrofit2.Call
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -131,6 +132,51 @@ interface TambolaApiService {
     suspend fun getTournament(@Field("userid") userid:String,
                         @Field("sesid") sesid: String
     ): Response<ResTournament>
+
+    @FormUrlEncoded
+    @POST("user-trans-list") // use type 2 is money transaction
+    suspend fun userMoneyTransList(@Field("userid") userid: String,
+                              @Field("sesid") sesid: String,
+                              @Field("fromdt") fromdt: String,
+                              @Field("todt") todt: String,
+                              @Field("type") type: Int
+    ): Response<MoneyTrans>
+
+    @FormUrlEncoded
+    @POST("user-trans-list") // use type 0 is cash and 1 is chips
+    suspend fun userCashOrChipsTransList(@Field("userid") userid: String,
+                              @Field("sesid") sesid: String,
+                              @Field("fromdt") fromdt: String,
+                              @Field("todt") todt: String,
+                              @Field("type") type: Int
+    ): Response<CashOrChipsTrans>
+
+    @FormUrlEncoded
+    @POST("user-withdrawal-request")
+    suspend fun userWithdrawalRequest(@Field("banknm") fname: String,
+                                      @Field("ifsc") lname: String,
+                                      @Field("acno") mobileNo: String,
+                                      @Field("ac_holdernm") passkey: String,
+                                      @Field("amt") amt: String,
+                                      @Field("userid") userid: String,
+                                      @Field("sesid") sesid: String
+    ): Response<DefaultResponse>
+
+    @FormUrlEncoded
+    @POST("user-bank-detail")
+    suspend fun getBankDetails(@Field("userid") userid: String,
+                               @Field("sesid") sesid: String
+    ): Response<BankDetails>
+
+    @FormUrlEncoded
+    @POST("update-bank-detail")
+    suspend fun updateBankDetails(@Field("banknm") fname: String,
+                              @Field("ifsc") lname: String,
+                              @Field("acno") mobileNo: String,
+                              @Field("ac_holdernm") passkey: String,
+                              @Field("userid") userid: String,
+                              @Field("sesid") sesid: String
+    ): Response<DefaultResponse>
 
     @FormUrlEncoded
     @POST("profile-update")

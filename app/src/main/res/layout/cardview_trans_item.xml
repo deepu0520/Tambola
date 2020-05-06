@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/round_corner"
+    android:layout_margin="@dimen/dimen_4dp"
+    android:gravity="center"
+    app:contentPadding="@dimen/dimen_4dp"
+    app:cardCornerRadius="@dimen/dimen_8dp">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center">
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:orientation="vertical">
+            <TableRow android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/text_order_no_header"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Order No :"
+                    android:padding="@dimen/dimen_4dp"
+                    android:layout_column="1"/>
+                <TextView
+                    android:id="@+id/text_order_no"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="ORD-01-2020"
+                    android:padding="@dimen/dimen_4dp"
+                    android:layout_column="2"
+                    android:textColor="@color/color_blue"/>
+            </TableRow>
+            <TableRow android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/text_trans_date_time_header"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Trans Date/Time :"
+                    android:padding="@dimen/dimen_4dp"
+                    android:layout_column="1"/>
+                <TextView
+                    android:id="@+id/text_trans_date_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="01-01-2020 16:40:27"
+                    android:padding="@dimen/dimen_4dp"
+                    android:layout_column="2"
+                    android:textColor="@color/color_blue"/>
+            </TableRow>
+            <TableRow android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/text_order_amount_header"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Order Amount :"
+                    android:padding="@dimen/dimen_4dp"
+                    android:layout_column="1"/>
+                <TextView
+                    android:id="@+id/text_order_amount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/txt_entry_amt"
+                    android:padding="@dimen/dimen_4dp"
+                    android:layout_column="2"
+                    android:textColor="@color/color_blue"/>
+            </TableRow>
+            <TableRow android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/text_status_header"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Status :"
+                    android:padding="@dimen/dimen_4dp"
+                    android:layout_column="1"/>
+                <TextView
+                    android:id="@+id/text_status"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Fail"
+                    android:padding="@dimen/dimen_4dp"
+                    android:layout_column="2"
+                    android:textColor="@color/color_blue"/>
+            </TableRow>
+            <TableRow android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/text_remarks_header"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Remarks :"
+                    android:padding="@dimen/dimen_4dp"
+                    android:layout_column="1"/>
+                <TextView
+                    android:id="@+id/text_remarks"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text=""
+                    android:padding="@dimen/dimen_4dp"
+                    android:layout_column="2"
+                    android:textColor="@color/color_blue"/>
+            </TableRow>
+        </TableLayout>
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>
