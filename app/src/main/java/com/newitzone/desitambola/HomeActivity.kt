@@ -236,6 +236,12 @@ class HomeActivity : AppCompatActivity() {
                 R.id.menu_sound -> {
                     Toast.makeText(this@HomeActivity, item.title, Toast.LENGTH_SHORT).show();
                 }
+                R.id.menu_contact_us -> {
+                    val intent = Intent(context, ContactUsActivity::class.java)
+                    intent.putExtra(KEY_LOGIN, login)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                    startActivity(intent)
+                }
                 R.id.menu_logout -> {
                     val intent = Intent(context, LoginActivity::class.java)
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)

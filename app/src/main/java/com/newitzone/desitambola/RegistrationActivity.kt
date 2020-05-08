@@ -155,14 +155,18 @@ class RegistrationActivity : AppCompatActivity() {
                     withContext(Dispatchers.Main) {
                         try {
                             if (response.isSuccessful) {
-                                // save the user details
-                                //UtilMethods.ToastLong(context,"Congratulation you have earn 100 chips")
-                                KCustomToast.toastWithFont(context as Activity, "Congratulation you have earn 100 chips")
-                                //UtilMethods.ToastLong(context,"${response.body()?.msg}")
-                                val intent = Intent(context, LoginActivity::class.java)
-                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                                startActivity(intent)
-                                finish()
+                                if(response.body()?.status == 1) {
+                                    // save the user details
+                                    //UtilMethods.ToastLong(context,"Congratulation you have earn 100 chips")
+                                    KCustomToast.toastWithFont(context as Activity,"Congratulation you have earn 100 chips")
+                                    //UtilMethods.ToastLong(context,"${response.body()?.msg}")
+                                    val intent = Intent(context, LoginActivity::class.java)
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                    startActivity(intent)
+                                    finish()
+                                }else {
+                                    UtilMethods.ToastLong(context,"${response.body()?.msg}")
+                                }
                             } else {
                                 UtilMethods.ToastLong(context,"Error: ${response.code()}"+"\nMsg:${response.body()?.msg}")
                             }

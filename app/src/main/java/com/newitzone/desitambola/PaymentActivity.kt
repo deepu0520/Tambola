@@ -45,8 +45,8 @@ class PaymentActivity : AppCompatActivity() , PaytmPaymentTransactionCallback {
     }
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun onStartTransaction(paytm: Paytm) { //(context: Context, checkSumResult: String, paytm: Paytm) {
-        val pgService = PaytmPGService.getStagingService()
-        //val pgService = PaytmPGService.getProductionService()
+        //val pgService = PaytmPGService.getStagingService()
+        val pgService = PaytmPGService.getProductionService()
         val paramMap: HashMap<String, String> = HashMap()
 
         // these are mandatory parameters

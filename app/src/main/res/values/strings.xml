@@ -33,6 +33,7 @@
     <string name="txt_wait_list">WAITLIST</string>
     <string name="txt_fast_filling">FAST FILLING</string>
 
+    <string name="txt_name">Name</string>
     <string name="txt_fname">First Name</string>
     <string name="txt_lname">Last Name</string>
     <string name="txt_email">Email</string>
@@ -42,6 +43,7 @@
     <string name="txt_terms_condition">By registering, you accept you are 18+ and agree to our T&amp;C and Privacy and Policy</string>
     <string name="txt_register_for_free"><u>REGISTER FOR FREE</u></string>
 
+    <string name="txt_query">Enter your query</string>
     <string name="txt_bank_name">Bank name</string>
     <string name="txt_ac_holder_name">Account holder name</string>
     <string name="txt_ac_no">Account no</string>

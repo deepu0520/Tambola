@@ -34,6 +34,7 @@ import retrofit.TambolaApiService
 class AddCashActivity : AppCompatActivity() {
     private var context: Context? = null
     private lateinit var login: Result
+    private lateinit var paytm: Paytm
     @BindView(R.id.text_rs_100) lateinit var txtRS100: TextView
     @BindView(R.id.text_rs_200) lateinit var txtRS200: TextView
     @BindView(R.id.text_rs_500) lateinit var txtRS500: TextView
@@ -255,28 +256,20 @@ class AddCashActivity : AppCompatActivity() {
             val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
             try {
                 CoroutineScope(Dispatchers.IO).launch {
-//                    val response = service.getChecksum(paytm.getmId()
-//                        , paytm.orderId
-//                        , login.id
-//                        , paytm.channelId
-//                        , paytm.txnAmount
-//                        , paytm.website
-//                        , paytm.callBackUrl
-//                        , paytm.industryTypeId)
                     val response = service.getChecksum( login.id, login.sid, txnAmount)
                     withContext(Dispatchers.Main) {
                         try {
                             if (response.isSuccessful) {
-                                Log.i(PaymentActivity.TAG, "Checksum: "+ response.body())
+                                Log.i(TAG, "Checksum: "+ response.body())
                                 if (response.body()?.status == 1) {
                                     // TODO: creating paytm object
-                                    val paytm = Paytm(
-                                        Constants.M_ID,
-                                        Constants.CHANNEL_ID,
+                                    paytm = Paytm(
+                                        response.body()?.result?.get(0)?.mId,
+                                        response.body()?.result?.get(0)?.channelId,
                                         txnAmount,
-                                        Constants.WEBSITE,
-                                        Constants.CALLBACK_URL,
-                                        Constants.INDUSTRY_TYPE_ID,
+                                        response.body()?.result?.get(0)?.website,
+                                        response.body()?.result?.get(0)?.callBackUrl,
+                                        response.body()?.result?.get(0)?.industryTypeId,
                                         response.body()?.result?.get(0)?.ordno,
                                         login.id,
                                         response.body()?.result?.get(0)?.checkSum
@@ -326,9 +319,10 @@ class AddCashActivity : AppCompatActivity() {
                                 //onLoadAccountDetails(response.body()?.result?.get(0)!!)
                                 if (response.body()?.status == 1){
                                     finish()
+                                    KCustomToast.toastWithFont(context as Activity,""+response.body()?.msg)
+                                }else {
+                                    KCustomToast.toastWithFont(context as Activity, "" + response.body()?.msg)
                                 }
-                                KCustomToast.toastWithFont(context as Activity,""+response.body()?.msg)
-                                //UtilMethods.ToastLong(context,"Msg:${response.body()?.msg}")
                             } else {
                                 UtilMethods.ToastLong(context,"Error: ${response.code()}"+"\nMsg:${response.body()?.msg}")
                             }
@@ -469,11 +463,11 @@ class AddCashActivity : AppCompatActivity() {
                 var type = "1" // type 1 is cash and type 2 is chips
                 if (resPaytmTrans.rESPCODE == "01") { // Success
                     context?.let {
-                        addCashApi(it, login.id, login.sid, resPaytmTrans.oRDERID,"testing", resPaytmTrans.tXNAMOUNT, "orderNo","1", gatewayResponse,type)
+                        addCashApi(it, login.id, login.sid, resPaytmTrans.oRDERID,"Success", resPaytmTrans.tXNAMOUNT, resPaytmTrans.oRDERID,"1", gatewayResponse,type)
                     }
                 }else{
                     context?.let {
-                        addCashApi(it, login.id, login.sid, resPaytmTrans.oRDERID,"testing", resPaytmTrans.tXNAMOUNT, "orderNo","2", gatewayResponse,type)
+                        addCashApi(it, login.id, login.sid, resPaytmTrans.oRDERID,"failed", resPaytmTrans.tXNAMOUNT, resPaytmTrans.oRDERID,"2", gatewayResponse,type)
                         UtilMethods.ToastLong(it, "${resPaytmTrans.rESPMSG}")
                     }
                 }

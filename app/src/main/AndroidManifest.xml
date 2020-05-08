@@ -13,7 +13,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
 
     <application
-        android:name="com.newitzone.desitambola.VolleySingleton"
+        android:name=".VolleySingleton"
         android:allowBackup="true"
         android:configChanges="keyboardHidden|orientation|screenSize"
         android:icon="@mipmap/ic_launcher"
@@ -24,10 +24,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.First"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name="com.newitzone.desitambola.TransactionActivity"
+        <activity android:name=".TransactionActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:screenOrientation="sensorPortrait" />
-        <activity android:name="com.newitzone.desitambola.PaymentActivity" />
+        <activity android:name=".PaymentActivity" />
         <activity
             android:name="com.paytm.pgsdk.PaytmPGActivity"
             android:configChanges="keyboardHidden|orientation|keyboard"
@@ -54,51 +54,51 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.newitzone.desitambola.ResultActivity"
+            android:name=".ResultActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:screenOrientation="sensorLandscape" />
         <activity
-            android:name="com.newitzone.desitambola.ProfileActivity"
+            android:name=".ProfileActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:screenOrientation="sensorPortrait" />
         <activity
-            android:name="com.newitzone.desitambola.LoadingTournamentGameActivity"
+            android:name=".LoadingTournamentGameActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:screenOrientation="sensorLandscape" />
         <activity
-            android:name="com.newitzone.desitambola.LoadingActivity"
+            android:name=".LoadingActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:screenOrientation="sensorLandscape" />
         <activity
-            android:name="com.newitzone.desitambola.AddCashActivity"
+            android:name=".AddCashActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:screenOrientation="sensorPortrait" />
         <activity
-            android:name="com.newitzone.desitambola.PlayTournamentGameActivity"
+            android:name=".PlayTournamentGameActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:screenOrientation="sensorLandscape" />
         <activity
-            android:name="com.newitzone.desitambola.PlayActivity"
+            android:name=".PlayActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:screenOrientation="sensorLandscape" />
         <activity
-            android:name=".TournamentActivity"
+            android:name=".ContactUsActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:screenOrientation="sensorPortrait" />
+        <activity
+            android:name=".HomeActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:screenOrientation="sensorLandscape" />
         <activity
-            android:name="com.newitzone.desitambola.HomeActivity"
+            android:name=".RegistrationActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:screenOrientation="sensorLandscape" />
         <activity
-            android:name="com.newitzone.desitambola.RegistrationActivity"
+            android:name=".LoginActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:screenOrientation="sensorLandscape" />
         <activity
-            android:name="com.newitzone.desitambola.LoginActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:screenOrientation="sensorLandscape" />
-        <activity
-            android:name="com.newitzone.desitambola.MainActivity"
+            android:name=".MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/app_name"
             android:screenOrientation="sensorLandscape"

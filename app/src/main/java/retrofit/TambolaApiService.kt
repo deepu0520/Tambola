@@ -30,6 +30,17 @@ interface TambolaApiService {
      * Companion object to create the Tambola Api Service
      */
     @FormUrlEncoded
+    @POST("query-submit")
+    suspend fun querySubmit(@Field("name") name: String,
+                            @Field("email") email: String,
+                            @Field("mobile") mobile: String,
+                            @Field("query") query: String,
+                            @Field("img") img: String,
+                            @Field("userid") userid: String,
+                            @Field("sesid") sesid: String
+    ): Response<DefaultResponse>
+
+    @FormUrlEncoded
     @POST("paytm-add-money-checksum")
     suspend fun getChecksum(@Field("userid") userid: String,
                             @Field("sesid") sesid: String,
@@ -224,9 +235,13 @@ interface TambolaApiService {
         }
 
         fun makeRetrofitService(): TambolaApiService {
+            val gson = GsonBuilder()
+                .setLenient()
+                .create()
+
             return Retrofit.Builder()
                 .baseUrl(Constants.API_BASE_PATH)
-                .addConverterFactory(GsonConverterFactory.create(GsonBuilder().create()))
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .client(okHttpBuilder())
                 .build().create(TambolaApiService::class.java)
         }
