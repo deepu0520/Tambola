@@ -1,0 +1,155 @@
+{
+    "status": 1,
+    "msg": "Success",
+    "Result": {
+        "result_show_after": 15,
+        "date": "2020-05-11",
+        "day": "Monday",
+        "list": [
+            {
+                "id": "a93fc93c-8318-11ea-98f7-0c9d925834c2",
+                "name": "Tournament 1",
+                "starttime": "06:10:00",
+                "amount": "20",
+                "max_ticket": "500",
+                "request_open": "0",
+                "total_Requested_ticket": "5",
+                "user_requested_tickets": "2",
+                "req_id": null,
+                "game_id": null
+            },
+            {
+                "id": "a94751f0-8318-11ea-98f7-0c9d925834c2",
+                "name": "Tournament 2",
+                "starttime": "06:20:00",
+                "amount": "20",
+                "max_ticket": "500",
+                "request_open": "0",
+                "total_Requested_ticket": "3",
+                "user_requested_tickets": "1",
+                "req_id": null,
+                "game_id": null
+            },
+            {
+                "id": "a94c57ce-8318-11ea-98f7-0c9d925834c2",
+                "name": "Tournament 3",
+                "starttime": "06:30:00",
+                "amount": "20",
+                "max_ticket": "500",
+                "request_open": "0",
+                "total_Requested_ticket": "4",
+                "user_requested_tickets": "2",
+                "req_id": null,
+                "game_id": null
+            },
+            {
+                "id": "a95147ce-8318-11ea-98f7-0c9d925834c2",
+                "name": "Tournament 4",
+                "starttime": "00:40:00",
+                "amount": "20",
+                "max_ticket": "500",
+                "request_open": "0",
+                "total_Requested_ticket": "3",
+                "user_requested_tickets": "2",
+                "req_id": null,
+                "game_id": null
+            },
+            {
+                "id": "a9564406-8318-11ea-98f7-0c9d925834c2",
+                "name": "Tournament 5",
+                "starttime": "00:50:00",
+                "amount": "20",
+                "max_ticket": "500",
+                "request_open": "1",
+                "total_Requested_ticket": "2",
+                "user_requested_tickets": "1",
+                "req_id": null,
+                "game_id": null
+            },
+            {
+                "id": "a95b2999-8318-11ea-98f7-0c9d925834c2",
+                "name": "Tournament 6",
+                "starttime": "01:00:00",
+                "amount": "20",
+                "max_ticket": "500",
+                "request_open": "0",
+                "total_Requested_ticket": "4",
+                "user_requested_tickets": "2",
+                "req_id": null,
+                "game_id": null
+            },
+            {
+                "id": "a96010a8-8318-11ea-98f7-0c9d925834c2",
+                "name": "Tournament 7",
+                "starttime": "01:10:00",
+                "amount": "20",
+                "max_ticket": "500",
+                "request_open": "0",
+                "total_Requested_ticket": "5",
+                "user_requested_tickets": "2",
+                "req_id": null,
+                "game_id": null
+            },
+            {
+                "id": "a965000e-8318-11ea-98f7-0c9d925834c2",
+                "name": "Tournament 8",
+                "starttime": "01:20:00",
+                "amount": "20",
+                "max_ticket": "500",
+                "request_open": "0",
+                "total_Requested_ticket": "0",
+                "user_requested_tickets": "0",
+                "req_id": null,
+                "game_id": null
+            },
+            {
+                "id": "a969ee7d-8318-11ea-98f7-0c9d925834c2",
+                "name": "Tournament 9",
+                "starttime": "01:30:00",
+                "amount": "20",
+                "max_ticket": "500",
+                "request_open": "0",
+                "total_Requested_ticket": "0",
+                "user_requested_tickets": "0",
+                "req_id": null,
+                "game_id": null
+            },
+            {
+                "id": "a96ee52f-8318-11ea-98f7-0c9d925834c2",
+                "name": "Tournament 10",
+                "starttime": "01:40:00",
+                "amount": "20",
+                "max_ticket": "500",
+                "request_open": "0",
+                "total_Requested_ticket": "0",
+                "user_requested_tickets": "0",
+                "req_id": null,
+                "game_id": null
+            },
+            {
+                "id": "a973ecb5-8318-11ea-98f7-0c9d925834c2",
+                "name": "Tournament 11",
+                "starttime": "01:50:00",
+                "amount": "20",
+                "max_ticket": "500",
+                "request_open": "0",
+                "total_Requested_ticket": "3",
+                "user_requested_tickets": "0",
+                "req_id": null,
+                "game_id": null
+            },
+            {
+                "id": "a978fc10-8318-11ea-98f7-0c9d925834c2",
+                "name": "Tournament 12",
+                "starttime": "02:00:00",
+                "amount": "20",
+                "max_ticket": "500",
+                "request_open": "0",
+                "total_Requested_ticket": "4",
+                "user_requested_tickets": "0",
+                "req_id": null,
+                "game_id": null
+            }
+        ]
+    }
+}

@@ -25,7 +25,6 @@ import com.github.anastr.flattimelib.intf.OnTimeFinish
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.newitzone.desitambola.utils.Constants
-import com.newitzone.desitambola.utils.SharedPrefManager
 import com.newitzone.desitambola.utils.UtilMethods
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -35,6 +34,7 @@ import model.KeyModel
 import model.fixuser.ResFixUser
 import model.gamein.GameIn
 import model.gamerequeststatus.ResGameReqStatus
+import model.login.Result
 import org.json.JSONException
 import org.json.JSONObject
 import retrofit.TambolaApiService
@@ -49,6 +49,8 @@ class LoadingActivity : AppCompatActivity() {
     private var i = 0
     private val handler = Handler()
     private var timeout = false
+    private var isStart = false
+    private lateinit var login: Result
     private lateinit var keyModel: KeyModel
     private var grStatus: model.gamerequeststatus.Result? = null
     private var fixUserGameInList: MutableList<GameIn> = mutableListOf<GameIn>()
@@ -72,14 +74,14 @@ class LoadingActivity : AppCompatActivity() {
         // Remember that you should never show the action bar if the
         // status bar is hidden, so hide that too if necessary.
         actionBar?.hide()
+        login = intent.getSerializableExtra(HomeActivity.KEY_LOGIN) as Result
         keyModel = intent.getSerializableExtra(HomeActivity.KEY_MODEL) as KeyModel
+
 
         if (keyModel != null){
             tvMsg.text = "Loading..."
             callTimers(60)  // call for 60 sec
-            //callGameRequestStatusApiFromCurrentUser(CURRENT_USER)
-            // TODO:("Get fix user details")
-            callFixUserGameRequestApi()
+            callGameRequestStatusApiFromCurrentUser(CURRENT_USER, isStart)
         }
     }
     private fun callTimers(sec: Long){
@@ -93,32 +95,10 @@ class LoadingActivity : AppCompatActivity() {
         //tvMsg.text = "Loading..."
     }
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    private fun callGameRequestStatusApi(context: Context, userId: String, sessionId: String, amt: String
-                                         , gameType: String, tournamentId: String, gameReqId: String, fixType: Int){
-        if (sessionId.isNotBlank()) {
-            //TODO: Use this
-            volleyGameRequestStatusApi(
-                context,
-                userId,
-                sessionId,
-                amt,
-                gameType,
-                tournamentId,
-                gameReqId,
-                fixType
-            )
-        }else{
-            UtilMethods.ToastLong(context,"Session expired")
-            val intent = Intent(context, LoginActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-            startActivity(intent)
-        }
-    }
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    private fun callGameRequestStatusApiFromCurrentUser(fixType: Int){
+    private fun callGameRequestStatusApiFromCurrentUser(fixType: Int, isStart: Boolean){
         val context= this@LoadingActivity
-        val userId = SharedPrefManager.getInstance(context).result.id
-        val sessionId = SharedPrefManager.getInstance(context).result.sid
+        val userId = login.id
+        val sessionId = login.sid
         val amt = keyModel.amount.toString()
         val gameType = keyModel.gameType.toString()
         val tournamentId = keyModel.tournamentId
@@ -131,18 +111,43 @@ class LoadingActivity : AppCompatActivity() {
             gameType,
             tournamentId,
             gameReqId,
-            fixType
+            fixType,
+            isStart
         )
     }
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private fun callGameRequestStatusApi(context: Context, userId: String, sessionId: String, amt: String
+                                         , gameType: String, tournamentId: String, gameReqId: String, fixType: Int, isStart: Boolean){
+        if (sessionId.isNotBlank()) {
+            //TODO: Use this
+            gameRequestStatusApi(
+                context,
+                userId,
+                sessionId,
+                amt,
+                gameType,
+                tournamentId,
+                gameReqId,
+                fixType,
+                isStart
+            )
+        }else{
+            UtilMethods.ToastLong(context,"Session expired")
+            val intent = Intent(context, LoginActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            startActivity(intent)
+        }
+    }
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun volleyGameRequestStatusApi(context: Context, userId: String, sessionId: String
-                                     , amt: String, gameType: String, tournamentId: String, gameRequestId: String,fixType: Int) {
+                                     , amt: String, gameType: String, tournamentId: String, gameRequestId: String,fixType: Int,isStart: Boolean) {
         //getting the record values
 
         //creating volley string request
         val stringRequest = object : StringRequest(Request.Method.POST, Constants.API_BASE_PATH+"game-request-status",
             Response.Listener<String> { response ->
                 try {
+                    Log.d(TAG,"Response: $response")
                     val jsonObject = JSONObject(response)
                     Log.d(TAG,"Response: $jsonObject")
                     val gson = Gson()
@@ -151,7 +156,7 @@ class LoadingActivity : AppCompatActivity() {
                     var gameReqStatusResponse: ResGameReqStatus = gson.fromJson(response, resGameReqStatus)
                     //Log.d(TAG,"Response: $gameReqStatusResponse")
                     if (fixType == CURRENT_USER) {
-                        gameInCondition(gameReqStatusResponse.result[0])
+                        gameInCondition(gameReqStatusResponse.result[0], isStart)
                         grStatus = gameReqStatusResponse.result[0]
                     }else if (fixType == FIX_USER) {
                         // TODO: Call Fix user gameIn Api
@@ -181,10 +186,56 @@ class LoadingActivity : AppCompatActivity() {
         VolleySingleton.instance?.addToRequestQueue(stringRequest)
     }
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private fun gameRequestStatusApi(context: Context, userId: String, sessionId: String
+                                     , amt: String, gameType: String, tournamentId: String, gameRequestId: String, fixType: Int, isStart: Boolean) {
+        if (UtilMethods.isConnectedToInternet(context)) {
+            //UtilMethods.showLoading(context)
+            val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
+            CoroutineScope(Dispatchers.IO).launch {
+                try{
+                    val response = service.gameRequestStatus(userId, sessionId, gameType, amt, tournamentId,gameRequestId)
+                    withContext(Dispatchers.Main) {
+                        try {
+                            if (response.isSuccessful) {
+                                Log.d(TAG, "response : ${response.body()}")
+                                if (response.body()?.status == 1) {
+                                    if (fixType == CURRENT_USER) {
+                                        response.body()?.result?.get(0)?.let { gameInCondition(it,isStart) }
+                                        grStatus = response.body()?.result?.get(0)
+                                    }else if (fixType == FIX_USER) {
+                                        // TODO: Call Fix user gameIn Api
+                                        callGameInApi(context, userId, sessionId, amt, gameType, tournamentId, gameRequestId, fixType)
+                                    }
+                                } else {
+                                    UtilMethods.ToastLong(context, "${response.body()?.msg}")
+                                }
+                            } else {
+                                UtilMethods.ToastLong(context, "${response.body()?.msg}")
+                            }
+                        } catch (e: Exception) {
+                            UtilMethods.ToastLong(context, "Exception ${e.message}")
+                        } catch (e: Throwable) {
+                            UtilMethods.ToastLong(context,"Oops: Something else went wrong : " + e.message)
+                        }
+                        //                    UtilMethods.hideLoading()
+                    }
+                }catch (e: Throwable) {
+                    runOnUiThread {
+                        UtilMethods.ToastLong(context,"Server or Internet error : ${e.message}")
+                    }
+                    Log.e("TAG","Throwable : $e")
+                    //UtilMethods.hideLoading()
+                }
+            }
+        }else{
+            UtilMethods.ToastLong(context,"No Internet Connection")
+        }
+    }
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun callGameInApiFromCurrentUser(fixType: Int){
         val context= this@LoadingActivity
-        val userId = SharedPrefManager.getInstance(context).result.id
-        val sessionId = SharedPrefManager.getInstance(context).result.sid
+        val userId = login.id
+        val sessionId = login.sid
         if (sessionId.isNotBlank()) {
             //TODO: Use this
             callGameInApi(
@@ -238,31 +289,36 @@ class LoadingActivity : AppCompatActivity() {
                         try {
                             if (response.isSuccessful) {
                                 if (response.code() == 200) {
-                                    if (fixType == CURRENT_USER) {
-                                        // TODO: Current User
-                                        //UtilMethods.ToastLong(context, "${response.body()?.msg}")
-                                        val gameInResponse = response.body()
-                                        if (gameInResponse != null) {
-                                            //var fixUserGameInResponse = FixUserGameIn(fixUserGameInList)
-                                            // TODO: stop timer
-                                            countDownTimer.cancel()
-                                            // TODO Auto-generated method stub
-                                            val intent = Intent(context, PlayActivity::class.java)
-                                            intent.putExtra(HomeActivity.KEY_MODEL, keyModel)
-                                            intent.putExtra(HomeActivity.KEY_GAME_IN,gameInResponse)
-                                            //intent.putExtra(KEY_GAME_IN_FIX_USER,fixUserGameInResponse)
-                                            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                                            startActivity(intent)
-                                            finish()
-                                        }
-                                    }else if (fixType == FIX_USER){
-                                        // TODO: Fix User
-                                        fixUserGameInList.add(response.body()!!)
+                                    if (response.body()?.status == 1) {
+                                        if (fixType == CURRENT_USER) {
+                                            // TODO: Current User
+                                            //UtilMethods.ToastLong(context, "${response.body()?.msg}")
+                                            val gameInResponse = response.body()
+                                            if (gameInResponse != null) {
+                                                //var fixUserGameInResponse = FixUserGameIn(fixUserGameInList)
+                                                // TODO: stop timer
+                                                countDownTimer.cancel()
+                                                // TODO Auto-generated method stub
+                                                val intent = Intent(context, PlayActivity::class.java)
+                                                intent.putExtra(HomeActivity.KEY_LOGIN, login)
+                                                intent.putExtra(HomeActivity.KEY_MODEL, keyModel)
+                                                intent.putExtra(HomeActivity.KEY_GAME_IN,gameInResponse)
+                                                //intent.putExtra(KEY_GAME_IN_FIX_USER,fixUserGameInResponse)
+                                                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                                                startActivity(intent)
+                                                finish()
+                                            }
+                                        } else if (fixType == FIX_USER) {
+                                            // TODO: Fix User
+                                            fixUserGameInList.add(response.body()!!)
 
-                                        if (fixUserGameInList.size == 3){
-                                            // TODO: Call the request status of current user
-                                            callGameRequestStatusApiFromCurrentUser(CURRENT_USER)
+                                            if (fixUserGameInList.size == 3) {
+                                                // TODO: Call the request status of current user
+                                                callGameRequestStatusApiFromCurrentUser(CURRENT_USER, isStart)
+                                            }
                                         }
+                                    }else{
+                                        UtilMethods.ToastLong(context, "${response.body()?.msg}")
                                     }
                                 } else {
                                     UtilMethods.ToastLong(context, "${response.body()?.msg}")
@@ -291,33 +347,44 @@ class LoadingActivity : AppCompatActivity() {
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    private fun gameInCondition(grStatus: model.gamerequeststatus.Result){
+    private fun gameInCondition(grStatus: model.gamerequeststatus.Result, isStart: Boolean){
         val player = grStatus.playersOnline.toInt()
         val ticket = grStatus.totalTickets.toInt()
         when {
-            player == 6 -> {
-                // Max player 6 then start game
-                callGameInApiFromCurrentUser(CURRENT_USER)
-            }
             ticket >= 6 -> {
                 // if tickets greater than 6 and wait 60 secs completed then start game
                 callGameInApiFromCurrentUser(CURRENT_USER)
             }
-            ticket < 6 && player < 6 -> {
-                // if tickets below 6 and players below 6 and time left 60 sec then please wait extra 30 secs with message
-                // 30 seconds
-//                val minute:Long = 1000 * 30 // 1000 milliseconds = 1 second
-//                // Count down interval 1 second
-//                val countDownInterval: Long = 1000
-//
-//                timer(minute,countDownInterval).start()
+            player == 6 -> {
+                // Max player 6 then start game
+                callGameInApiFromCurrentUser(CURRENT_USER)
             }
-//            ticket >= 6 && player < 6 -> {
-//                // if above conditions not fulfill and also elapsed 90 sec then show the "Opps something went wrong"
-//                UtilMethods.ToastLong(baseContext,"Oops something went wrong. Please request again")
-//                finish()
-//            }
-
+            ticket < 6 -> {
+                if (isStart) {
+                    when (ticket) {
+                        5 -> {
+                            // TODO:("Get fix user details")
+                            callFixUserGameRequestApi(1)
+                        }
+                        4 -> {
+                            // TODO:("Get fix user details")
+                            callFixUserGameRequestApi(1)
+                        }
+                        3 -> {
+                            // TODO:("Get fix user details")
+                            callFixUserGameRequestApi(2)
+                        }
+                        2 -> {
+                            // TODO:("Get fix user details")
+                            callFixUserGameRequestApi(2)
+                        }
+                        1 -> {
+                            // TODO:("Get fix user details")
+                            callFixUserGameRequestApi(3)
+                        }
+                    }
+                }
+            }
         }
     }
     private fun countDown(timer: Long){
@@ -341,9 +408,13 @@ class LoadingActivity : AppCompatActivity() {
     private fun timer(millisInFuture:Long,countDownInterval:Long): CountDownTimer{
         return object: CountDownTimer(millisInFuture,countDownInterval){
 
+            @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
             override fun onTick(millisUntilFinished: Long){
                 val timeRemaining = timeString(millisUntilFinished)
                 tvTimer.text = timeRemaining
+                if (timeRemaining.toInt() == 5){ // Countdown 55/60 sec or 25/30 sec
+                    callGameRequestStatusApiFromCurrentUser(CURRENT_USER, true)
+                }
                 if (timeout){
                     tvMsg.text = "Give you $timeRemaining sec more time to join"
                 }
@@ -353,19 +424,17 @@ class LoadingActivity : AppCompatActivity() {
             override fun onFinish() {
                 tvTimer.text = ""
                 if (grStatus != null) {
-                    if (grStatus!!.totalTickets < "6" && grStatus!!.playersOnline < "6") {
+                    if (grStatus!!.totalTickets.toInt() < 6 && grStatus!!.playersOnline.toInt() < 6) {
                         if (timeout) {
                             tvMsg.text = "Oops something went wrong"
                             finish()
                         } else {
                             timeout = true
                             //tvMsg.text = "Give you 30 sec more time to join"
-                            // TODO:("Get fix user details")
-                            callFixUserGameRequestApi()
                             callTimers(30)
                         }
                     } else {
-                        callGameRequestStatusApiFromCurrentUser(CURRENT_USER)
+                        callGameRequestStatusApiFromCurrentUser(CURRENT_USER, isStart)
                     }
                 }
             }
@@ -389,22 +458,22 @@ class LoadingActivity : AppCompatActivity() {
         return String.format(Locale.getDefault(),"%02d",seconds)
     }
 
-
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    private fun callFixUserGameRequestApi(){
+    private fun callFixUserGameRequestApi(user: Int){
         val jsonFileString = Constants.getJsonDataFromAsset(applicationContext, "fixUser.json")
-        Log.i("data", jsonFileString)
+        //Log.i("data", jsonFileString)
 
         val gson = Gson()
         val fixUser = object : TypeToken<ResFixUser>() {}.type
 
         var fixUserResponse: ResFixUser = gson.fromJson(jsonFileString, fixUser)
-
-        Log.i("data", "> Item $fixUserResponse")
         if (fixUserResponse.fixUsers != null) {
             val context = this@LoadingActivity
-            for (elements in fixUserResponse.fixUsers) {
-                gameRequestApi(context,elements.userId,elements.sessionId,elements.amt.toString(),elements.ticketReq, keyModel.gameType.toString(),elements.tournamentId)
+            for ((i, elements) in fixUserResponse.fixUsers.withIndex()) {
+                if (i < user){
+                    Log.d(TAG, "User : $user -> Item $elements")
+                    gameRequestApi(context,elements.userId,elements.sessionId,keyModel.amount.toString(),elements.ticketReq, keyModel.gameType.toString(),elements.tournamentId)
+                }
             }
         }
     }
@@ -421,10 +490,10 @@ class LoadingActivity : AppCompatActivity() {
                     withContext(Dispatchers.Main) {
                         try {
                             if (response.isSuccessful) {
-                                if (response.code() == 201) {
+                                if (response.body()?.status == 1) {
                                     //UtilMethods.ToastLong(context, "${response.body()?.msg}")
                                     val gameReqId = response.body()?.result?.get(0)?.requestID!!
-                                    callGameRequestStatusApi(context,userid,sesid,amt,game_type,tournament_id,gameReqId, FIX_USER)
+                                    callGameRequestStatusApi(context,userid,sesid,amt,game_type,tournament_id,gameReqId, FIX_USER, isStart)
                                 } else {
                                     UtilMethods.ToastLong(context, "${response.body()?.msg}")
                                 }

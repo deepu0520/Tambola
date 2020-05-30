@@ -20,5 +20,9 @@ data class UserData(
     @SerializedName("ticket_count")
     var ticketCount: String,
     @SerializedName("user_id")
-    var userId: String
+    var userId: String,
+    @SerializedName("img")
+    var img: String = "",
+    @SerializedName("fbImg")
+    var fbImg: String = ""
 ): Serializable

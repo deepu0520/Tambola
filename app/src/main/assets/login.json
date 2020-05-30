@@ -1,0 +1,26 @@
+{
+    "status": 1,
+    "msg": "success",
+    "Result": [
+        {
+            "id": "8C7ABE42-CC7C-49BC-8201-092A3DDA8399",
+            "inactive": "0",
+            "fname": "Raj",
+            "lname": "Gupta",
+            "dob": "",
+            "email_id": "rajcon326@gmail.com",
+            "code": "",
+            "mobile_no": "9810079275",
+            "user_type": "1",
+            "img": "",
+            "fbImg": "",
+            "en_time": "2020-03-31 09:08:19",
+            "AcBal": "700.999997138977",
+            "AcChipsBal": "10",
+            "onlineUser": "35",
+            "login_st": "1",
+            "sid": "08D40901-9E84-48C7-A805-E8B93E8A8145",
+            "isLogin": true
+        }
+    ]
+}

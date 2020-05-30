@@ -8,6 +8,7 @@ import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.Message
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
@@ -27,6 +28,7 @@ import butterknife.ButterKnife
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.newitzone.desitambola.adapter.*
+import com.newitzone.desitambola.dialog.MessageDialog
 import com.newitzone.desitambola.utils.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -53,9 +55,11 @@ import kotlin.collections.ArrayList
 
 class PlayActivity : AppCompatActivity(){
     private var context: Context? = null
-    private val DELAY_MS: Long = 3000  //delay in milliseconds before task is to be executed
+    private val DELAY_MS_GAME_OVER: Long = 10000  //delay in milliseconds before task is to be executed
+    private val DELAY_MS: Long = 2000  //delay in milliseconds before task is to be executed
     private val second: Long = 1000 * 30 // 1000 milliseconds into 1 second
     private val countDownInterval: Long = 1000
+    private lateinit var login: model.login.Result
     private lateinit var keyModel: KeyModel
     private lateinit var keyGameInResponse: GameIn
     //private lateinit var keyGameInResFixUser: FixUserGameIn
@@ -72,6 +76,7 @@ class PlayActivity : AppCompatActivity(){
     private val numList2: MutableList<NumModel> = mutableListOf()
     private var prizeList1: MutableList<PrizeModel> = mutableListOf()
     private var prizeList2: MutableList<PrizeModel> = mutableListOf()
+    private var isActivity = false;
     private var isThreadRunning = true
     private var isNotifyTop = false
     private var isNotifyBottom = false
@@ -85,6 +90,7 @@ class PlayActivity : AppCompatActivity(){
     private lateinit var fixUser2AutoPlay: FixUserAutoPlay
     private lateinit var fixUser3AutoPlay: FixUserAutoPlay
     private var gameResult = GameResult(emptyList())
+    private var claimPrizeList: List<model.claim.Result> = arrayListOf()
     //var randNoThread = Thread(PlayActivity())
 
     @BindView(R.id.progress_bar) lateinit var progressBar: ProgressBar
@@ -123,6 +129,7 @@ class PlayActivity : AppCompatActivity(){
         // Remember that you should never show the action bar if the
         // status bar is hidden, so hide that too if necessary.
         actionBar?.hide()
+        login = intent.getSerializableExtra(HomeActivity.KEY_LOGIN) as model.login.Result
         keyModel = intent.getSerializableExtra(HomeActivity.KEY_MODEL) as KeyModel
         keyGameInResponse = intent.getSerializableExtra(HomeActivity.KEY_GAME_IN) as GameIn
         //keyGameInResFixUser = intent.getSerializableExtra(LoadingActivity.KEY_GAME_IN_FIX_USER) as FixUserGameIn
@@ -140,7 +147,7 @@ class PlayActivity : AppCompatActivity(){
             fixUserLoad(keyGameInResponse)
             // TODO: get current user data
             for (elements in keyGameInResponse.result.userData) {
-                if (elements.userId == SharedPrefManager.getInstance(context as PlayActivity).result.id) {
+                if (elements.userId == login.id) {
                     userData = elements
                     break
                 }
@@ -177,6 +184,8 @@ class PlayActivity : AppCompatActivity(){
             if (keyGameInResponse != null) {
                 // TODO: Init random number
                 var ranNum = keyGameInResponse.result.randNo[posRanNum]
+                // TODO: add new randum number into list
+                randomNumList.add(ranNum.toString())
                 // TODO: set sound of randum number
                 runOnUiThread { startSound("sounds/$ranNum.mp3") }
                 // TODO: update opening number grid
@@ -208,19 +217,17 @@ class PlayActivity : AppCompatActivity(){
                         fixUserClaim(ranNum)
                     }
                     handler.post(Runnable {
-                        randomNumList.add(ranNum.toString())
                         // Initializing an empty ArrayList to be filled with items
                         val adapter = RandomNumberAdapter(randomNumList, this)
-                        recyclerViewRanNum.layoutManager =
-                            LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+                        recyclerViewRanNum.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
                         recyclerViewRanNum.adapter = adapter
                         recyclerViewRanNum.scrollToPosition(randomNumList.size - 1)
                         // TODO: update ticket1 value
                         for ((i, elements) in numList1.withIndex()) {
                             if (elements.num != 0) {
                                 if (elements.isChecked) {
-                                    numList1[i].isChecked =
-                                        randomNumList.contains(elements.num.toString())
+                                    numList1[i].isChecked = randomNumList.contains(elements.num.toString())
+                                    numList1[i].isTick = numList1[i].isChecked
                                 }
                             }
                         }
@@ -229,8 +236,8 @@ class PlayActivity : AppCompatActivity(){
                         for ((i, elements) in numList2.withIndex()) {
                             if (elements.num != 0) {
                                 if (elements.isChecked) {
-                                    numList2[i].isChecked =
-                                        randomNumList.contains(elements.num.toString())
+                                    numList2[i].isChecked = randomNumList.contains(elements.num.toString())
+                                    numList2[i].isTick = numList2[i].isChecked
                                 }
                             }
                         }
@@ -250,6 +257,27 @@ class PlayActivity : AppCompatActivity(){
                             onRecyclerViewRandomNumber()
                         } else {
                             rLProBar.visibility = View.INVISIBLE
+
+                            isThreadRunning = false
+                            if (isActivity) {
+                                context?.let {
+                                    MessageDialog(
+                                        it,
+                                        "Game over alert",
+                                        "Game will over within 10 seconds. So please claim your prize immediately"
+                                    ).show()
+                                }
+                                // handler
+                                Handler().postDelayed({
+                                    // TODO: Calculate result
+                                    if (claimPrizeList != null) {
+                                        onResultCalculate(
+                                            keyGameInResponse.result.gameValue[0],
+                                            claimPrizeList
+                                        )
+                                    }
+                                }, DELAY_MS_GAME_OVER)
+                            }
                         }
                     })
                 }).start()
@@ -265,33 +293,21 @@ class PlayActivity : AppCompatActivity(){
             val adapter = LiveUserAdapter(list, this)
             recyclerViewLiveUser.layoutManager = LinearLayoutManager(context)
             recyclerViewLiveUser.adapter = adapter
-            recyclerViewLiveUser.addOnItemTouchListener(RecyclerItemClickListenr(this, recyclerViewLiveUser,
-                    object : RecyclerItemClickListenr.OnItemClickListener {
-
-                        override fun onItemClick(view: View, position: Int) {
-                            //TODO: Use this
-                        }
-
-                        override fun onItemLongClick(view: View?, position: Int) {
-                            TODO("do nothing")
-                        }
-                    })
-            )
+            ItemClickSupport.addTo(recyclerViewLiveUser).setOnItemClickListener { recyclerView, position, v ->
+                // on item click
+            }
         }
     }
 
     // TODO: Number grid
     private fun onRecyclerViewNumberGrid(){
         for (i in 1..90) {
-            numGridList.add(NumModel(i,false))
+            numGridList.add(NumModel(i,false,false))
         }
         // Initializing an empty ArrayList to be filled with items
         val adapter = NumberGridAdapter(numGridList,this)
         recyclerViewNoGrid.layoutManager = GridLayoutManager(context,3)
         recyclerViewNoGrid.adapter = adapter
-    }
-    private fun rand(from: Int, to: Int) : Int {
-        return random.nextInt(to - from) + from
     }
 
     // TODO: Ticket and Prize
@@ -303,42 +319,22 @@ class PlayActivity : AppCompatActivity(){
                 if (userData != null && userData.tick.ticket1.isNotEmpty()) {
                     val listRow1 = userData.tick.ticket1[0] as List<Int>
                     for (element in listRow1) {
-                        val numModel = NumModel(element,false)
+                        val numModel = NumModel(element,false,false)
                         numList1.add(numModel)
                     }
                     val listRow2 = userData.tick.ticket1[1] as List<Int>
                     for (element in listRow2) {
-                        val numModel = NumModel(element,false)
+                        val numModel = NumModel(element,false,false)
                         numList1.add(numModel)
                     }
                     val listRow3 = userData.tick.ticket1[2] as List<Int>
                     for (element in listRow3) {
-                        val numModel = NumModel(element,false)
+                        val numModel = NumModel(element,false,false)
                         numList1.add(numModel)
                     }
                     val adapter = TicketNumberAdapter(numList1, this)
                     rVTicket1.layoutManager = GridLayoutManager(context, 9)
                     rVTicket1.adapter = adapter
-//                    rVTicket1.addOnItemTouchListener(RecyclerItemClickListenr(context, rVTicket1, object : RecyclerItemClickListenr.OnItemClickListener {
-//
-//                        override fun onItemClick(view: View, position: Int) {
-//                            // TODO: "onClick"
-//                            if (!isClicked) {
-//                                isClicked = true
-//                                if (position >= 0) {
-//                                    val numModel = numList1[position]
-//                                    if (numModel != null && numModel.num != 0) {
-//                                        numList1[position].isChecked = !numModel.isChecked
-//                                        adapter.notifyDataSetChanged()
-//                                        isClicked = false
-//                                    }
-//                                }
-//                            }
-//                        }
-//                        override fun onItemLongClick(view: View?, position: Int) {
-//                            // TODO: "do nothing"
-//                        }
-//                    }))
                 }
             }
             TICKET_TYPE_2 ->{
@@ -346,42 +342,22 @@ class PlayActivity : AppCompatActivity(){
                 if (userData != null && keyModel.ticketType == 2 && userData.tick.ticket2.isNotEmpty()) {
                     val listRow1 = userData.tick.ticket2[0]
                     for (element in listRow1) {
-                        val numModel = NumModel(element,false)
+                        val numModel = NumModel(element,false,false)
                         numList2.add(numModel)
                     }
                     val listRow2 = userData.tick.ticket2[1]
                     for (element in listRow2) {
-                        val numModel = NumModel(element,false)
+                        val numModel = NumModel(element,false,false)
                         numList2.add(numModel)
                     }
                     val listRow3 = userData.tick.ticket2[2]
                     for (element in listRow3) {
-                        val numModel = NumModel(element,false)
+                        val numModel = NumModel(element,false,false)
                         numList2.add(numModel)
                     }
                     val adapter = TicketNumberAdapter(numList2, this)
                     rVTicket2.layoutManager = GridLayoutManager(context, 9)
                     rVTicket2.adapter = adapter
-//                    rVTicket2.addOnItemTouchListener(RecyclerItemClickListenr(context, rVTicket2, object : RecyclerItemClickListenr.OnItemClickListener {
-//
-//                        override fun onItemClick(view: View, position: Int) {
-//                            //TODO: "onClick"
-//                            if (!isClicked) {
-//                                isClicked = true
-//                                if (position >= 0) {
-//                                    val numModel = numList2[position]
-//                                    if (numModel != null && numModel.num != 0) {
-//                                        numList2[position].isChecked = !numModel.isChecked
-//                                        adapter.notifyDataSetChanged()
-//                                    }
-//                                    isClicked = false
-//                                }
-//                            }
-//                        }
-//                        override fun onItemLongClick(view: View?, position: Int) {
-//                            // TODO: "do nothing"
-//                        }
-//                    }))
                 }
             }
         }
@@ -478,33 +454,22 @@ class PlayActivity : AppCompatActivity(){
             // TODO: Ticket 1
             val adapter = ClaimTicketAdapter(prizeList1,this)
             rVClaimTicket1.adapter = adapter
-            rVClaimTicket1.addOnItemTouchListener(RecyclerItemClickListenr(context as PlayActivity, rVClaimTicket1, object : RecyclerItemClickListenr.OnItemClickListener {
-                override fun onItemClick(view: View, position: Int) {
-                    if (!prizeList1[position].isChecked) {
-                        //todo: Claim the ticket 1
-                        onPrizeClaim(ticketType, position, prizeList1)
-                    }
+            ItemClickSupport.addTo(rVClaimTicket1).setOnItemClickListener { recyclerView, position, v ->
+                if (!prizeList1[position].isChecked) {
+                    //todo: Claim the ticket 1
+                    onPrizeClaim(ticketType, position, prizeList1)
                 }
-                override fun onItemLongClick(view: View?, position: Int) {
-                    //TODO : "Not yet implemented"
-                }
-            }))
+            }
         }else if (ticketType == TICKET_TYPE_2) {
             // TODO: Ticket 2
             val adapter = ClaimTicketAdapter(prizeList2,this)
             rVClaimTicket2.adapter = adapter
-            rVClaimTicket2.addOnItemTouchListener(RecyclerItemClickListenr(context as PlayActivity, rVClaimTicket2, object : RecyclerItemClickListenr.OnItemClickListener {
-                override fun onItemClick(view: View, position: Int) {
-                    if (!prizeList2[position].isChecked) {
-                        //todo: Claim the ticket 2
-                        onPrizeClaim(ticketType, position, prizeList2)
-                    }
+            ItemClickSupport.addTo(rVClaimTicket2).setOnItemClickListener { recyclerView, position, v ->
+                if (!prizeList2[position].isChecked) {
+                    //todo: Claim the ticket 2
+                    onPrizeClaim(ticketType, position, prizeList2)
                 }
-                override fun onItemLongClick(view: View?, position: Int) {
-                    //TODO : "Not yet implemented"
-
-                }
-            }))
+            }
         }
     }
     private fun onPrizeClaim(ticketType: Int, position: Int, prizeList: MutableList<PrizeModel>){
@@ -526,6 +491,18 @@ class PlayActivity : AppCompatActivity(){
                 claimPrize(MIDDLE_LINE,ticketType,position)
             }else{
                 context?.let { UtilMethods.ToastLong(it,"Already claimed Middle line") }
+            }
+        }else if (prizeList[position].id == FOUR_CORNER){
+            if (!prizeList[position].isChecked){
+                claimPrize(FOUR_CORNER,ticketType,position)
+            }else{
+                context?.let { UtilMethods.ToastLong(it,"Already claimed Four corners") }
+            }
+        }else if (prizeList[position].id == EARLY_FIVE){
+            if (!prizeList[position].isChecked){
+                claimPrize(EARLY_FIVE,ticketType,position)
+            }else{
+                context?.let { UtilMethods.ToastLong(it,"Already claimed Early five") }
             }
         }else if (prizeList[position].id == FULL_HOUSE){
             if (!prizeList[position].isChecked){
@@ -549,6 +526,7 @@ class PlayActivity : AppCompatActivity(){
                 try {
                     var tNum = 0
                     var tCheckedNum = 0
+                    Log.d(TAG,"numList: "+numList.size)
                     for((i, elements) in numList.withIndex()){
                         if (i in 0..8) {
                             if (elements.num != 0) {
@@ -561,7 +539,7 @@ class PlayActivity : AppCompatActivity(){
                             }
                         }
                     }
-                    if (tNum == tCheckedNum){
+                    if (tNum != 0 && tCheckedNum != 0 && tNum == tCheckedNum){
                         context?.let { UtilMethods.ToastLong(it,"You claimed Top line") }
                         // TODO: call game claim status api
                         callGamePrizeClaimOrStatusApi(getClaimValueByPrize(TOP_LINE),TOP_LINE.toString(), TYPE_CLAIM_PRIZE, LoadingActivity.CURRENT_USER, fixUserDemo)
@@ -591,7 +569,7 @@ class PlayActivity : AppCompatActivity(){
                             }
                         }
                     }
-                    if (tNum == tCheckedNum){
+                    if (tNum != 0 && tCheckedNum != 0 && tNum == tCheckedNum){
                         context?.let { UtilMethods.ToastLong(it,"You claimed Bottom line") }
                         // TODO: call game claim status api
                         callGamePrizeClaimOrStatusApi(getClaimValueByPrize(BOTTOM_LINE), BOTTOM_LINE.toString(), TYPE_CLAIM_PRIZE, LoadingActivity.CURRENT_USER, fixUserDemo)
@@ -620,7 +598,7 @@ class PlayActivity : AppCompatActivity(){
                             }
                         }
                     }
-                    if (tNum == tCheckedNum){
+                    if (tNum != 0 && tCheckedNum != 0 && tNum == tCheckedNum){
                         context?.let { UtilMethods.ToastLong(it,"You claimed Middle line") }
                         // TODO: call game claim status api
                         callGamePrizeClaimOrStatusApi(getClaimValueByPrize(MIDDLE_LINE),MIDDLE_LINE.toString(), TYPE_CLAIM_PRIZE, LoadingActivity.CURRENT_USER, fixUserDemo)
@@ -635,10 +613,97 @@ class PlayActivity : AppCompatActivity(){
                 }
             }
             FOUR_CORNER ->{
-
+                try {
+                    var topLeft = false
+                    var topRight = false
+                    var bottomLeft = false
+                    var bottomRight = false
+                    // TODO: Top Left
+                    for((i, elements) in numList.withIndex()){
+                        if (i in 0..3) {
+                            if (elements.num != 0) {
+                                if (elements.isChecked) {
+                                    topLeft = randomNumList.contains(elements.num.toString())
+                                }
+                                break
+                            }
+                        }
+                    }
+                    // TODO: Top Right
+                    for((i, elements) in numList.asReversed().withIndex()){
+                        if (i in 18..21) {
+                            if (elements.num != 0) {
+                                if (elements.isChecked) {
+                                    topRight = randomNumList.contains(elements.num.toString())
+                                }
+                                break
+                            }
+                        }
+                    }
+                    // TODO: Bottom Left
+                    for((i, elements) in numList.withIndex()){
+                        if (i in 18..21) {
+                            if (elements.num != 0) {
+                                if (elements.isChecked) {
+                                    bottomLeft = randomNumList.contains(elements.num.toString())
+                                }
+                                break
+                            }
+                        }
+                    }
+                    // TODO: Bottom Right
+                    for((i, elements) in numList.asReversed().withIndex()){
+                        if (i in 0..3) {
+                            if (elements.num != 0) {
+                                if (elements.isChecked) {
+                                    bottomRight = randomNumList.contains(elements.num.toString())
+                                }
+                                break
+                            }
+                        }
+                    }
+                    // TODO: Check condition 4 corners
+                    if (topLeft && topRight && bottomLeft && bottomRight){
+                        context?.let { UtilMethods.ToastLong(it,"You claimed Four corners") }
+                        // TODO: call game claim status api
+                        callGamePrizeClaimOrStatusApi(getClaimValueByPrize(FOUR_CORNER),FOUR_CORNER.toString(),TYPE_CLAIM_PRIZE, LoadingActivity.CURRENT_USER, fixUserDemo)
+                        // TODO: refresh prize claim
+                        onRefreshPrizeClaim(ticketType, position)
+                    }else{
+                        context?.let { UtilMethods.ToastLong(it,"You claimed Invalid") }
+                        //setViewAndChildrenEnabled(consLayout,false)
+                    }
+                } catch (e: Exception) {
+                    Log.e("Claim Four corners","Exception: {$e}")
+                }
             }
             EARLY_FIVE ->{
-
+                try {
+                    var tNum = 5
+                    var tCheckedNum = 0
+                    for((i, elements) in numList.withIndex()){
+                        if (i in 0..26) {
+                            if (elements.num != 0) {
+                                if (elements.isChecked) {
+                                    if (randomNumList.contains(elements.num.toString())) {
+                                        tCheckedNum++
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (tCheckedNum >= tNum){
+                        context?.let { UtilMethods.ToastLong(it,"You claimed Early Five") }
+                        // TODO: call game claim status api
+                        callGamePrizeClaimOrStatusApi(getClaimValueByPrize(EARLY_FIVE),EARLY_FIVE.toString(),TYPE_CLAIM_PRIZE, LoadingActivity.CURRENT_USER, fixUserDemo)
+                        // TODO: refresh prize claim
+                        onRefreshPrizeClaim(ticketType, position)
+                    }else{
+                        context?.let { UtilMethods.ToastLong(it,"You claimed Invalid") }
+                    }
+                } catch (e: Exception) {
+                    Log.e("Claim Early Five","Exception: {$e}")
+                }
             }
             FULL_HOUSE ->{
                 try {
@@ -656,7 +721,7 @@ class PlayActivity : AppCompatActivity(){
                             }
                         }
                     }
-                    if (tNum == tCheckedNum){
+                    if (tNum != 0 && tCheckedNum != 0 && tNum == tCheckedNum){
                         context?.let { UtilMethods.ToastLong(it,"You claimed Full House") }
                         // TODO: call game claim status api
                         callGamePrizeClaimOrStatusApi(getClaimValueByPrize(FULL_HOUSE),FULL_HOUSE.toString(), TYPE_CLAIM_PRIZE, LoadingActivity.CURRENT_USER, fixUserDemo)
@@ -735,9 +800,11 @@ class PlayActivity : AppCompatActivity(){
         }
     }
     private fun onGotoResultScreen(){
+        // Game Over
         setContentView(R.layout.game_over)
         // handler
         Handler().postDelayed({
+            // Result Screen
             val intent = Intent(context, ResultActivity::class.java)
             intent.putExtra(GAME_RESULT, gameResult)
             //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
@@ -772,6 +839,14 @@ class PlayActivity : AppCompatActivity(){
         player.start()
     }
 
+    override fun onStart() {
+        super.onStart()
+        isActivity = true
+    }
+    override fun onStop() {
+        super.onStop()
+        isActivity = false
+    }
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         return when (keyCode) {
             KeyEvent.KEYCODE_BACK ->  {
@@ -794,7 +869,7 @@ class PlayActivity : AppCompatActivity(){
             isThreadRunning = false
             val intent = Intent(context, HomeActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-            intent.putExtra(HomeActivity.KEY_LOGIN, SharedPrefManager.getInstance(context).result)
+            intent.putExtra(HomeActivity.KEY_LOGIN, login)
             startActivity(intent)
             finish()
         }
@@ -811,8 +886,8 @@ class PlayActivity : AppCompatActivity(){
         val context= this@PlayActivity
         var userId = "" ; var sessionId = ""
         if (fixUserType == LoadingActivity.CURRENT_USER) {
-            userId = SharedPrefManager.getInstance(context).result.id
-            sessionId = SharedPrefManager.getInstance(context).result.sid
+            userId = login.id
+            sessionId = login.sid
         }else if (fixUserType == LoadingActivity.FIX_USER) {
             if (fixUser != null) {
                 userId = fixUser.userId
@@ -854,6 +929,7 @@ class PlayActivity : AppCompatActivity(){
                         try {
                             if (response.isSuccessful) {
                                 if (response.code() == 200) {
+                                    claimPrizeList = response.body()!!.result
                                     var isFullHouse = false
                                     // TODO: Checking claimed prize
                                     for (elements in response.body()!!.result) {
@@ -912,8 +988,12 @@ class PlayActivity : AppCompatActivity(){
 
                                     // TODO: when full house is true
                                     if (isFullHouse){
-                                        // TODO: Calculate result
-                                        onResultCalculate(keyGameInResponse.result.gameValue[0], response.body()!!.result)
+                                        // handler
+                                        Handler().postDelayed({
+                                            // TODO: Calculate result
+                                            onResultCalculate(keyGameInResponse.result.gameValue[0], response.body()!!.result)
+                                        }, DELAY_MS)
+
                                     }
                                 } else {
                                     UtilMethods.ToastLong(context, "${response.body()?.msg}")
@@ -952,7 +1032,7 @@ class PlayActivity : AppCompatActivity(){
     // TODO: Fix User
     private fun getFixUserDetails(): List<FixUser>{
         val jsonFileString = Constants.getJsonDataFromAsset(applicationContext, "fixUser.json")
-        Log.i("data", jsonFileString)
+        //Log.i("data", jsonFileString)
 
         val gson = Gson()
         val fixUser = object : TypeToken<ResFixUser>() {}.type
@@ -1017,15 +1097,15 @@ class PlayActivity : AppCompatActivity(){
         var ticketNumbers : ArrayList<NumModel> = arrayListOf()
         // row 1
         for (element in ticket[0]) {
-            ticketNumbers.add(NumModel(element,false))
+            ticketNumbers.add(NumModel(element,false,false))
         }
         // row 2
         for (element in ticket[1]) {
-            ticketNumbers.add(NumModel(element,false))
+            ticketNumbers.add(NumModel(element,false,false))
         }
         // row 3
         for (element in ticket[2]) {
-            ticketNumbers.add(NumModel(element,false))
+            ticketNumbers.add(NumModel(element,false,false))
         }
         var topLine = false
         var midLine = false

@@ -36,6 +36,7 @@ class LoadingTournamentGameActivity : AppCompatActivity() {
     private var context: Context? = null
     private val DELAY_MS: Long = 4000  //delay in milliseconds before task is to be executed
     private var i = 0
+    private var loadTimerSec: Long = 60  //delay in milliseconds before task is to be executed
     private lateinit var login: Result
     private lateinit var tournament: Tournament
     private lateinit var countDownTimer:CountDownTimer
@@ -60,9 +61,11 @@ class LoadingTournamentGameActivity : AppCompatActivity() {
         actionBar?.hide()
         login = intent.getSerializableExtra(HomeActivity.KEY_LOGIN) as Result
         tournament = intent.getSerializableExtra(HomeActivity.KEY_TOURNAMENT) as Tournament
+        loadTimerSec = intent.getLongExtra(HomeActivity.KEY_TOURNAMENT_TIMER, loadTimerSec)
         if (login != null){// && tournament != null){
             tvMsg.text = "Loading..."
-            callTimers(60)  // call for 60 sec
+
+            callTimers(loadTimerSec)  // call for 60 sec
 
 //            // TODO for testing
 //            val intent = Intent(context, PlayTournamentGameActivity::class.java)

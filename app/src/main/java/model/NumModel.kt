@@ -5,5 +5,6 @@ import java.io.Serializable
 
 data class NumModel(
     @SerializedName("num") var num: Int,
-    @SerializedName("isChecked") var isChecked: Boolean
+    @SerializedName("isChecked") var isChecked: Boolean,
+    @SerializedName("isTick") var isTick: Boolean
 ): Serializable

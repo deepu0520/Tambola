@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.newitzone.desitambola.R
+import com.squareup.picasso.MemoryPolicy
+import com.squareup.picasso.Picasso
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.cardview_live_user.view.*
 import model.gamein.UserData
@@ -45,16 +47,15 @@ class LiveUserAdapter(val items : List<UserData>, val context: Context) : Recycl
             5 -> {
                 holder?.imgUser.setImageResource(R.drawable.avtar5)
             }
-            //        if (items[position].isNotEmpty()) {
-            //            // load the image with Picasso
-            //            Picasso.get().load(result.img).into(imgProfile) // select the ImageView to load it into
-            //        }
         }
+        if (items[position].img != null && items[position].img.isNotBlank()) {
+            // load the image with Picasso
+            Picasso.get().load(items[position].img).memoryPolicy(MemoryPolicy.NO_CACHE).into(holder?.imgUser) // select the ImageView to load it into
 
-//        if (items[position].isNotEmpty()) {
-//            // load the image with Picasso
-//            Picasso.get().load(result.img).into(imgProfile) // select the ImageView to load it into
-//        }
+        }else if (items[position].fbImg != null && items[position].fbImg.isNotBlank()) {
+            // load the image with Picasso
+            Picasso.get().load(items[position].fbImg).memoryPolicy(MemoryPolicy.NO_CACHE).into(holder?.imgUser) // select the ImageView to load it into
+        }
     }
 }
 

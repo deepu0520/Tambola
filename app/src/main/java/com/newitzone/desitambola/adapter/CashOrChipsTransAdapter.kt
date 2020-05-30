@@ -27,22 +27,22 @@ class CashOrChipsTransAdapter(val items : List<Result>, val context: Context) : 
 
     // Binds each animal in the ArrayList to a view
     override fun onBindViewHolder(holder: ViewHolderCashOrChips, position: Int) {
-        val getRow: Any = items[position]
-        val t: LinkedTreeMap<*, *> = getRow as LinkedTreeMap<*, *>
+//        val getRow: Any = items[position]
+//        val t: LinkedTreeMap<*, *> = getRow as LinkedTreeMap<*, *>
         holder?.tvOrderNoHeader?.text = "Order No"
-        holder?.tvOrderNo?.text = t["doc_no"] as CharSequence?
+        holder?.tvOrderNo?.text = items[position].docNo //t["doc_no"] as CharSequence?
 
         holder?.tvTransDateHeader?.text = "Trans Datetime"
-        holder?.tvTransDate?.text = UtilMethods.getDatetimeDDMMYYYY_HHMMSS(""+t["trans_dt"] as CharSequence?)
+        holder?.tvTransDate?.text = UtilMethods.getDatetimeDDMMYYYY_HHMMSS(items[position].transDt)//""+t["trans_dt"] as CharSequence?)
 
         holder?.tvAmtHeader?.text = "Amount"
-        holder?.tvAmt?.text = "₹"+t["amt"] as CharSequence?+"/-"
+        holder?.tvAmt?.text = "₹"+UtilMethods.roundOffDecimal(items[position].amt.toDouble())+"/-"
 
         holder?.tvStatusHeader?.text = "Status"
-        holder?.tvStatus?.text = t["TransType"] as CharSequence?
+        holder?.tvStatus?.text = items[position].transType//t["TransType"] as CharSequence?
 
         holder?.tvRemarksHeader?.text = "Description"
-        holder?.tvRemarks?.text = t["descrption"] as CharSequence?
+        holder?.tvRemarks?.text = items[position].descrption//t["descrption"] as CharSequence?
     }
 }
 

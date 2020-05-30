@@ -208,7 +208,8 @@ interface TambolaApiService {
                          @Field("userType") userType: String,
                          @Field("loginType") loginType: String,
                          @Field("sesID") sesID: String,
-                         @Field("userID") userID: String
+                         @Field("userID") userID: String,
+                         @Field("fbImg") fbImg: String
     ): Response<ResLogin>
 
     @FormUrlEncoded
@@ -221,7 +222,8 @@ interface TambolaApiService {
         @Field("passkey") passkey:String,
         @Field("dob") dob:String,
         @Field("userType") userType:String,
-        @Field("img") img:String
+        @Field("img") img:String,
+        @Field("fbImg") fbImg:String
     ): Response<DefaultResponse>
 
     object RetrofitFactory {

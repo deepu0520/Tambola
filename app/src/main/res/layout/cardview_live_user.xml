@@ -6,18 +6,18 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:layout_margin="4dp">
+    android:layout_margin="@dimen/dimen_4dp">
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/image_live_user"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
+        android:layout_width="@dimen/dimen_32dp"
+        android:layout_height="@dimen/dimen_32dp"
         android:visibility="visible"
         android:src="@drawable/avtar0"/>
     <TextView
         android:id="@+id/text_user_name"
-        android:textSize="10sp"
+        android:textSize="@dimen/dimen_10sp"
         android:textStyle="bold"
-        android:layout_width="56dp"
+        android:layout_width="@dimen/dimen_56dp"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textColor="@color/color_blue"

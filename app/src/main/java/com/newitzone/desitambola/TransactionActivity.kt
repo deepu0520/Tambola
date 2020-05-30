@@ -3,7 +3,6 @@ package com.newitzone.desitambola
 import android.app.DatePickerDialog
 import android.content.Context
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -12,6 +11,7 @@ import android.widget.AdapterView
 import android.widget.Spinner
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
@@ -27,6 +27,7 @@ import model.login.Result
 import model.money.transaction.MoneyTrans
 import model.transaction.CashOrChipsTrans
 import retrofit.TambolaApiService
+import java.text.DecimalFormat
 import java.util.*
 
 
@@ -63,15 +64,19 @@ class TransactionActivity : AppCompatActivity() , AdapterView.OnItemSelectedList
         login = intent.getSerializableExtra(HomeActivity.KEY_LOGIN) as Result
 
         if (login != null) {
+            txtFromDate.text = "01"+UtilMethods.getCurrentDate().substring(2)
+
             txtFromDate.setOnClickListener {
                 onFromDate(context as TransactionActivity)
             }
+            txtToDate.text = UtilMethods.getCurrentDate()
             txtToDate.setOnClickListener {
                 onToDate(context as TransactionActivity)
             }
             spnType!!.onItemSelectedListener = this
         }
     }
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun onFromDate(context: Context){
         val c = Calendar.getInstance()
         val year = c.get(Calendar.YEAR)
@@ -79,13 +84,19 @@ class TransactionActivity : AppCompatActivity() , AdapterView.OnItemSelectedList
         val day = c.get(Calendar.DAY_OF_MONTH)
 
         val dpd = DatePickerDialog(context, DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
-
+            val formatter = DecimalFormat("00")
             // Display Selected date in textbox
-            txtFromDate.text = "" + dayOfMonth + "-" + (monthOfYear+1) + "-" + year
+            txtFromDate.text = "" + formatter.format(dayOfMonth) + "-" + formatter.format(monthOfYear+1) + "-" + year
+
+            val fromDt = UtilMethods.getDateYYYYMMDD(txtFromDate.text.toString())
+            val toDt = UtilMethods.getDateYYYYMMDD(txtToDate.text.toString())
+            // TODO: Call user trans list api
+            userTransListApi(context as TransactionActivity, login.id, login.sid, fromDt, toDt, type)
         }, year, month, day)
 
         dpd.show()
     }
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun onToDate(context: Context) {
         val c = Calendar.getInstance()
         val year = c.get(Calendar.YEAR)
@@ -94,8 +105,15 @@ class TransactionActivity : AppCompatActivity() , AdapterView.OnItemSelectedList
 
         val dpd = DatePickerDialog(context, DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
 
+            val formatter = DecimalFormat("00")
             // Display Selected date in textbox
-            txtToDate.text = "" + dayOfMonth + "-" + (monthOfYear+1) + "-" + year
+            txtToDate.text = "" + formatter.format(dayOfMonth) + "-" + formatter.format(monthOfYear+1) + "-" + year
+
+            val fromDt = UtilMethods.getDateYYYYMMDD(txtFromDate.text.toString())
+            val toDt = UtilMethods.getDateYYYYMMDD(txtToDate.text.toString())
+            // TODO: Call user trans list api
+            userTransListApi(context as TransactionActivity, login.id, login.sid, fromDt, toDt, type)
+
         }, year, month, day)
 
         dpd.show()

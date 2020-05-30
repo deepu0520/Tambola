@@ -16,10 +16,7 @@ import butterknife.ButterKnife
 import com.google.android.material.textfield.TextInputLayout
 import com.google.gson.internal.LinkedTreeMap
 import com.newitzone.desitambola.dialog.MessageDialog
-import com.newitzone.desitambola.utils.Constants
-import com.newitzone.desitambola.utils.KCustomToast
-import com.newitzone.desitambola.utils.SharedPrefManager
-import com.newitzone.desitambola.utils.UtilMethods
+import com.newitzone.desitambola.utils.*
 import kotlinx.android.synthetic.main.activity_add_cash.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -35,6 +32,7 @@ class AddCashActivity : AppCompatActivity() {
     private var context: Context? = null
     private lateinit var login: Result
     private lateinit var paytm: Paytm
+    private lateinit var orderId: String
     @BindView(R.id.text_rs_100) lateinit var txtRS100: TextView
     @BindView(R.id.text_rs_200) lateinit var txtRS200: TextView
     @BindView(R.id.text_rs_500) lateinit var txtRS500: TextView
@@ -101,32 +99,26 @@ class AddCashActivity : AppCompatActivity() {
             // display details of profile
             context?.let { getBankDetailsApi(it, login.id, login.sid) }
         }
-        if (SharedPrefManager.getInstance(context).isLoggedIn) {
-            loginApi(
-                context
-                , SharedPrefManager.getInstance(context).result.emailId
-                , SharedPrefManager.getInstance(context).passKey.toString()
-                , SharedPrefManager.getInstance(context).result.userType
-                , "0"
-                , SharedPrefManager.getInstance(context).result.sid
-                , SharedPrefManager.getInstance(context).result.id
-            )
+        val mLogin = DesiTambolaPreferences.getLogin(context)
+        val passKey = DesiTambolaPreferences.getPassKey(context)
+        if(mLogin.isLogin) {
+            loginApi(context, mLogin.emailId, passKey, mLogin.userType, LoginActivity.LOGIN_TYPE_INFO, mLogin.sid, mLogin.id)
         }
     }
     private fun displayBalance(login: Result){
         if (login != null){
-            txtAvlBalance.text = "Avl balance : ₹"+UtilMethods.roundOffDecimal(login.acBal).toString()
+            txtAvlBalance.text = "Avl balance : ₹"+UtilMethods.roundOffDecimal(login.acBal.toDouble()).toString()
         }
     }
     private fun displayBankDetails(result: List<model.bankdetails.Result>?) {
         if (result != null) {
-            val getRow: Any = result.first()
-            val t: LinkedTreeMap<*, *> = getRow as LinkedTreeMap<*, *>
-            tInputBankName.editText?.setText(t["bank_name"] as CharSequence)
-            tInputAcHoldName.editText?.setText(t["account_holder"] as CharSequence)
-            tInputAcNo.editText?.setText(t["account_no"] as CharSequence)
-            tInputConfirmAcNo.editText?.setText(t["account_no"] as CharSequence)
-            tInputIfsc.editText?.setText(t["ifcs_code"] as CharSequence)
+//            val getRow: Any = result.first()
+//            val t: LinkedTreeMap<*, *> = getRow as LinkedTreeMap<*, *>
+            tInputBankName.editText?.setText(result.first().bankName)//t["bank_name"] as CharSequence)
+            tInputAcHoldName.editText?.setText(result.first().accountHolder)//t["account_holder"] as CharSequence)
+            tInputAcNo.editText?.setText(result.first().accountNo)//t["account_no"] as CharSequence)
+            tInputConfirmAcNo.editText?.setText(result.first().accountNo)//t["account_no"] as CharSequence)
+            tInputIfsc.editText?.setText(result.first().ifcsCode)//t["ifcs_code"] as CharSequence)
         }
     }
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -168,7 +160,7 @@ class AddCashActivity : AppCompatActivity() {
         val context = this@AddCashActivity
         val withdrawalAmt = 500
         if (login != null){
-            if (login.acBal >= withdrawalAmt){
+            if (login.acBal.toDouble() >= withdrawalAmt){
 
                 val amt = text_input_withdrawal_amount.editText!!.text.toString().trim()
                 val bankName = text_input_bank_name.editText!!.text.toString().trim()
@@ -263,6 +255,7 @@ class AddCashActivity : AppCompatActivity() {
                                 Log.i(TAG, "Checksum: "+ response.body())
                                 if (response.body()?.status == 1) {
                                     // TODO: creating paytm object
+                                    orderId = response.body()?.result?.get(0)?.ordid.toString()
                                     paytm = Paytm(
                                         response.body()?.result?.get(0)?.mId,
                                         response.body()?.result?.get(0)?.channelId,
@@ -420,7 +413,7 @@ class AddCashActivity : AppCompatActivity() {
             val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
             CoroutineScope(Dispatchers.IO).launch {
                 try {
-                    val response = service.getlogin(userID, passKey, userType, loginType, sesId, userId)
+                    val response = service.getlogin(userID, passKey, userType, loginType, sesId, userId,"")
                     withContext(Dispatchers.Main) {
                         try {
                             if (response.isSuccessful) {
@@ -434,7 +427,7 @@ class AddCashActivity : AppCompatActivity() {
                                 )
                             }
                         } catch (e: java.lang.Exception) {
-                            UtilMethods.ToastLong(context, "Exception ${e.message}")
+                            //UtilMethods.ToastLong(context, "Exception ${e.message}")
 
                         } catch (e: Throwable) {
                             UtilMethods.ToastLong(
@@ -463,11 +456,11 @@ class AddCashActivity : AppCompatActivity() {
                 var type = "1" // type 1 is cash and type 2 is chips
                 if (resPaytmTrans.rESPCODE == "01") { // Success
                     context?.let {
-                        addCashApi(it, login.id, login.sid, resPaytmTrans.oRDERID,"Success", resPaytmTrans.tXNAMOUNT, resPaytmTrans.oRDERID,"1", gatewayResponse,type)
+                        addCashApi(it, login.id, login.sid, orderId,"Success", resPaytmTrans.tXNAMOUNT, resPaytmTrans.oRDERID,"1", gatewayResponse,type)
                     }
                 }else{
                     context?.let {
-                        addCashApi(it, login.id, login.sid, resPaytmTrans.oRDERID,"failed", resPaytmTrans.tXNAMOUNT, resPaytmTrans.oRDERID,"2", gatewayResponse,type)
+                        addCashApi(it, login.id, login.sid, orderId,"failed", resPaytmTrans.tXNAMOUNT, resPaytmTrans.oRDERID,"2", gatewayResponse,type)
                         UtilMethods.ToastLong(it, "${resPaytmTrans.rESPMSG}")
                     }
                 }

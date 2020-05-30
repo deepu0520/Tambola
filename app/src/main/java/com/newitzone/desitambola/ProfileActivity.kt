@@ -1,6 +1,7 @@
 package com.newitzone.desitambola
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -27,6 +28,7 @@ import com.livinglifetechway.quickpermissions_kotlin.runWithPermissions
 import com.livinglifetechway.quickpermissions_kotlin.util.QuickPermissionsOptions
 import com.livinglifetechway.quickpermissions_kotlin.util.QuickPermissionsRequest
 import com.newitzone.desitambola.utils.UtilMethods
+import com.squareup.picasso.MemoryPolicy
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_profile.*
 import kotlinx.coroutines.CoroutineScope
@@ -115,20 +117,33 @@ class ProfileActivity : AppCompatActivity() {
         tInputlName.editText?.setText(result.lname)
         tInputEmail.editText?.setText(result.emailId)
         tInputMobile.editText?.setText(result.mobileNo)
-        if (result.img.isNotEmpty()) {
-            // load the image with Picasso
-            Picasso.get().load(result.img).into(imgProfile) // select the ImageView to load it into
+        if (result.userType.toInt() == 0) {
+            if (result.img.isNotEmpty()) {
+                // load the image with Picasso
+                Picasso.get().load(result.img).memoryPolicy(MemoryPolicy.NO_CACHE).into(imgProfile) // select the ImageView to load it into
+            }
+        }else if (result.userType.toInt() == 1) {
+            //val user = context?.let { LoginActivity.getUserInfo(it, login.id) }
+            if (result.fbImg.isNotEmpty()) {
+                // load the image with Picasso
+                Picasso.get().load(result.fbImg).memoryPolicy(MemoryPolicy.NO_CACHE).into(imgProfile) // select the ImageView to load it into
+            }
         }
     }
     private fun displayBankDetails(result: List<model.bankdetails.Result>?) {
         if (result != null) {
-            val getRow: Any = result.first()
-            val t: LinkedTreeMap<*, *> = getRow as LinkedTreeMap<*, *>
-            tInputBankName.editText?.setText(t["bank_name"] as CharSequence)
-            tInputAcHoldName.editText?.setText(t["account_holder"] as CharSequence)
-            tInputAcNo.editText?.setText(t["account_no"] as CharSequence)
-            tInputConfirmAcNo.editText?.setText(t["account_no"] as CharSequence)
-            tInputIfsc.editText?.setText(t["ifcs_code"] as CharSequence)
+            tInputBankName.editText?.setText(result.first().bankName)
+            tInputAcHoldName.editText?.setText(result.first().accountHolder)
+            tInputAcNo.editText?.setText(result.first().accountNo)
+            tInputConfirmAcNo.editText?.setText(result.first().accountNo)
+            tInputIfsc.editText?.setText(result.first().ifcsCode)
+//            val getRow: Any = result.first()
+//            val t: LinkedTreeMap<*, *> = getRow as LinkedTreeMap<*, *>
+//            tInputBankName.editText?.setText(t["bank_name"] as CharSequence)
+//            tInputAcHoldName.editText?.setText(t["account_holder"] as CharSequence)
+//            tInputAcNo.editText?.setText(t["account_no"] as CharSequence)
+//            tInputConfirmAcNo.editText?.setText(t["account_no"] as CharSequence)
+//            tInputIfsc.editText?.setText(t["ifcs_code"] as CharSequence)
         }
     }
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -140,39 +155,49 @@ class ProfileActivity : AppCompatActivity() {
         val dob = ""
         val password = text_input_password.editText!!.text.toString().trim()
         val confirmPassword = text_input_confirm_password.editText!!.text.toString().trim()
-        val img = ""
+        val img = IMG
         val userid = login.id
         val sessionId = login.sid
-        form {
-            inputLayout(R.id.text_input_fname , name = "First Name") {
-                isNotEmpty()
-            }
-            inputLayout(R.id.text_input_lname , name = "Last Name") {
-                isNotEmpty()
-            }
 
-            submitWith(R.id.text_update) { result ->
-                // this block is only called if form is valid.
-                if (password == confirmPassword) {
-                    // do something with a valid form state.
-                    context?.let {
-                        updateProfileApi(
-                            it,
-                            fName,
-                            lName,
-                            mobile,
-                            password,
-                            userid,
-                            sessionId,
-                            dob,
-                            img
-                        )
-                    }
-                }else{
-                    input(R.id.input_confirm_password , name = "Confirm Password") {
-                        context?.let { UtilMethods.ToastLong(it,"Password is not match") }
-                    }
-                }
+        text_input_fname.error = null
+        text_input_lname.error = null
+        text_input_password.error = null
+        text_input_confirm_password.error = null
+
+        var cancel = false
+        var focusable: View? = null
+
+        if(fName.isEmpty()){
+            text_input_fname.error = "First name cannot be blank"
+            focusable = text_input_fname
+            cancel = true
+        }
+        if(lName.isEmpty()){
+            text_input_lname.error = "Last name cannot be blank"
+            focusable = text_input_lname
+            cancel = true
+        }
+        if(password != confirmPassword){
+            text_input_confirm_password.error = "Password is not match"
+            focusable = text_input_confirm_password
+            cancel = true
+        }
+        if (cancel){
+            focusable!!.requestFocus()
+        }else{
+            // do something with a valid form state.
+            context?.let {
+                updateProfileApi(
+                    it,
+                    fName,
+                    lName,
+                    mobile,
+                    password,
+                    userid,
+                    sessionId,
+                    dob,
+                    img
+                )
             }
         }
     }
@@ -245,7 +270,7 @@ class ProfileActivity : AppCompatActivity() {
                                  , mobileNo: String, passkey: String, userid: String
                                  , sessionId: String, dob: String, img: String){
         if (UtilMethods.isConnectedToInternet(context)) {
-            UtilMethods.showLoading(context)
+            UtilMethods.showLoading(context,true)
             val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
             CoroutineScope(Dispatchers.IO).launch {
                 try {
@@ -269,16 +294,13 @@ class ProfileActivity : AppCompatActivity() {
                         } catch (e: Exception) {
                             UtilMethods.ToastLong(context, "Exception ${e.message}")
                         } catch (e: Throwable) {
-                            UtilMethods.ToastLong(
-                                context,
-                                "Ooops: Something else went wrong : " + e.message
+                            UtilMethods.ToastLong(context,"Ooops: Something else went wrong : " + e.message
                             )
                         }
+                        UtilMethods.hideLoading()
                     }
                 } catch (e: Throwable) {
-                    runOnUiThread {
-                        UtilMethods.ToastLong(context, "Server or Internet error : ${e.message}")
-                    }
+                    runOnUiThread { UtilMethods.ToastLong(context, "Server or Internet error : ${e.message}") }
                     Log.e("TAG", "Throwable : $e")
                     UtilMethods.hideLoading()
                 }
@@ -398,36 +420,41 @@ class ProfileActivity : AppCompatActivity() {
          {
          return
          }*/
-        if (requestCode == GALLERY)
-        {
-            if (data != null)
-            {
+        if (requestCode == GALLERY){
+            if (data != null){
                 val contentURI = data!!.data
-                try
-                {
+                try{
                     var bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, contentURI)
-                    bitmap = UtilMethods.resizeBitmap(bitmap,200)
-                    //val path = saveImage(bitmap)
-                    //Toast.makeText(this@ProfileActivity, "Image Saved!", Toast.LENGTH_SHORT).show()
-                    imgProfile!!.setImageBitmap(bitmap)
-                    IMG = UtilMethods.convert(bitmap).toString()
-                }
-                catch (e: IOException) {
+                    if (bitmap != null) {
+                        bitmap = UtilMethods.resizeBitmap(bitmap, 200)
+                        //val path = saveImage(bitmap)
+                        //Toast.makeText(this@ProfileActivity, "Image Saved!", Toast.LENGTH_SHORT).show()
+                        imgProfile!!.setImageBitmap(bitmap)
+                        IMG = UtilMethods.convert(bitmap).toString()
+                    }
+                }catch (e: IOException) {
                     e.printStackTrace()
                     Toast.makeText(this@ProfileActivity, "Failed!", Toast.LENGTH_SHORT).show()
                 }
 
             }
 
-        }
-        else if (requestCode == CAMERA)
-        {
-            var bitmap = data!!.extras!!.get("data") as Bitmap
-            bitmap = UtilMethods.resizeBitmap(bitmap,200)
-            imgProfile!!.setImageBitmap(bitmap)
-            //saveImage(bitmap)
-            IMG = UtilMethods.convert(bitmap).toString()
-            //Toast.makeText(this@ProfileActivity, "Image Saved!", Toast.LENGTH_SHORT).show()
+        }else if (requestCode == CAMERA && resultCode == Activity.RESULT_OK){
+            if (data != null) {
+                try {
+                    var bitmap = data!!.extras!!.get("data") as Bitmap
+                    if (bitmap != null) {
+                        bitmap = UtilMethods.resizeBitmap(bitmap, 200)
+                        imgProfile!!.setImageBitmap(bitmap)
+                        //saveImage(bitmap)
+                        IMG = UtilMethods.convert(bitmap).toString()
+                    }
+                    //Toast.makeText(this@ProfileActivity, "Image Saved!", Toast.LENGTH_SHORT).show()
+                } catch (e: Exception) {
+                    Toast.makeText(this@ProfileActivity, "Something went wrong", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
         }
     }
 
@@ -480,7 +507,7 @@ class ProfileActivity : AppCompatActivity() {
     )
 
     private fun methodRequiresPermissions() = runWithPermissions(Manifest.permission.CAMERA, options = quickPermissionsOption) {
-        Toast.makeText(this, "Camera permission granted", Toast.LENGTH_LONG).show()
+        //Toast.makeText(this, "Camera permission granted", Toast.LENGTH_LONG).show()
     }
     private fun rationaleCallback(req: QuickPermissionsRequest) {
         // this will be called when permission is denied once or more time. Handle it your way

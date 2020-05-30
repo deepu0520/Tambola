@@ -39,7 +39,7 @@ class TournamentAdapter(val items : List<Tournament>, private val date: String, 
             // TODO: Join or cancel request
             if (items[position].userRequestedTickets.toInt() > 0){
                 // TODO: Cancel request
-                holder?.tvJoinOrStatus?.text = "Cancel"
+                holder?.tvJoinOrStatus?.text = "Withdraw"
                 holder?.tvStatus?.text = "You already join with "+items[position].userRequestedTickets+" ticket"
             }else {
                 // TODO: Join request
@@ -50,18 +50,36 @@ class TournamentAdapter(val items : List<Tournament>, private val date: String, 
             // TODO: Play or Game over
             val currentTime = System.currentTimeMillis()
             val tournamentTime = UtilMethods.getDateInMS(date + " " + items[position].startTime)
-            // TODO: Time difference for play
-            var difPlay = UtilMethods.getTimeDifferenceInMinute(currentTime, tournamentTime!!, 1)
-            if (difPlay <= 1){
-                holder?.tvJoinOrStatus?.text = "Play"
-                holder?.tvStatus?.text = "You already join with "+items[position].userRequestedTickets+" ticket"
-            }
-            // TODO: Time difference for tournament going
-            var different = UtilMethods.getTimeDifferenceInMinute(currentTime, tournamentTime!!, 0)
-            if (different in 2..14){
+            var different = UtilMethods.getTimeDifferenceInMinute(currentTime, tournamentTime!!)
+            if (different <= 2){
+                if (different >= -2) {
+                    if (items[position].userRequestedTickets.toInt() > 0){
+                        // TODO: Cancel request
+                        holder?.tvJoinOrStatus?.text = "Play"
+                        holder?.tvStatus?.text = "You already join with "+items[position].userRequestedTickets+" ticket"
+                    }else {
+                        // TODO: Time difference for play
+                        holder?.tvJoinOrStatus?.text = "Registration closed"
+                        holder?.tvStatus?.text = "Sorry you are late please join other tournament"
+                    }
+                }else if (different >= -5 && different < -2) {
+                    if (items[position].userRequestedTickets.toInt() > 0) {
+                        // TODO: Time difference for tournament play soon
+                        holder?.tvJoinOrStatus?.text = "Be ready to play"
+                        holder?.tvStatus?.text =
+                            "You already join with " + items[position].userRequestedTickets + " ticket"
+                    }else {
+                        // TODO: Time difference for play
+                        holder?.tvJoinOrStatus?.text = "Registration closed"
+                        holder?.tvStatus?.text = "Sorry you are late please join other tournament"
+                    }
+                }
+            }else if (different in 3..14){
+                // TODO: Time difference for tournament going
                 holder?.tvJoinOrStatus?.text = "Tournament is going "
                 holder?.tvStatus?.text = "Please wait for the result"
             }else if (different > 14){
+                // TODO: Time difference for result
                 holder?.tvJoinOrStatus?.text = "Result"
                 holder?.tvStatus?.text = "Tournament Over"
             }

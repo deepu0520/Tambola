@@ -15,10 +15,13 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.ButterKnife
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.newitzone.desitambola.HomeActivity
 import com.newitzone.desitambola.LoadingTournamentGameActivity
 import com.newitzone.desitambola.R
 import com.newitzone.desitambola.adapter.TournamentAdapter
+import com.newitzone.desitambola.utils.Constants
 import com.newitzone.desitambola.utils.RecyclerItemClickListenr
 import com.newitzone.desitambola.utils.UtilMethods
 import kotlinx.coroutines.CoroutineScope
@@ -30,10 +33,12 @@ import model.login.Result
 import model.tournament.ResTournament
 import retrofit.TambolaApiService
 
+
 class TournamentGamesDialog : DialogFragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var login: Result
     private lateinit var keyModel: KeyModel
+    private var isRunning = true
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(STYLE_NORMAL, R.style.FullScreenDialog)
@@ -53,6 +58,8 @@ class TournamentGamesDialog : DialogFragment() {
     override fun onResume() {
         super.onResume()
         if (login != null){
+//            context?.let { onLoadRecyclerView(it, getTournamentStartJson()) }
+            isRunning = true
             tournamentApi(requireContext(), login.id, login.sid)
         }
     }
@@ -61,6 +68,8 @@ class TournamentGamesDialog : DialogFragment() {
     override fun onPause() {
         super.onPause()
         if (login != null){
+//            context?.let { onLoadRecyclerView(it, getTournamentStartJson()) }
+            isRunning = false
             tournamentApi(requireContext(), login.id, login.sid)
         }
     }
@@ -70,7 +79,7 @@ class TournamentGamesDialog : DialogFragment() {
         state: Bundle?
     ): View? {
         super.onCreateView(inflater, parent, state)
-        val view = activity!!.layoutInflater.inflate(R.layout.dialog_tournament_games, parent, false)
+        val view = requireActivity().layoutInflater.inflate(R.layout.dialog_tournament_games, parent, false)
         if (arguments != null) {
             val mArgs = arguments
             login = mArgs!!.getSerializable(HomeActivity.KEY_LOGIN) as Result
@@ -108,8 +117,7 @@ class TournamentGamesDialog : DialogFragment() {
                             //TODO: Join the tournament
                             //TODO: Call Ticket Dialog
                             val dialogTicket = TicketsDialog()
-                            val ft: FragmentTransaction =
-                                activity!!.supportFragmentManager.beginTransaction()
+                            val ft: FragmentTransaction = activity!!.supportFragmentManager.beginTransaction()
                             val args = Bundle()
                             args?.putSerializable(HomeActivity.KEY_LOGIN, login)
                             args?.putSerializable(HomeActivity.KEY_MODEL, keyModel)
@@ -121,16 +129,11 @@ class TournamentGamesDialog : DialogFragment() {
                         else if (userReqTickets > 0) {
                             // TODO: Cancel Request
                             val currentTime = System.currentTimeMillis()
-                            val tournamentTime =
-                                UtilMethods.getDateInMS(resTournament.result.date + " " + resTournament.result.list[position].startTime)
+                            val tournamentTime = UtilMethods.getDateInMS(resTournament.result.date + " " + resTournament.result.list[position].startTime)
                             // TODO: Time difference
-                            var different = UtilMethods.getTimeDifferenceInMinute(
-                                currentTime,
-                                tournamentTime!!,
-                                2
-                            )
+                            var different = UtilMethods.getTimeDifferenceInMinute(currentTime,tournamentTime!!)
 
-                            if (different > 5) {
+                            if (different < -5) {
                                 // TODO: time difference is greater than 5 minutes
                                 // TODO: show dialog to cancel request
                                 dialogAlertCancel(
@@ -148,35 +151,34 @@ class TournamentGamesDialog : DialogFragment() {
                         val tournamentTime = UtilMethods.getDateInMS(resTournament.result.date + " " + resTournament.result.list[position].startTime)
 
                         // TODO: Time difference for play
-                        var difPlay = UtilMethods.getTimeDifferenceInMinute(currentTime, tournamentTime!!, 1)
-                        if (difPlay <= 1) {
-                            // TODO: time difference is 1 minute and less than 1
-                            if (userReqTickets > 0) {
-                                // TODO: start the game
-                                //UtilMethods.ToastLong(context,"Your game is started in several minutes")
-                                val intent = Intent(context, LoadingTournamentGameActivity::class.java)
-                                intent.putExtra(HomeActivity.KEY_LOGIN, login)
-                                intent.putExtra(HomeActivity.KEY_TOURNAMENT, tournament)
-                                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                                startActivity(intent)
-                                // TODO:
-                                dialog?.dismiss()
-                            }else{
-                                MessageDialog(context,"Alert","You have not participate this Tournament").show()
-                            }
-                        }else {
-                            // TODO: Time difference for tournament play soon
-                            var difPlaySoon = UtilMethods.getTimeDifferenceInMinute(currentTime, tournamentTime!!,2)
-                            if (difPlaySoon > 1) {
+                        var different = UtilMethods.getTimeDifferenceInMinute(currentTime, tournamentTime!!)
+                        if (different <= 2){
+                            if (different >= -2) {
+                                // TODO: time difference is 2 minute and less than equal to 2
+                                if (userReqTickets > 0) {
+                                    // TODO: start the game
+                                    //UtilMethods.ToastLong(context,"Your game is started in several minutes")
+                                    val intent = Intent(context, LoadingTournamentGameActivity::class.java)
+                                    intent.putExtra(HomeActivity.KEY_LOGIN, login)
+                                    intent.putExtra(HomeActivity.KEY_TOURNAMENT, tournament)
+                                    intent.putExtra(HomeActivity.KEY_TOURNAMENT_TIMER, UtilMethods.getTimeDifferenceInSec(currentTime, tournamentTime!!))
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                                    startActivity(intent)
+                                    // TODO:
+                                    dialog?.dismiss()
+                                } else {
+                                    MessageDialog(context,"Alert","You have not participate this Tournament").show()
+                                }
+                            }else if (different >= -5 && different < -2){
+                                // TODO: Time difference for tournament play soon
                                 MessageDialog(context,"Alert","Tournament will start in few minutes, Be ready").show()
                             }
+                        }else if (different in 3..14){
                             // TODO: Time difference for tournament going
-                            var different = UtilMethods.getTimeDifferenceInMinute(currentTime,tournamentTime!!,0)
-                            if (different in 2..14) {
-                                MessageDialog(context,"Alert","Please wait...for the result").show()
-                            } else if (different > 14) {
-                                MessageDialog(context, "Alert", "Result is coming soon.....").show()
-                            }
+                            MessageDialog(context,"Alert","Please wait...for the result").show()
+                        } else if (different > 14) {
+                            // TODO: Time difference for tournament result
+                            MessageDialog(context, "Alert", "Result is coming soon.....").show()
                         }
                     }
                 } else {
@@ -193,7 +195,7 @@ class TournamentGamesDialog : DialogFragment() {
     private fun dialogAlertCancel(context: Context, userId: String, sesId: String, tournamentId: String, gameId: String){
         val builder = AlertDialog.Builder(context)
         builder.setTitle(R.string.app_name)
-        builder.setMessage("Do you want to cancel request of tournament game?")
+        builder.setMessage("Do you want to withdraw with this tournament game?")
         //builder.setPositiveButton("OK", DialogInterface.OnClickListener(function = x))
 
         builder.setPositiveButton(android.R.string.yes) { dialog, which ->
@@ -244,6 +246,16 @@ class TournamentGamesDialog : DialogFragment() {
         }else{
             UtilMethods.ToastLong(context,"No Internet Connection")
         }
+    }
+    // TODO: Tournament Start Json by local
+    private fun getTournamentStartJson(): ResTournament {
+        val jsonFileString = context?.let { Constants.getJsonDataFromAsset(it, "tournamentList.json") }
+        Log.i("data", jsonFileString)
+
+        val gson = Gson()
+        val tournament = object : TypeToken<ResTournament>() {}.type
+
+        return gson.fromJson(jsonFileString, tournament)
     }
     // TODO: cancel request tournament Api
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)

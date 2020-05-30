@@ -23,11 +23,12 @@ import butterknife.ButterKnife
 import com.google.android.material.snackbar.Snackbar
 import com.newitzone.desitambola.dialog.CashGamesDialog
 import com.newitzone.desitambola.dialog.TicketsDialog
-import com.newitzone.desitambola.dialog.TournamentGamesDialog
+import com.newitzone.desitambola.utils.DesiTambolaPreferences
 import com.newitzone.desitambola.utils.KCustomToast
-import com.newitzone.desitambola.utils.SharedPrefManager
 import com.newitzone.desitambola.utils.UtilMethods
+import com.squareup.picasso.MemoryPolicy
 import com.squareup.picasso.Picasso
+import database.User
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -44,6 +45,7 @@ import java.lang.Exception
 class HomeActivity : AppCompatActivity() {
     private var context: Context? = null
     private lateinit var login: Result
+    private lateinit var user: User
     // image view
     @BindView(R.id.image_profile) lateinit var imgProfile: ImageView
     @BindView(R.id.image_cash) lateinit var imgCash: ImageView
@@ -56,7 +58,7 @@ class HomeActivity : AppCompatActivity() {
     @BindView(R.id.text_chips_balance) lateinit var tvChips: TextView
     @BindView(R.id.text_profile_name) lateinit var tvProfileName: TextView
     @BindView(R.id.text_online_count) lateinit var tvOnlineCount: TextView
-
+    @BindView(R.id.text_app_version) lateinit var tvAppVersion: TextView
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,12 +79,13 @@ class HomeActivity : AppCompatActivity() {
         // status bar is hidden, so hide that too if necessary.
         actionBar?.hide()
         // Intent
-        login = intent.getSerializableExtra(HomeActivity.KEY_LOGIN) as Result
+        login = intent.getSerializableExtra(KEY_LOGIN) as Result
         if (login != null) {
             // TODO: Load Account Details
             onLoadAccountDetails(login)
         }
-
+        // TODO: App Version
+        tvAppVersion.text = "Version "+BuildConfig.VERSION_NAME
         // TODO: Profile update
         imgProfile.setOnClickListener { view ->
             onProfileUpdate()
@@ -118,12 +121,20 @@ class HomeActivity : AppCompatActivity() {
     }
     private fun onLoadAccountDetails(login: Result){
         tvProfileName.text = login.fname+" "+login.lname
-        tvCash.text = "₹"+UtilMethods.roundOffDecimal(login.acBal).toString()
+        tvCash.text = "₹"+UtilMethods.roundOffDecimal(login.acBal.toDouble()).toString()
         tvChips.text = UtilMethods.roundOffDecimal(login.acChipsBal.toFloat()).toString()
-        tvOnlineCount.text = login.onlineUser.toString()
-        if (login.img.isNotEmpty()) {
-            // load the image with Picasso
-            Picasso.get().load(login.img).into(imgProfile) // select the ImageView to load it into
+        tvOnlineCount.text = login.onlineUser
+        if (login.userType == LoginActivity.USER_TYPE_NORMAL) {
+            if (login.img.isNotEmpty()) {
+                // load the image with Picasso
+                Picasso.get().load(login.img).memoryPolicy(MemoryPolicy.NO_CACHE).into(imgProfile) // select the ImageView to load it into
+            }
+        }else if (login.userType == LoginActivity.USER_TYPE_FACEBOOK) {
+            //val user = context?.let { LoginActivity.getUserInfo(it, login.id) }
+            if (login.fbImg.isNotEmpty()) {
+                // load the image with Picasso
+                Picasso.get().load(login.fbImg).memoryPolicy(MemoryPolicy.NO_CACHE).into(imgProfile) // select the ImageView to load it into
+            }
         }
     }
     private fun onProfileUpdate(){
@@ -133,8 +144,8 @@ class HomeActivity : AppCompatActivity() {
         startActivity(intent)
     }
     private fun onCash(view: View){
-        if (login.acBal.toDouble() > 5) {
-            var keyModel = KeyModel("", 0, 5f, 0, "")
+        if (login.acBal.toDouble() >= 10) {
+            var keyModel = KeyModel("", 0, 10f, 0, "")
             keyModel.gameType = 1
 
             val dialog = CashGamesDialog()
@@ -151,39 +162,29 @@ class HomeActivity : AppCompatActivity() {
     }
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun onTournament(view: View){
-        if (login.acBal.toDouble() > 5) {
+        //if (login.acBal.toDouble() > 5) {
             val context = this@HomeActivity
             // TODO: Call Tournament Screen
             var keyModel = KeyModel("", 0, 0f, 1, "")
             keyModel.gameType = 2
 
             //TODO: Call Ticket Dialog
-            val dialog = TournamentGamesDialog()
-            val ft: FragmentTransaction = supportFragmentManager.beginTransaction()
-            val args = Bundle()
-            args?.putSerializable(KEY_LOGIN, login)
-            args?.putSerializable(KEY_MODEL, keyModel)
-            dialog.arguments = args
-            dialog.show(ft, TicketsDialog.TAG)
-//            // TODO for testing
-//            val intent = Intent(context, LoadingTournamentGameActivity::class.java)
-//            intent.putExtra(KEY_LOGIN, login)
-//            //intent.putExtra(KEY_TOURNAMENT, Tournament())
-//            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-//            startActivity(intent)
-//            finish()
-        }else{
-            val context = this@HomeActivity
-            //UtilMethods.ToastLong(context,"Insufficient balance in your account to play Tournament game")
-            Snackbar.make(tvChips,"Insufficient balance in your account to play Tournament game",Snackbar.LENGTH_SHORT).show()
+            val intent = Intent(context, TournamentGameActivity::class.java)
+            intent.putExtra(KEY_LOGIN, login)
+            intent.putExtra(KEY_MODEL, keyModel)
+            startActivity(intent)
+//        }else{
+//            val context = this@HomeActivity
+//            //UtilMethods.ToastLong(context,"Insufficient balance in your account to play Tournament game")
+//            Snackbar.make(tvChips,"Insufficient balance in your account to play Tournament game",Snackbar.LENGTH_SHORT).show()
             //KCustomToast.toastWithFont(context, "Insufficient balance in your account to play Tournament game")
 //            runOnUiThread {
 //                KCustomToast.toastWithFont(context, "Insufficient balance in your account to play Tournament game")
 //            }
-        }
+//        }
     }
     private fun onPractice(view: View){
-        if (login.acChipsBal.toDouble() > 10) {
+        if (login.acChipsBal.toDouble() >= 10) {
             var keyModel = KeyModel("", 0, 10f, 0, "")
             keyModel.gameType = 0
 
@@ -262,16 +263,10 @@ class HomeActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         val context = context as HomeActivity
-        if (SharedPrefManager.getInstance(context).isLoggedIn) {
-            loginApi(
-                context
-                , SharedPrefManager.getInstance(context).result.emailId
-                , SharedPrefManager.getInstance(context).passKey.toString()
-                , SharedPrefManager.getInstance(context).result.userType
-                , "0"
-                , SharedPrefManager.getInstance(context).result.sid
-                , SharedPrefManager.getInstance(context).result.id
-            )
+        //val mLogin = DesiTambolaPreferences.getLogin(context)
+        val passKey = DesiTambolaPreferences.getPassKey(context)
+        if(login != null) {
+            loginApi(context, login.emailId, passKey, login.userType, LoginActivity.LOGIN_TYPE_INFO, login.sid, login.id)
         }
     }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -314,6 +309,7 @@ class HomeActivity : AppCompatActivity() {
         const val KEY_GAME_IN = "Key_Game_In"
         const val KEY_TOURNAMENT = "Key_tournament"
         const val REQ_CODE = 100
+        const val KEY_TOURNAMENT_TIMER = "Key_load_timer_sec"
     }
 
     // TODO: login Api
@@ -324,7 +320,7 @@ class HomeActivity : AppCompatActivity() {
             val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
             CoroutineScope(Dispatchers.IO).launch {
                 try {
-                    val response = service.getlogin(userID, passKey, userType, loginType, sesId, userId)
+                    val response = service.getlogin(userID, passKey, userType, loginType, sesId, userId,"")
                     withContext(Dispatchers.Main) {
                         try {
                             if (response.isSuccessful) {
@@ -338,8 +334,7 @@ class HomeActivity : AppCompatActivity() {
                                 )
                             }
                         } catch (e: Exception) {
-                            UtilMethods.ToastLong(context, "Exception ${e.message}")
-
+                            //UtilMethods.ToastLong(context, "Exception ${e.message}")
                         } catch (e: Throwable) {
                             UtilMethods.ToastLong(
                                 context,

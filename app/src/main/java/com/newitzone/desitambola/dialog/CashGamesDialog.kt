@@ -42,7 +42,7 @@ class CashGamesDialog : DialogFragment() {
         state: Bundle?
     ): View? {
         super.onCreateView(inflater, parent, state)
-        val view = activity!!.layoutInflater.inflate(R.layout.dialog_cash_games, parent, false)
+        val view = requireActivity().layoutInflater.inflate(R.layout.dialog_cash_games, parent, false)
         if (arguments != null) {
             val mArgs = arguments
             login = mArgs!!.getSerializable(HomeActivity.KEY_LOGIN) as Result

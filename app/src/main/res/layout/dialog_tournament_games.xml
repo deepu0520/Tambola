@@ -4,9 +4,23 @@
     android:background="@drawable/splash_screen_1"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <LinearLayout android:orientation="vertical" android:layout_width="wrap_content" android:layout_height="wrap_content" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent">
-        <LinearLayout android:gravity="center" android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_margin="8dp">
-            <ImageView android:layout_width="32dp" android:layout_height="32dp" android:layout_margin="8dp" android:src="@drawable/ic_tournament"/>
+    <LinearLayout android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+        <LinearLayout
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/dimen_8dp">
+            <ImageView android:layout_width="@dimen/dimen_32dp"
+                android:layout_height="@dimen/dimen_32dp"
+                android:layout_margin="8dp" android:src="@drawable/ic_tournament"/>
             <TextView
                 android:textSize="20sp"
                 android:textStyle="bold"
@@ -15,13 +29,18 @@
                 android:layout_height="wrap_content"
                 android:text="@string/tournament_games"/>
         </LinearLayout>
-        <View android:background="@android:color/white" android:layout_width="match_parent" android:layout_height="1dp" android:layout_marginStart="72dp" android:layout_marginEnd="72dp"/>
+        <View
+            android:background="@android:color/white"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_1dp"
+            android:layout_marginStart="@dimen/dimen_72dp"
+            android:layout_marginEnd="@dimen/dimen_72dp"/>
         <androidx.recyclerview.widget.RecyclerView
             android:layout_gravity="center"
             android:id="@+id/recycler_view"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="64dp"
-            android:layout_marginEnd="64dp"/>
+            android:layout_marginStart="@dimen/dimen_64dp"
+            android:layout_marginEnd="@dimen/dimen_64dp"/>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

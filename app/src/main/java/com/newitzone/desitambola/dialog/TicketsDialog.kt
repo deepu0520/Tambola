@@ -56,7 +56,7 @@ class TicketsDialog : DialogFragment() {
         state: Bundle?
     ): View? {
         super.onCreateView(inflater, parent, state)
-        val view = activity!!.layoutInflater.inflate(R.layout.dialog_tickets, parent, false)
+        val view = requireActivity().layoutInflater.inflate(R.layout.dialog_tickets, parent, false)
         if (arguments != null) {
             val mArgs = arguments
             login = mArgs!!.getSerializable(HomeActivity.KEY_LOGIN) as Result
@@ -121,20 +121,24 @@ class TicketsDialog : DialogFragment() {
                     try {
                         if (response.isSuccessful) {
                             if (response.body()?.status == 1) {
-                                UtilMethods.ToastLong(context, "${response.body()?.msg}")
+                                //UtilMethods.ToastLong(context, "${response.body()?.msg}")
                                 if (keyModel.gameType == PlayActivity.TOURNAMENT_GAME){
 
                                     UtilMethods.ToastLong(context, "You are successfully join for the Tournament game with ticket $req_ticket")
                                     //MessageDialog(context,"","You are successfully join for the Tournament game with ticket $req_ticket").show()
 
-                                    //TODO: Call Ticket Dialog
-                                    val dialogT = TournamentGamesDialog()
-                                    val ft: FragmentTransaction = activity!!.supportFragmentManager.beginTransaction()
-                                    val args = Bundle()
-                                    args?.putSerializable(HomeActivity.KEY_LOGIN, login)
-                                    args?.putSerializable(HomeActivity.KEY_MODEL, keyModel)
-                                    dialogT.arguments = args
-                                    dialogT.show(ft, TicketsDialog.TAG)
+                                    val intent = Intent(context, TournamentGameActivity::class.java)
+                                    intent.putExtra(HomeActivity.KEY_LOGIN, login)
+                                    intent.putExtra(HomeActivity.KEY_MODEL, keyModel)
+                                    activity!!.setResult(TournamentGameActivity.REQ_CODE, intent)
+//                                    //TODO: Call Ticket Dialog
+//                                    val dialogT = TournamentGamesDialog()
+//                                    val ft: FragmentTransaction = activity!!.supportFragmentManager.beginTransaction()
+//                                    val args = Bundle()
+//                                    args?.putSerializable(HomeActivity.KEY_LOGIN, login)
+//                                    args?.putSerializable(HomeActivity.KEY_MODEL, keyModel)
+//                                    dialogT.arguments = args
+//                                    dialogT.show(ft, TicketsDialog.TAG)
                                     // TODO: Current dialog dismiss
                                     dialog?.dismiss()
                                 }else {
@@ -150,6 +154,8 @@ class TicketsDialog : DialogFragment() {
                                 }
                             } else {
                                 UtilMethods.ToastLong(context, "${response.body()?.msg}")
+                                // TODO: Current dialog dismiss
+                                dialog?.dismiss()
                             }
                         } else {
                             UtilMethods.ToastLong(context, "${response?.message()}")

@@ -16,6 +16,8 @@ import androidx.annotation.RequiresApi
 import com.newitzone.desitambola.R
 import java.io.ByteArrayOutputStream
 import java.math.RoundingMode
+import java.net.HttpURLConnection
+import java.net.URL
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.time.format.DateTimeFormatter
@@ -40,6 +42,20 @@ object UtilMethods {
     fun showLoading(context: Context){
         progressDialogBuilder = AlertDialog.Builder(context)
         progressDialogBuilder.setCancelable(false) // if you want user to wait for some process to finish,
+        progressDialogBuilder.setView(R.layout.layout_loading_dialog)
+
+        progressDialog = progressDialogBuilder.create()
+        progressDialog.window?.setBackgroundDrawable(ColorDrawable(android.graphics.Color.TRANSPARENT));
+        try {
+            progressDialog.show()
+        }catch (ex: WindowManager.BadTokenException){
+            Log.e(TAG, ex.toString())
+        }
+    }
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    fun showLoading(context: Context, isCancelable: Boolean){
+        progressDialogBuilder = AlertDialog.Builder(context)
+        progressDialogBuilder.setCancelable(isCancelable) // if you want user to wait for some process to finish,
         progressDialogBuilder.setView(R.layout.layout_loading_dialog)
 
         progressDialog = progressDialogBuilder.create()
@@ -81,6 +97,25 @@ object UtilMethods {
      * @return true or false mentioning the device is connected or not
      * @brief checking the internet connection on run time
      */
+
+    fun isMobileOrWifiConnectivityAvailable(context: Context): Boolean {
+        if (isMobileOrWifiConnectivityAvailable(context)) {
+            try {
+                val url: HttpURLConnection = URL("http://www.google.com").openConnection() as HttpURLConnection
+                url.setRequestProperty("User-Agent", "Test")
+                url.setRequestProperty("Connection", "close")
+                url.connectTimeout = 1500
+                url.connect()
+                return (url.responseCode === 200)
+            } catch (e: java.lang.Exception) {
+                Log.d(TAG,"Couldn't check internet connection Exception is : $e")
+            }
+        } else {
+            Log.d(TAG,"Internet not available!")
+        }
+        return false
+    }
+
     fun isConnectedToInternet(context: Context): Boolean {
         val manager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -150,6 +185,15 @@ object UtilMethods {
         df.roundingMode = RoundingMode.CEILING
         return df.format(number).toFloat()
     }
+    fun getCurrentDate(): String {
+        return try {
+            val sdf = SimpleDateFormat("dd-MM-yyyy")
+            sdf.format(Date())
+        }catch (e: Exception){
+            Log.e(TAG, "Time exception : $e")
+            ""
+        }
+    }
     fun getTime(inTime: String): String{
         try {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -169,7 +213,7 @@ object UtilMethods {
     fun getDateInMS(inputDate: String?): Long? {
         var inputMilliseconds = 0L
         try {
-            val sdf = SimpleDateFormat("yyyy-MM-dd hh:mm:ss")
+            val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
             val date: Date = sdf.parse(inputDate)
             inputMilliseconds = date.time
         } catch (e: java.lang.Exception) {
@@ -213,35 +257,38 @@ object UtilMethods {
         }
         return outputTime.toUpperCase()
     }
-    fun getTimeDifferenceInMinute(fromTime: Long, toTime: Long, type: Int): Long {
+    fun getTimeDifferenceInMinute(fromTime: Long, toTime: Long): Long {
         var different = 0L
-        try {
-            if (type == 0) { // type 0 is fromTime is greater than toTime
-                if (fromTime > toTime!!) {
-                    different = fromTime.minus(toTime)
-                }
-            }else if (type == 1) { // type 1 is greater value of fromTime and toTime
-                if (fromTime > toTime!!) {
-                    different = fromTime.minus(toTime)
-                }else if (toTime!! > fromTime) {
-                    different = toTime?.minus(fromTime)
-                }
-            }else if (type == 2) { // type 2 is toTime is greater than fromTime
-                if (toTime!! > fromTime) {
-                    different = toTime?.minus(fromTime)
-                }
-            }
+        return try {
+            different = fromTime?.minus(toTime)
             val secondsInMilli: Long = 1000
             val minutesInMilli = secondsInMilli * 60
 
             val elapsedMinutes: Long = different / minutesInMilli
-            different %= elapsedMinutes
+            //different %= elapsedMinutes
             // TODO: Final value
-            different = elapsedMinutes
+            elapsedMinutes
         } catch (e: java.lang.Exception) {
             Log.e(TAG, "Get time exception : $e")
+            0L
         }
-        return different
+    }
+    fun getTimeDifferenceInSec(fromTime: Long, toTime: Long): Long {
+        var different = 0L
+        return try {
+            different = fromTime?.minus(toTime)
+            val secondsInMilli: Long = 1000
+            // TODO: Final value
+            val elapsedSec = different / secondsInMilli
+            return if (elapsedSec < 0){
+                elapsedSec
+            }else{
+                0L
+            }
+        } catch (e: java.lang.Exception) {
+            Log.e(TAG, "Get time exception : $e")
+            0L
+        }
     }
     fun isAutoTime(context: Context): Int{
         return android.provider.Settings.Global.getInt(context.contentResolver, android.provider.Settings.Global.AUTO_TIME, 0)

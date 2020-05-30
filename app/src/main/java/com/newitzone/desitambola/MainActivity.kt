@@ -14,12 +14,18 @@ import android.view.View
 import android.view.WindowManager
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import com.newitzone.desitambola.utils.SharedPrefManager
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import com.newitzone.desitambola.utils.Constants
+import com.newitzone.desitambola.utils.DesiTambolaPreferences
 import com.newitzone.desitambola.utils.UtilMethods
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import model.login.ResLogin
+import model.login.Result
+import model.tournament.ResTournament
 import retrofit.TambolaApiService
 import java.io.IOException
 import java.util.*
@@ -31,7 +37,7 @@ import java.util.*
 class MainActivity : AppCompatActivity() ,TextToSpeech.OnInitListener{
     private var tts: TextToSpeech? = null
     private var context: Context? = null
-    internal val DELAY_MS: Long = 3000  //delay in milliseconds before task is to be executed
+    private val DELAY_MS: Long = 3000  //delay in milliseconds before task is to be executed
     /**
      * Touch listener to use for in-layout UI controls to delay hiding the
      * system UI. This is to prevent the jarring behavior of controls going away
@@ -61,16 +67,12 @@ class MainActivity : AppCompatActivity() ,TextToSpeech.OnInitListener{
         startSound("sounds/desi_tambola.mp3")
         // handler
         Handler().postDelayed({
+            val context = this@MainActivity
             // Api
-            if (SharedPrefManager.getInstance(context as MainActivity).isLoggedIn){
-                loginApi(
-                    context as MainActivity
-                    , SharedPrefManager.getInstance(context as MainActivity).result.emailId
-                    , SharedPrefManager.getInstance(context as MainActivity).passKey.toString()
-                    , SharedPrefManager.getInstance(context as MainActivity).result.userType
-                    , SharedPrefManager.getInstance(context as MainActivity).result.loginSt
-                    , SharedPrefManager.getInstance(context as MainActivity).result.sid
-                    , SharedPrefManager.getInstance(context as MainActivity).result.id)
+            val mLogin = DesiTambolaPreferences.getLogin(context)  //getLoginJson().result[0]
+            val passKey = DesiTambolaPreferences.getPassKey(context)
+            if(mLogin.isLogin) {
+                loginApi(context, mLogin.emailId, passKey, mLogin.userType, mLogin.loginSt, mLogin.sid, mLogin.id)
             }else {
                 // TODO Auto-generated method stub
                 val intent = Intent(context, LoginActivity::class.java)
@@ -80,17 +82,7 @@ class MainActivity : AppCompatActivity() ,TextToSpeech.OnInitListener{
             }
         }, DELAY_MS)
     }
-
-    fun FullScreencall() {
-        if (Build.VERSION.SDK_INT >= 19) {
-            //for new api versions.
-            val decorView = window.decorView
-            val uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-            decorView.systemUiVisibility = uiOptions
-        }
-    }
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    @SuppressLint("CheckResult")
     private fun loginApi(
         context: Context, userID: String, passKey: String
         , userType: String, loginType: String, sesId: String, userId: String){
@@ -98,49 +90,26 @@ class MainActivity : AppCompatActivity() ,TextToSpeech.OnInitListener{
             UtilMethods.showLoading(context)
             val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
             CoroutineScope(Dispatchers.IO).launch {
-                val response = service.getlogin(userID, passKey, userType, loginType, sesId, userId)
+                val response = service.getlogin(userID, passKey, userType, loginType, sesId, userId,"")
                 withContext(Dispatchers.Main) {
                     try {
                         if (response.isSuccessful) {
                             if (response.body()?.status == 1) {
-                                // save the user details
-                                response.body()?.result?.get(0)?.let {
-                                    SharedPrefManager.getInstance(context).saveUser(it, passKey)
-                                }
-
-                                if (SharedPrefManager.getInstance(context).isLoggedIn) {
-                                    if (loginType == "1") {
-                                        val intent = Intent(context, HomeActivity::class.java)
-                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                                        intent.putExtra(HomeActivity.KEY_LOGIN,SharedPrefManager.getInstance(context).result)
-                                        startActivity(intent)
-                                        finish()
-                                    } else {
-                                        loginApi(
-                                            context
-                                            ,
-                                            SharedPrefManager.getInstance(context as MainActivity).result.emailId
-                                            ,
-                                            SharedPrefManager.getInstance(context as MainActivity).passKey.toString()
-                                            ,
-                                            SharedPrefManager.getInstance(context as MainActivity).result.userType
-                                            ,
-                                            "1"
-                                            ,
-                                            SharedPrefManager.getInstance(context as MainActivity).result.sid
-                                            ,
-                                            SharedPrefManager.getInstance(context as MainActivity).result.id
-                                        )
-                                    }
+                                if (loginType == LoginActivity.LOGIN_TYPE_LOG) {
+                                    // Save preferences
+                                    response.body()?.result?.get(0)!!.userType = userType
+                                    DesiTambolaPreferences.setLogin(context, response.body()?.result?.get(0))
+                                    // redirect to home screen
+                                    val intent = Intent(context, HomeActivity::class.java)
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                    intent.putExtra(HomeActivity.KEY_LOGIN, response.body()?.result?.get(0))
+                                    startActivity(intent)
+                                    finish()
                                 } else {
-                                    UtilMethods.ToastLong(
-                                        context,
-                                        "Your cannot login because your account is blocked"
-                                    )
+                                    loginApi(context,userID,passKey,userType,LoginActivity.LOGIN_TYPE_LOG, sesId, userId)
                                 }
                             } else {
-                                //UtilMethods.ToastLong(context,"${response.body()?.msg}")
-                                // TODO Auto-generated method stub
+                                // TODO: Goto Login screen
                                 val intent = Intent(context, LoginActivity::class.java)
                                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                                 startActivity(intent)
@@ -163,7 +132,6 @@ class MainActivity : AppCompatActivity() ,TextToSpeech.OnInitListener{
             UtilMethods.ToastLong(context,"No Internet Connection")
         }
     }
-
     private fun startSound(filename: String) {
         var afd: AssetFileDescriptor? = null
         try {
@@ -210,6 +178,15 @@ class MainActivity : AppCompatActivity() ,TextToSpeech.OnInitListener{
         tts!!.speak(text, TextToSpeech.QUEUE_FLUSH, null,"")
     }
 
+    // TODO: Tournament Start Json by local
+    private fun getLoginJson(): ResLogin {
+        val jsonFileString = context?.let { Constants.getJsonDataFromAsset(it, "login.json") }
+        Log.i("data", jsonFileString)
+
+        val gson = Gson()
+        val resLogin = object : TypeToken<ResLogin>() {}.type
+        return gson.fromJson(jsonFileString, resLogin)
+    }
     override fun onStop() {
         // Shutdown TTS
         if (tts != null) {

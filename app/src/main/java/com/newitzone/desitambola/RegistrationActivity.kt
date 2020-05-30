@@ -138,20 +138,20 @@ class RegistrationActivity : AppCompatActivity() {
             // this block is only called if form is valid.
             // do something with a valid form state.
             val context = this@RegistrationActivity
-            registerApi(context,fName,lName,email,mobile,password,dob,userType.toString(),img)
+            registerApi(context,fName,lName,email,mobile,password,dob,userType.toString(),img,img)
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     @SuppressLint("CheckResult")
     private fun registerApi(context: Context,fname: String,lname: String
-                         ,emailID: String,mobileNo: String,passkey: String,dob: String,userType: String,img: String){
+                         ,emailID: String,mobileNo: String,passkey: String,dob: String,userType: String,img: String,fbImg: String){
         if (UtilMethods.isConnectedToInternet(context)) {
             UtilMethods.showLoading(context)
             val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
             CoroutineScope(Dispatchers.IO).launch {
                 try{
-                    val response = service.registration(fname, lname, emailID, mobileNo, passkey, dob,userType,img)
+                    val response = service.registration(fname, lname, emailID, mobileNo, passkey, dob,userType,img,fbImg)
                     withContext(Dispatchers.Main) {
                         try {
                             if (response.isSuccessful) {

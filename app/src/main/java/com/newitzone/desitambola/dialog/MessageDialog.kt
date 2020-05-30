@@ -20,14 +20,13 @@ class MessageDialog(context: Context, title: String, body: String) : Dialog(cont
     private val mBody = body
 
     init {
-        setCancelable(false)
+        setCancelable(true)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(R.layout.dialog_message)
-
         tVTitle = findViewById<TextView>(R.id.text_title)
         tVBody = findViewById<TextView>(R.id.text_body)
         tVOk = findViewById<TextView>(R.id.text_ok)

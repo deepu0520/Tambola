@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "432838622574",
+    "firebase_url": "https://desitambola-8668b.firebaseio.com",
+    "project_id": "desitambola-8668b",
+    "storage_bucket": "desitambola-8668b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:432838622574:android:f182fe9d27f48bf76f957f",
+        "android_client_info": {
+          "package_name": "com.newitzone.desitambola"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "432838622574-einu6r195c3p77mrilnpvss1c00mo1m6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBqd_yAY8gbHh6UHSB1xowNjF8actemiAg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "432838622574-einu6r195c3p77mrilnpvss1c00mo1m6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

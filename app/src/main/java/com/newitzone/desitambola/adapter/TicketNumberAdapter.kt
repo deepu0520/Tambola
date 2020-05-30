@@ -44,8 +44,10 @@ class TicketNumberAdapter(val items : List<NumModel>, val context: Context) : Re
         holder.rL.setOnClickListener {
             val numModel = it.tag as NumModel
             if (numModel != null && numModel.num != 0){
-                items[position].isChecked = !numModel.isChecked
-                notifyDataSetChanged()
+                if(!items[position].isTick) {
+                    items[position].isChecked = !numModel.isChecked
+                    notifyDataSetChanged()
+                }
             }
         }
     }

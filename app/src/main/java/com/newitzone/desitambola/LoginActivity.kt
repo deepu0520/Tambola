@@ -1,6 +1,5 @@
 package com.newitzone.desitambola
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -23,24 +22,27 @@ import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
 import com.facebook.login.widget.LoginButton
 import com.google.android.material.textfield.TextInputLayout
+import com.newitzone.desitambola.dialog.MessageDialog
+import com.newitzone.desitambola.utils.DesiTambolaPreferences
 import com.newitzone.desitambola.utils.KCustomToast
-import com.newitzone.desitambola.utils.SharedPrefManager
 import com.newitzone.desitambola.utils.UtilMethods
+import database.DatabaseClient
+import database.User
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import model.login.Result
 import org.json.JSONObject
 import retrofit.TambolaApiService
+import java.io.File
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 
 
 class LoginActivity : AppCompatActivity() {
     private var context: Context? = null
-    private var userType: Int = 0
-    private var loginType: Int = 0;
     private var sesId: String = "";
     private var userId: String = "";
     private lateinit var callbackManager: CallbackManager
@@ -73,6 +75,8 @@ class LoginActivity : AppCompatActivity() {
         // status bar is hidden, so hide that too if necessary.
         actionBar?.hide()
         // facebook
+        FacebookSdk.sdkInitialize(applicationContext);
+        disconnectFromFacebook()
         btnFacebookLogin.setReadPermissions(listOf(EMAIL));
         btnFacebookLogin.setOnClickListener {
             onFacebookLogin()
@@ -143,7 +147,7 @@ class LoginActivity : AppCompatActivity() {
                 if (email.isNotEmpty()) {
                     //TODO: Login Request
                     val  context = this@LoginActivity
-                    loginApi(context, email,"","1", "0", sesId, userId , name, birthday, picture)
+                    loginApi(context, email,"",USER_TYPE_FACEBOOK, LOGIN_TYPE_INFO, sesId, userId , name, birthday, "", picture)
                 } else {
                     Toast.makeText(context,"Email id not found in your facebook account",Toast.LENGTH_LONG).show()
                 }
@@ -185,10 +189,11 @@ class LoginActivity : AppCompatActivity() {
                 context,
                 email,
                 password,
-                userType.toString(),
-                loginType.toString(),
+                USER_TYPE_NORMAL,
+                LOGIN_TYPE_INFO,
                 sesId,
                 userId,
+                "",
                 "",
                 "",
                 ""
@@ -197,67 +202,65 @@ class LoginActivity : AppCompatActivity() {
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    @SuppressLint("CheckResult")
     private fun loginApi(context: Context,userID: String,passKey: String
-                         ,userType: String,loginType: String,sesId: String, userId: String, name: String, birthday: String, imgUrl: String){
+                         ,userType: String,loginType: String,sesId: String, userId: String, name: String, birthday: String, img: String, fbImg: String){
         if (UtilMethods.isConnectedToInternet(context)) {
             UtilMethods.showLoading(context)
             val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
             CoroutineScope(Dispatchers.IO).launch {
                 try {
-                    val response = service.getlogin(userID, passKey, userType, loginType, sesId, userId)
+                    val response = service.getlogin(userID, passKey, userType, loginType, sesId, userId, fbImg)
                     withContext(Dispatchers.Main) {
                         try {
                             if (response.isSuccessful) {
-
                                 if (response.body()?.status == 1) {
 
-                                    // save the user details
-                                    response.body()?.result?.get(0)?.userType = userType
-                                    response.body()?.result?.get(0)?.let {
-                                        SharedPrefManager.getInstance(context).saveUser(it, passKey)
-                                    }
-
-                                    if (SharedPrefManager.getInstance(context).isLoggedIn) {
-
-                                        if (loginType == "1") {
+                                    if (loginType == LOGIN_TYPE_LOG) {
+                                        response.body()?.result?.get(0)!!.userType = userType
+                                        // Save preferences
+                                        DesiTambolaPreferences.setLogin(context, response.body()?.result?.get(0))
+                                        DesiTambolaPreferences.setPassKey(context, passKey)
+                                        // Login status check
+                                        if(DesiTambolaPreferences.getLogin(context).isLogin) {
+                                            // hide progress dialog
                                             UtilMethods.hideLoading()
+                                            // go to home screen
                                             val intent = Intent(context, HomeActivity::class.java)
                                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                                            intent.putExtra(HomeActivity.KEY_LOGIN, SharedPrefManager.getInstance(context).result)
+                                            intent.putExtra(HomeActivity.KEY_LOGIN,response.body()?.result?.get(0))
                                             startActivity(intent)
                                             finish()
-                                        } else {
-                                            UtilMethods.hideLoading()
-                                            loginApi(
-                                                context,
-                                                SharedPrefManager.getInstance(context).result.emailId,
-                                                SharedPrefManager.getInstance(context).passKey.toString(),
-                                                SharedPrefManager.getInstance(context).result.userType,
-                                                "1",
-                                                SharedPrefManager.getInstance(context).result.sid,
-                                                SharedPrefManager.getInstance(context).result.id,
-                                                "",
-                                                "",
-                                                ""
-                                            )
                                         }
                                     } else {
-                                        UtilMethods.ToastLong(context,"Your cannot login because your account is blocked")
+                                        UtilMethods.hideLoading()
+                                        loginApi(
+                                            context,
+                                            userID,
+                                            passKey,
+                                            userType,
+                                            LOGIN_TYPE_LOG,
+                                            response.body()?.result?.get(0)!!.sid,
+                                            response.body()?.result?.get(0)!!.id,
+                                            name,
+                                            birthday,
+                                            img,
+                                            fbImg
+                                        )
                                     }
                                 }else if (response.body()?.status == 0) {
-                                    if (userType == "1") {
+                                    if (userType == USER_TYPE_FACEBOOK) {
                                         UtilMethods.hideLoading()
-                                        registerApi(context,name, "", userID, "", "", birthday, userType, "")
+                                        registerApi(context,name, "", userID, "", "", birthday, userType, img, fbImg)
                                     }else{
-                                        KCustomToast.toastWithFont(context as Activity, ""+response.body()?.msg)
+                                        MessageDialog(context as Activity, "",""+response.body()?.msg).show()
                                     }
                                 }
                             } else {
                                 UtilMethods.ToastLong(context, "Error: ${response.code()}" + "\nMsg:${response.body()?.msg}")
                             }
                         } catch (e: Exception) {
-                            UtilMethods.ToastLong(context, "Exception ${e.message}")
+                            Log.e(TAG, "Exception: ${e.message}")
+                            UtilMethods.ToastLong(context, "Exception: ${e.message}")
                         }
                         UtilMethods.hideLoading()
                     }
@@ -275,13 +278,13 @@ class LoginActivity : AppCompatActivity() {
     }
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun registerApi(context: Context, fname: String, lname: String
-                            , emailID: String, mobileNo: String, passkey: String, dob: String, userType: String, img: String){
+                            , emailID: String, mobileNo: String, passkey: String, dob: String, userType: String, img: String, fbImg: String){
         if (UtilMethods.isConnectedToInternet(context)) {
             UtilMethods.showLoading(context)
             val service = TambolaApiService.RetrofitFactory.makeRetrofitService()
             CoroutineScope(Dispatchers.IO).launch {
                 try{
-                    val response = service.registration(fname, lname, emailID, mobileNo, passkey, dob,userType,img)
+                    val response = service.registration(fname, lname, emailID, mobileNo, passkey, dob, userType,img, fbImg)
                     withContext(Dispatchers.Main) {
                         try {
                             if (response.isSuccessful) {
@@ -301,9 +304,10 @@ class LoginActivity : AppCompatActivity() {
                                         "0",
                                         "",
                                         "",
-                                        "",
-                                        "",
-                                        ""
+                                        "$fname $lname",
+                                        dob,
+                                        img,
+                                        fbImg
                                     )
                                 } else {
                                     UtilMethods.ToastLong(context,"${response.body()?.msg}")
@@ -331,6 +335,16 @@ class LoginActivity : AppCompatActivity() {
             UtilMethods.ToastLong(context,"No Internet Connection")
         }
     }
+    private fun disconnectFromFacebook() {
+        if (AccessToken.getCurrentAccessToken() == null) {
+            return  // already logged out
+        }
+        GraphRequest(
+            AccessToken.getCurrentAccessToken(),"/me/permissions/",null,HttpMethod.DELETE,
+            GraphRequest.Callback {
+                LoginManager.getInstance().logOut()
+            }).executeAsync()
+    }
 
     private fun printHashKey(pContext: Context) {
         try {
@@ -349,5 +363,89 @@ class LoginActivity : AppCompatActivity() {
     }
     companion object{
         const val TAG = "LoginActivity"
+        const val LOGIN_TYPE_INFO = "0"
+        const val LOGIN_TYPE_LOG = "1"
+        const val USER_TYPE_NORMAL = "0"
+        const val USER_TYPE_FACEBOOK = "1"
+        const val DATABASE_NAME = "DesiTambola"
+        fun databaseExist(context: Context,dbName: String): Boolean {
+            val dbFile: File = context.getDatabasePath(dbName)
+            return dbFile.exists()
+        }
+        fun userSaveIntoDb(context: Context, login: Result, passKey: String){
+            val user = User()
+            user.userId = login.id
+            user.inactive = login.inactive.toInt()
+            user.fname = login.fname
+            user.lname = login.lname
+            user.dob = login.dob
+            user.emailId = login.emailId
+            user.code = login.code
+            user.mobileNo = login.mobileNo
+            user.userType = login.userType.toInt()
+            user.img = login.img
+            user.fbImg = login.fbImg
+            user.enTime = login.enTime
+            user.acBal = login.acBal.toDouble()
+            user.acChipsBal = login.acBal.toDouble()
+            user.onlineUser = login.onlineUser.toInt()
+            user.loginSt = login.loginSt.toInt()
+            user.sid = login.sid
+            user.passKey = passKey
+            ///adding to database
+            DatabaseClient.getInstance(context).appDatabase.userDao().insert(user)
+        }
+        fun getUserInfo(context: Context, userId: String) : User{
+            var user = User()
+            if (DatabaseClient.getInstance(context).appDatabase != null) {
+                return DatabaseClient.getInstance(context).appDatabase.userDao().getUser(userId)
+            }
+            return user
+        }
+        fun updateUser(context: Context, user: User){
+            DatabaseClient.getInstance(context).appDatabase.userDao().update(user)
+        }
+        fun updateLogin(user: User) : Result{
+            return Result(user.userId,
+                    user.inactive.toString(),
+                    user.fname,
+                    user.lname,
+                    if (user.dob == null) "" else user.dob,
+                    user.emailId,
+                    user.code,
+                    user.mobileNo,
+                    user.userType.toString(),
+                    user.img,
+                    if (user.fbImg == null) "" else user.fbImg,
+                    user.enTime,
+                    user.acBal.toString(),
+                    user.acChipsBal.toString(),
+                    user.loginSt.toString(),
+                    user.onlineUser.toString(),
+                    user.sid
+            )
+        }
+        fun updateLoginViceVersa(login: Result) : User{
+            val user = User()
+            user.userId = login.id
+            user.inactive = login.inactive.toInt()
+            user.fname = login.fname
+            user.lname = login.lname
+            user.dob = login.dob
+            user.emailId = login.emailId
+            user.code = login.code
+            user.mobileNo = login.mobileNo
+            user.userType = login.userType.toInt()
+            user.img = login.img
+            user.fbImg = login.fbImg
+            user.enTime = login.enTime
+            user.acBal = login.acBal.toDouble()
+            user.acChipsBal = login.acChipsBal.toDouble()
+            user.loginSt = login.loginSt.toInt()
+            user.onlineUser = login.onlineUser.toInt()
+            user.sid = login.sid
+
+            return user
+        }
     }
 }
