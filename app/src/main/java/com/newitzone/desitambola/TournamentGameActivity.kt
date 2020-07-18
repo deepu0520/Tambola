@@ -155,7 +155,7 @@ class TournamentGameActivity : AppCompatActivity() {
                 if (reqOpen == 1) {
                     // TODO: if request is open
                     if (userReqTickets <= 0) {
-                        if (login.acBal.toDouble() >= amt.toDouble()) {
+                        if (login.acBal.toDouble() >= keyModel.amount.toDouble()) {
                             // TODO: Join the tournament
                             // TODO: Call Ticket Activity
                             val intent = Intent(context, TicketActivity::class.java)

@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.newitzone.desitambola.R
 import com.newitzone.desitambola.utils.UtilMethods
@@ -29,10 +30,18 @@ class TournamentAdapter(val items : List<Tournament>, private val date: String, 
     }
 
     // Binds each animal in the ArrayList to a view
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onBindViewHolder(holder: ViewHolderTournament, position: Int) {
-        holder?.tvTourName?.text = items[position].name
+        if(items[position].amount.toDouble() == 0.0){
+            holder?.constraintLayout?.background = context.getDrawable(R.drawable.round_corner_1)
+            holder?.tvTourName?.text = "Free Tournament"
+            holder?.tvEntryFee?.text = "FREE"
+        }else{
+            holder?.constraintLayout?.background = context.getDrawable(R.drawable.round_corner)
+            holder?.tvTourName?.text = items[position].name
+            holder?.tvEntryFee?.text = "₹" + items[position].amount + "/-"
+        }
         holder?.tvTourPrizeAmt?.text =  "Total Tickets : " + items[position].totalRequestedTicket
-        holder?.tvEntryFee?.text = "₹" + items[position].amount + "/-"
         holder?.tvStartTime?.text = UtilMethods.getTimeAMPM(date+" "+items[position].startTime) + " " + day.toUpperCase()
         holder?.tvStatus?.text = context.getText(R.string.txt_fast_filling)
         if (items[position].requestOpen == "1") {
@@ -150,6 +159,7 @@ class TournamentAdapter(val items : List<Tournament>, private val date: String, 
 
 class ViewHolderTournament (view: View) : RecyclerView.ViewHolder(view) {
     // Holds the TextView that will add each animal to
+    val constraintLayout: ConstraintLayout = view.constraint_layout
     val tvTourName: TextView = view.text_tour_name
     val tvTourPrizeAmt: TextView = view.text_tournament_prize_amt
     val tvEntryFee: TextView = view.text_entry_fee

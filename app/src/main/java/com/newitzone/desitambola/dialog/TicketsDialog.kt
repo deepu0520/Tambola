@@ -69,15 +69,24 @@ class TicketsDialog : DialogFragment() {
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     @OnClick(R.id.image_ticket_1)
     fun onTicket1(view: View?) {
-        val reqTicket = 1
-        callApi(reqTicket)
+        if(login.acBal.toFloat() >= keyModel.amount) {
+            val reqTicket = 1
+            callApi(reqTicket)
+        } else {
+            context?.let { MessageDialog(it,"Low balance", "Insufficient balance in your account to play the game with 1 ticket").show() }
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     @OnClick(R.id.image_ticket_2)
     fun onTicket2(view: View?) {
-        val reqTicket = 2
-        callApi(reqTicket)
+        val gameAmt = (keyModel.amount * 2)
+        if(login.acBal.toFloat() >= gameAmt) {
+            val reqTicket = 2
+            callApi(reqTicket)
+        } else {
+            context?.let { MessageDialog(it,"Low balance", "Insufficient balance in your account to play the game with 2 tickets").show() }
+        }
     }
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun callApi(req_ticket: Int){
@@ -122,33 +131,14 @@ class TicketsDialog : DialogFragment() {
                         if (response.isSuccessful) {
                             if (response.body()?.status == 1) {
                                 //UtilMethods.ToastLong(context, "${response.body()?.msg}")
-                                if (keyModel.gameType == PlayActivity.TOURNAMENT_GAME){
-
-                                    UtilMethods.ToastLong(context, "You are successfully join for the Tournament game with ticket $req_ticket")
-                                    //MessageDialog(context,"","You are successfully join for the Tournament game with ticket $req_ticket").show()
-
-                                    val intent = Intent(context, TournamentGameActivity::class.java)
-                                    intent.putExtra(HomeActivity.KEY_LOGIN, login)
-                                    intent.putExtra(HomeActivity.KEY_MODEL, keyModel)
-                                    activity!!.setResult(TournamentGameActivity.REQ_CODE, intent)
-//                                    //TODO: Call Ticket Dialog
-//                                    val dialogT = TournamentGamesDialog()
-//                                    val ft: FragmentTransaction = activity!!.supportFragmentManager.beginTransaction()
-//                                    val args = Bundle()
-//                                    args?.putSerializable(HomeActivity.KEY_LOGIN, login)
-//                                    args?.putSerializable(HomeActivity.KEY_MODEL, keyModel)
-//                                    dialogT.arguments = args
-//                                    dialogT.show(ft, TicketsDialog.TAG)
-                                    // TODO: Current dialog dismiss
-                                    dialog?.dismiss()
-                                }else {
+                                if (keyModel.gameType != PlayActivity.TOURNAMENT_GAME){
                                     keyModel.gameRequestId = response.body()?.result?.get(0)!!.requestID
                                     // redirect to loading screen by intent
                                     val intent = Intent(activity, LoadingActivity::class.java)
                                     intent.putExtra(HomeActivity.KEY_LOGIN, login)
                                     intent.putExtra(HomeActivity.KEY_MODEL, keyModel)
                                     intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                                    activity!!.startActivity(intent)
+                                    requireActivity().startActivity(intent)
                                     // TODO: Current dialog dismiss
                                     dialog?.dismiss()
                                 }

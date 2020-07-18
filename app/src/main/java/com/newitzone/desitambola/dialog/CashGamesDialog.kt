@@ -62,13 +62,18 @@ class CashGamesDialog : DialogFragment() {
                 val amt = menuList[position]
                 // set amount
                 keyModel.amount = amt.toFloat()
-                val dialog = TicketsDialog()
-                val ft: FragmentTransaction = activity!!.supportFragmentManager.beginTransaction()
-                val args = Bundle()
-                args?.putSerializable(HomeActivity.KEY_LOGIN, login)
-                args?.putSerializable(HomeActivity.KEY_MODEL, keyModel)
-                dialog.arguments = args
-                dialog.show(ft, TicketsDialog.TAG)
+                if(login.acBal.toFloat() >= keyModel.amount) {
+
+                    val dialog = TicketsDialog()
+                    val ft: FragmentTransaction = activity!!.supportFragmentManager.beginTransaction()
+                    val args = Bundle()
+                    args?.putSerializable(HomeActivity.KEY_LOGIN, login)
+                    args?.putSerializable(HomeActivity.KEY_MODEL, keyModel)
+                    dialog.arguments = args
+                    dialog.show(ft, TicketsDialog.TAG)
+                } else {
+                    MessageDialog(context,"Low balance", "Insufficient balance in your account to play the game").show()
+                }
             }
             override fun onItemLongClick(view: View?, position: Int) {
                 TODO("do nothing")

@@ -6,6 +6,16 @@
     <string name="title_activity_home">HomeActivity</string>
     <string name="profile_name">Rakesh Sharma</string>
     <string name="level">Level 1</string>
+    <string name="app_desc">A sample app to test the in-app updates provided by the Play Core Library.</string>
+    <string name="app_version_heading">Current App Version</string>
+    <string name="check_for_update">Check For Update</string>
+    <string name="update_available">Update available</string>
+    <string name="update_not_available">No update available</string>
+    <string name="restart_to_update">Update download. Tap to restart</string>
+    <string name="action_restart">Restart</string>
+    <string name="user_approval">User approved for the update app</string>
+    <string name="user_cancel">User cancelled for update app</string>
+    <string name="app_update_failed">App update failed</string>
 
 
     <string name="txt_loading">Loading...</string>

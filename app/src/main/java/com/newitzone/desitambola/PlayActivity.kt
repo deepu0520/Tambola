@@ -752,22 +752,22 @@ class PlayActivity : AppCompatActivity(){
     private fun getClaimValueByPrize(claimType: Int) : String{
         when (claimType) {
             TOP_LINE -> {
-                return keyGameInResponse.result.gameValue[0].topLine.toString()
+                return if(keyGameInResponse.result.gameValue.isNotEmpty()) keyGameInResponse.result.gameValue[0].topLine.toString() else "0"
             }
             BOTTOM_LINE -> {
-                return keyGameInResponse.result.gameValue[0].botLine.toString()
+                return if(keyGameInResponse.result.gameValue.isNotEmpty()) keyGameInResponse.result.gameValue[0].botLine.toString() else "0"
             }
             MIDDLE_LINE -> {
-                return keyGameInResponse.result.gameValue[0].midLine.toString()
+                return if(keyGameInResponse.result.gameValue.isNotEmpty()) keyGameInResponse.result.gameValue[0].midLine.toString() else "0"
             }
             FOUR_CORNER -> {
-                return keyGameInResponse.result.gameValue[0].fourCor.toString()
+                return if(keyGameInResponse.result.gameValue.isNotEmpty()) keyGameInResponse.result.gameValue[0].fourCor.toString() else "0"
             }
             EARLY_FIVE -> {
-                return keyGameInResponse.result.gameValue[0].earlyFive.toString()
+                return if(keyGameInResponse.result.gameValue.isNotEmpty()) keyGameInResponse.result.gameValue[0].earlyFive.toString() else "0"
             }
             FULL_HOUSE -> {
-                return keyGameInResponse.result.gameValue[0].fullHouse.toString()
+                return if(keyGameInResponse.result.gameValue.isNotEmpty()) keyGameInResponse.result.gameValue[0].fullHouse.toString() else "0"
             }
             else -> return "0.0"
         }

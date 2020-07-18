@@ -1,6 +1,7 @@
 package com.newitzone.desitambola
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.res.AssetFileDescriptor
@@ -14,11 +15,22 @@ import android.view.View
 import android.view.WindowManager
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.snackbar.Snackbar
+import com.google.android.play.core.appupdate.AppUpdateInfo
+import com.google.android.play.core.appupdate.AppUpdateManager
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory
+import com.google.android.play.core.install.InstallState
+import com.google.android.play.core.install.InstallStateUpdatedListener
+import com.google.android.play.core.install.model.ActivityResult
+import com.google.android.play.core.install.model.AppUpdateType
+import com.google.android.play.core.install.model.InstallStatus
+import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.newitzone.desitambola.utils.Constants
 import com.newitzone.desitambola.utils.DesiTambolaPreferences
 import com.newitzone.desitambola.utils.UtilMethods
+import kotlinx.android.synthetic.main.layout_loading_dialog.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -34,7 +46,9 @@ import java.util.*
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-class MainActivity : AppCompatActivity() ,TextToSpeech.OnInitListener{
+class MainActivity : AppCompatActivity(), InstallStateUpdatedListener,TextToSpeech.OnInitListener{
+    private lateinit var appUpdateManager: AppUpdateManager
+
     private var tts: TextToSpeech? = null
     private var context: Context? = null
     private val DELAY_MS: Long = 3000  //delay in milliseconds before task is to be executed
@@ -65,22 +79,42 @@ class MainActivity : AppCompatActivity() ,TextToSpeech.OnInitListener{
 
         //tts = TextToSpeech(this, this)
         startSound("sounds/desi_tambola.mp3")
-        // handler
-        Handler().postDelayed({
-            val context = this@MainActivity
-            // Api
-            val mLogin = DesiTambolaPreferences.getLogin(context)  //getLoginJson().result[0]
-            val passKey = DesiTambolaPreferences.getPassKey(context)
-            if(mLogin.isLogin) {
-                loginApi(context, mLogin.emailId, passKey, mLogin.userType, mLogin.loginSt, mLogin.sid, mLogin.id)
+
+        // In-App Update
+        // Creates instance of the manager.
+        appUpdateManager = AppUpdateManagerFactory.create(context)
+
+        // Returns an intent object that you use to check for an update.
+        val appUpdateInfoTask = appUpdateManager.appUpdateInfo
+
+        // Checks that the platform will allow the specified type of update.
+        appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
+            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
+                // For a flexible update, use AppUpdateType.FLEXIBLE
+                && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)
+            ) {
+                // Request the update.
+                requestUpdate(appUpdateInfo)
             }else {
-                // TODO Auto-generated method stub
-                val intent = Intent(context, LoginActivity::class.java)
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                startActivity(intent)
-                finish()
+                // call the Method
+                // handler
+                Handler().postDelayed({
+                    val context = this@MainActivity
+                    // Api
+                    val mLogin = DesiTambolaPreferences.getLogin(context)  //getLoginJson().result[0]
+                    val passKey = DesiTambolaPreferences.getPassKey(context)
+                    if(mLogin.isLogin) {
+                        loginApi(context, mLogin.emailId, passKey, mLogin.userType, mLogin.loginSt, mLogin.sid, mLogin.id)
+                    }else {
+                        // TODO Auto-generated method stub
+                        val intent = Intent(context, LoginActivity::class.java)
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                        startActivity(intent)
+                        finish()
+                    }
+                }, DELAY_MS)
             }
-        }, DELAY_MS)
+        }
     }
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun loginApi(
@@ -173,6 +207,68 @@ class MainActivity : AppCompatActivity() ,TextToSpeech.OnInitListener{
 
     }
 
+    private fun requestUpdate(appUpdateInfo: AppUpdateInfo?) {
+        appUpdateManager.startUpdateFlowForResult(
+            appUpdateInfo,
+            AppUpdateType.IMMEDIATE, //  HERE specify the type of update flow you want
+            this,   //  the instance of an activity
+            REQUEST_CODE_IMMEDIATE_UPDATE
+        )
+    }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_CODE_IMMEDIATE_UPDATE) {
+            when (resultCode) {
+                Activity.RESULT_OK -> {
+                    //  handle user's approval
+                    Snackbar.make(txt_message, R.string.user_approval, Snackbar.LENGTH_LONG).show()
+                }
+                Activity.RESULT_CANCELED -> {
+                    //  handle user's rejection
+                    Snackbar.make(txt_message, R.string.user_cancel, Snackbar.LENGTH_LONG).show()
+                }
+                ActivityResult.RESULT_IN_APP_UPDATE_FAILED -> {
+                    //  handle update failure
+                    Snackbar.make(txt_message, R.string.app_update_failed, Snackbar.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+    override fun onResume() {
+        super.onResume()
+        appUpdateManager.appUpdateInfo.addOnSuccessListener {
+            if (it.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) {
+                requestUpdate(it)
+            }
+        }
+    }
+    override fun onDestroy() {
+        // Shutdown TTS
+        if (tts != null) {
+            tts!!.stop()
+            tts!!.shutdown()
+        }
+        super.onDestroy()
+        appUpdateManager.unregisterListener(this)
+    }
+    override fun onStateUpdate(state: InstallState?) {
+        //TODO: ("Not yet implemented")
+        if (state != null) {
+            if (state.installStatus() == InstallStatus.DOWNLOADED) {
+                notifyUser()
+            }
+        }
+    }
+    private fun notifyUser() {
+        Snackbar.make(txt_message, R.string.restart_to_update, Snackbar.LENGTH_INDEFINITE)
+            .setAction(R.string.action_restart) {
+                appUpdateManager.completeUpdate()
+                appUpdateManager.unregisterListener(this)
+            }
+            .show()
+    }
+
+
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun speakOut(text: String) {
         tts!!.speak(text, TextToSpeech.QUEUE_FLUSH, null,"")
@@ -195,13 +291,10 @@ class MainActivity : AppCompatActivity() ,TextToSpeech.OnInitListener{
         }
         super.onStop()
     }
-    public override fun onDestroy() {
-        // Shutdown TTS
-        if (tts != null) {
-            tts!!.stop()
-            tts!!.shutdown()
-        }
-        super.onDestroy()
+
+
+    companion object {
+        private const val REQUEST_CODE_IMMEDIATE_UPDATE = 9999
     }
 
 }

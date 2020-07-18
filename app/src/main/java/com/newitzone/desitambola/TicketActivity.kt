@@ -82,8 +82,13 @@ class TicketActivity : AppCompatActivity() {
     @OnClick(R.id.image_ticket_1)
     fun onTicket1(view: View?) {
         if (login != null && keyModel != null) {
-            val reqTicket = 1
-            callApi(reqTicket)
+            if (login.acBal.toDouble() >= keyModel.amount.toDouble()) {
+                val reqTicket = 1
+                callApi(reqTicket)
+            }else{
+                val context = this@TicketActivity
+                MessageDialog(context,"Low balance", "Insufficient balance in your account to join Tournament game with 1 Ticket").show()
+            }
         }
     }
 
@@ -91,8 +96,14 @@ class TicketActivity : AppCompatActivity() {
     @OnClick(R.id.image_ticket_2)
     fun onTicket2(view: View?) {
         if (login != null && keyModel != null) {
-            val reqTicket = 2
-            callApi(reqTicket)
+            val gameAmt = (keyModel.amount * 2)
+            if (login.acBal.toDouble() >= gameAmt.toDouble()) {
+                val reqTicket = 2
+                callApi(reqTicket)
+            }else{
+                val context = this@TicketActivity
+                MessageDialog(context,"Low balance", "Insufficient balance in your account to join Tournament game with 2 Tickets").show()
+            }
         }
     }
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)

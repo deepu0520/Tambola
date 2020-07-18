@@ -56,6 +56,7 @@ class HomeActivity : AppCompatActivity() {
     // text view
     @BindView(R.id.text_cash_balance) lateinit var tvCash: TextView
     @BindView(R.id.text_chips_balance) lateinit var tvChips: TextView
+    @BindView(R.id.text_add_cash) lateinit var tvAddCash: TextView
     @BindView(R.id.text_profile_name) lateinit var tvProfileName: TextView
     @BindView(R.id.text_online_count) lateinit var tvOnlineCount: TextView
     @BindView(R.id.text_app_version) lateinit var tvAppVersion: TextView
@@ -107,7 +108,7 @@ class HomeActivity : AppCompatActivity() {
             onMenu(view)
         }
         // TODO: Add Cash
-        tvCash.setOnClickListener { view ->
+        tvAddCash.setOnClickListener { view ->
             onCashAvailAmt(view)
         }
         // TODO: Add Chips
