@@ -14,8 +14,8 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import butterknife.BindView
 import butterknife.ButterKnife
-import com.github.anastr.flattimelib.CountDownTimerView
-import com.github.anastr.flattimelib.intf.OnTimeFinish
+/*import com.github.anastr.flattimelib.CountDownTimerView
+import com.github.anastr.flattimelib.intf.OnTimeFinish*/
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.newitzone.desitambola.utils.Constants
@@ -42,7 +42,7 @@ class LoadingTournamentGameActivity : AppCompatActivity() {
     private lateinit var countDownTimer:CountDownTimer
     @BindView(R.id.text_message) lateinit var tvMsg: TextView
     @BindView(R.id.text_timer) lateinit var tvTimer: TextView
-    @BindView(R.id.countDown_TimerView) lateinit var mCountDownTimer: CountDownTimerView
+   // @BindView(R.id.countDown_TimerView) lateinit var mCountDownTimer: CountDownTimerView
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,7 +83,7 @@ class LoadingTournamentGameActivity : AppCompatActivity() {
         val countDownInterval: Long = 1000
 
         countDownTimer = timer(minute,countDownInterval).start()
-        countDown(minute)
+       // countDown(minute)
         //tvMsg.text = "Loading..."
     }
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -135,7 +135,7 @@ class LoadingTournamentGameActivity : AppCompatActivity() {
         }
     }
 
-    private fun countDown(timer: Long){
+    /*private fun countDown(timer: Long){
         // to start CountDownTimer "time in millisecond"
 
         // to start CountDownTimer "time in millisecond"
@@ -151,7 +151,7 @@ class LoadingTournamentGameActivity : AppCompatActivity() {
         mCountDownTimer.setOnEndAnimationFinish(OnTimeFinish {
             // ---
         })
-    }
+    }*/
     // Method to configure and return an instance of CountDownTimer object
     private fun timer(millisInFuture:Long,countDownInterval:Long): CountDownTimer{
         return object: CountDownTimer(millisInFuture,countDownInterval){
@@ -200,7 +200,7 @@ class LoadingTournamentGameActivity : AppCompatActivity() {
     // TODO: Tournament Start Json by local
     private fun getTournamentStartJson(): ResTournamentStart{
         val jsonFileString = Constants.getJsonDataFromAsset(applicationContext, "tournamentStart.json")
-        Log.i("data", jsonFileString)
+      //  Log.i("data", jsonFileString)
 
         val gson = Gson()
         val tournamentStart = object : TypeToken<ResTournamentStart>() {}.type

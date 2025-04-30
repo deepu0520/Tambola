@@ -15,9 +15,9 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import com.google.android.material.textfield.TextInputLayout
 import com.google.gson.internal.LinkedTreeMap
+import com.newitzone.desitambola.databinding.ActivityAddCashBinding
 import com.newitzone.desitambola.dialog.MessageDialog
 import com.newitzone.desitambola.utils.*
-import kotlinx.android.synthetic.main.activity_add_cash.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -33,7 +33,23 @@ class AddCashActivity : AppCompatActivity() {
     private lateinit var login: Result
     private lateinit var paytm: Paytm
     private lateinit var orderId: String
-    @BindView(R.id.text_rs_100) lateinit var txtRS100: TextView
+    private lateinit var binding: ActivityAddCashBinding
+    private lateinit var txtRS100: TextView
+    private lateinit var txtRS200: TextView
+    private lateinit var txtRS500: TextView
+    private lateinit var txtViewOffers: TextView
+    private lateinit var txtAvlBalance: TextView
+    private lateinit var txtAddCash: TextView
+    private lateinit var txtWithdrawalCash: TextView
+    private lateinit var inputAmount: TextInputLayout
+    private lateinit var inputWithdrawalAmount: TextInputLayout
+    private lateinit var tInputBankName: TextInputLayout
+    private lateinit var tInputAcNo: TextInputLayout
+    private lateinit var tInputConfirmAcNo: TextInputLayout
+    private lateinit var tInputIfsc: TextInputLayout
+    private lateinit var tInputAcHoldName: TextInputLayout
+    private lateinit var inputPromoCode: TextInputLayout
+   /* @BindView(R.id.text_rs_100) lateinit var txtRS100: TextView
     @BindView(R.id.text_rs_200) lateinit var txtRS200: TextView
     @BindView(R.id.text_rs_500) lateinit var txtRS500: TextView
     @BindView(R.id.text_view_offers) lateinit var txtViewOffers: TextView
@@ -48,7 +64,7 @@ class AddCashActivity : AppCompatActivity() {
     @BindView(R.id.text_input_account_no) lateinit var tInputAcNo: TextInputLayout
     @BindView(R.id.text_input_confirm_account_no) lateinit var tInputConfirmAcNo: TextInputLayout
     @BindView(R.id.text_input_ifsc) lateinit var tInputIfsc: TextInputLayout
-    @BindView(R.id.text_withdrawal_cash) lateinit var txtWithdrawalCash: TextView
+    @BindView(R.id.text_withdrawal_cash) lateinit var txtWithdrawalCash: TextView*/
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,11 +75,15 @@ class AddCashActivity : AppCompatActivity() {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN)
         }
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        setContentView(R.layout.activity_add_cash)
+        binding = ActivityAddCashBinding.inflate(layoutInflater)
+        //setContentView(R.layout.activity_add_cash)
+        setContentView(binding.root)
         supportActionBar?.hide()
         this.context = this@AddCashActivity
-        ButterKnife.bind(this)
+      //  ButterKnife.bind(this)
         // Hide the status bar.
+
+
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
         // Remember that you should never show the action bar if the
         // status bar is hidden, so hide that too if necessary.
@@ -134,8 +154,8 @@ class AddCashActivity : AppCompatActivity() {
             cancel = true
         }
         if(amt.isNotEmpty()){
-            if (amt.toDouble() < 1) {
-                inputAmount.error = "Please enter valid amount"
+            if (amt.toDouble() < 25) {
+                inputAmount.error = "Please add cash minimum ₹25"
                 focusable = inputAmount
                 cancel = true
             }
@@ -162,12 +182,12 @@ class AddCashActivity : AppCompatActivity() {
         if (login != null){
             if (login.acBal.toDouble() >= withdrawalAmt){
 
-                val amt = text_input_withdrawal_amount.editText!!.text.toString().trim()
-                val bankName = text_input_bank_name.editText!!.text.toString().trim()
-                val acHoldName = text_input_ac_holder_name.editText!!.text.toString().trim()
-                val acNo = text_input_account_no.editText!!.text.toString().trim()
-                val confirmAcNo = text_input_confirm_account_no.editText!!.text.toString().trim()
-                val ifsc = text_input_ifsc.editText!!.text.toString().trim()
+                val amt = binding.text_input_withdrawal_amount.editText!!.text.toString().trim()
+                val bankName = binding.text_input_bank_name.editText!!.text.toString().trim()
+                val acHoldName = binding.text_input_ac_holder_name.editText!!.text.toString().trim()
+                val acNo = binding.text_input_account_no.editText!!.text.toString().trim()
+                val confirmAcNo = binding.text_input_confirm_account_no.editText!!.text.toString().trim()
+                val ifsc = binding.text_input_ifsc.editText!!.text.toString().trim()
 
                 text_input_withdrawal_amount.error = null
                 text_input_bank_name.error = null
@@ -181,6 +201,13 @@ class AddCashActivity : AppCompatActivity() {
                     text_input_withdrawal_amount.error = "Withdrawal amount cannot be blank"
                     focusable = text_input_withdrawal_amount
                     cancel = true
+                }
+                if(amt.isNotEmpty()){
+                    if (amt.toDouble() < withdrawalAmt) {
+                        text_input_withdrawal_amount.error = "You can withdraw minimum ₹500"
+                        focusable = text_input_withdrawal_amount
+                        cancel = true
+                    }
                 }
                 if(bankName.isEmpty()){
                     text_input_bank_name.error = "Bank name cannot be blank"

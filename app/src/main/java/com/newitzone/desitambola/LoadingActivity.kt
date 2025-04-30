@@ -20,10 +20,11 @@ import com.android.volley.AuthFailureError
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
-import com.github.anastr.flattimelib.CountDownTimerView
-import com.github.anastr.flattimelib.intf.OnTimeFinish
+//import com.github.anastr.flattimelib.CountDownTimerView
+//import com.github.anastr.flattimelib.intf.OnTimeFinish
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.newitzone.desitambola.HomeActivity.Companion.TAG
 import com.newitzone.desitambola.utils.Constants
 import com.newitzone.desitambola.utils.UtilMethods
 import kotlinx.coroutines.CoroutineScope
@@ -57,7 +58,7 @@ class LoadingActivity : AppCompatActivity() {
     private lateinit var countDownTimer:CountDownTimer
     @BindView(R.id.text_message) lateinit var tvMsg: TextView
     @BindView(R.id.text_timer) lateinit var tvTimer: TextView
-    @BindView(R.id.countDown_TimerView) lateinit var mCountDownTimer: CountDownTimerView
+  //  @BindView(R.id.countDown_TimerView) lateinit var mCountDownTimer: CountDownTimerView
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,7 +92,7 @@ class LoadingActivity : AppCompatActivity() {
         val countDownInterval: Long = 1000
 
         countDownTimer = timer(minute,countDownInterval).start()
-        countDown(minute)
+       // countDown(minute)
         //tvMsg.text = "Loading..."
     }
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -387,7 +388,7 @@ class LoadingActivity : AppCompatActivity() {
             }
         }
     }
-    private fun countDown(timer: Long){
+    /*private fun countDown(timer: Long){
         // to start CountDownTimer "time in millisecond"
 
         // to start CountDownTimer "time in millisecond"
@@ -395,17 +396,24 @@ class LoadingActivity : AppCompatActivity() {
         // on time finish
         mCountDownTimer.setOnTimeFinish(OnTimeFinish {
             //Toast.makeText(applicationContext,"finish",Toast.LENGTH_SHORT).show()
-        })
+        })*/
 
         // on (success, failed) animation finish
 
         // on (success, failed) animation finish
-        mCountDownTimer.setOnEndAnimationFinish(OnTimeFinish {
+       /* mCountDownTimer.setOnEndAnimationFinish(OnTimeFinish {
             // ---
-        })
+        })*/
+
+    companion object {
+        const val TAG = "LoadingScreen"
+        const val KEY_GAME_IN_FIX_USER = "key_game_in_fix_user"
+        const val CURRENT_USER = 0
+        const val FIX_USER = 1
+    }
     }
     // Method to configure and return an instance of CountDownTimer object
-    private fun timer(millisInFuture:Long,countDownInterval:Long): CountDownTimer{
+   /* private fun timer(millisInFuture:Long,countDownInterval:Long): CountDownTimer{
         return object: CountDownTimer(millisInFuture,countDownInterval){
 
             @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -439,7 +447,7 @@ class LoadingActivity : AppCompatActivity() {
                 }
             }
         }
-    }
+    }*/
     // Method to get days hours minutes seconds from milliseconds
     private fun timeString(millisUntilFinished:Long):String{
         var millisUntilFinished:Long = millisUntilFinished
@@ -538,10 +546,8 @@ class LoadingActivity : AppCompatActivity() {
         }
     }
 
-    companion object {
-        const val TAG = "LoadingScreen"
-        const val KEY_GAME_IN_FIX_USER = "key_game_in_fix_user"
-        const val CURRENT_USER = 0
-        const val FIX_USER = 1
-    }
-}
+
+
+
+
+
