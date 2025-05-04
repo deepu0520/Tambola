@@ -15,20 +15,21 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import butterknife.BindView
-import butterknife.ButterKnife
+/*import butterknife.BindView
+import butterknife.ButterKnife*/
 import com.facebook.*
 import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
 import com.facebook.login.widget.LoginButton
 import com.google.android.material.textfield.TextInputLayout
+import com.newitzone.desitambola.databinding.ActivityLoginBinding
 import com.newitzone.desitambola.dialog.MessageDialog
 import com.newitzone.desitambola.utils.DesiTambolaPreferences
 import com.newitzone.desitambola.utils.KCustomToast
 import com.newitzone.desitambola.utils.UtilMethods
 import database.DatabaseClient
 import database.User
-import kotlinx.android.synthetic.main.activity_login.*
+//import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -47,14 +48,15 @@ class LoginActivity : AppCompatActivity() {
     private var userId: String = "";
     private lateinit var callbackManager: CallbackManager
     private val EMAIL = "email"
+    private lateinit var binding: ActivityLoginBinding
 
     // text view
-    @BindView(R.id.text_login) lateinit var btnLogin: TextView
+    /*@BindView(R.id.text_login) lateinit var btnLogin: TextView
     @BindView(R.id.login_button) lateinit var btnFacebookLogin: LoginButton
     @BindView(R.id.text_register) lateinit var tvRegister: TextView
     // TextInputLayout login
     @BindView(R.id.text_input_user_id) lateinit var tInputUserId: TextInputLayout
-    @BindView(R.id.text_input_user_passkey) lateinit var tInputUserPassKey: TextInputLayout
+    @BindView(R.id.text_input_user_passkey) lateinit var tInputUserPassKey: TextInputLayout*/
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,10 +67,12 @@ class LoginActivity : AppCompatActivity() {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN)
         }
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        setContentView(R.layout.activity_login)
+       // setContentView(R.layout.activity_login)
+        setContentView(binding.root)
         supportActionBar?.hide()
         this.context = this@LoginActivity
-        ButterKnife.bind(this)
+        binding = ActivityLoginBinding.inflate(layoutInflater)
+       // ButterKnife.bind(this)
         // Hide the status bar.
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
         // Remember that you should never show the action bar if the
@@ -77,16 +81,16 @@ class LoginActivity : AppCompatActivity() {
         // facebook
         FacebookSdk.sdkInitialize(applicationContext);
         disconnectFromFacebook()
-        btnFacebookLogin.setReadPermissions(listOf(EMAIL));
-        btnFacebookLogin.setOnClickListener {
+        binding.loginButton.setReadPermissions(listOf(EMAIL));
+        binding.loginButton.setOnClickListener {
             onFacebookLogin()
         }
         // login
-        btnLogin.setOnClickListener { view ->
+        binding.loginButton.setOnClickListener { view ->
             onLogin(view)
         }
         // register from login screen
-        tvRegister.setOnClickListener {
+        binding.textRegister.setOnClickListener {
             val intent = Intent(context, RegistrationActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
             startActivity(intent)
@@ -162,19 +166,19 @@ class LoginActivity : AppCompatActivity() {
     }
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     fun onLogin(view: View){
-        val email = text_input_user_id.editText!!.text.toString().trim()
-        val password = text_input_user_passkey.editText!!.text.toString().trim()
+        val email = binding.textInputUserId.editText!!.text.toString().trim()
+        val password = binding.textInputUserPasskey.editText!!.text.toString().trim()
         var cancel = false
         var focusable: View? = null
 
         if(email.isEmpty()){
-            text_input_user_id.error = "Email cannot be blank"
-            focusable = text_input_user_id
+            binding.textInputUserId.error = "Email cannot be blank"
+            focusable = binding.textInputUserId
             cancel = true
         }
         if(password.isEmpty()){
-            text_input_user_id.error = "Password cannot be blank"
-            focusable = text_input_user_id
+            binding.textInputUserId.error = "Password cannot be blank"
+            focusable = binding.textInputUserId
             cancel = true
         }
 

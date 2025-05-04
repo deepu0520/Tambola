@@ -2,11 +2,10 @@ package com.newitzone.desitambola.adapter
 
 import android.content.Context
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.newitzone.desitambola.R
-import kotlinx.android.synthetic.main.cardview_number_grid.view.*
+import com.newitzone.desitambola.databinding.CardviewNumberGridBinding
 import model.NumModel
 
 class NumberGridAdapter(val items : MutableList<NumModel>, val context: Context) : RecyclerView.Adapter<ViewHolderNG>() {
@@ -18,7 +17,10 @@ class NumberGridAdapter(val items : MutableList<NumModel>, val context: Context)
 
     // Inflates the item views
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderNG {
-        return ViewHolderNG(LayoutInflater.from(context).inflate(R.layout.cardview_number_grid, parent, false))
+        val binding =
+            CardviewNumberGridBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ViewHolderNG(binding)
+       // return ViewHolderNG(LayoutInflater.from(context).inflate(R.layout.cardview_number_grid, parent, false))
     }
 
     // Binds each animal in the ArrayList to a view
@@ -30,7 +32,7 @@ class NumberGridAdapter(val items : MutableList<NumModel>, val context: Context)
     }
 }
 
-class ViewHolderNG (view: View) : RecyclerView.ViewHolder(view) {
+class ViewHolderNG(view: CardviewNumberGridBinding) : RecyclerView.ViewHolder(view.root) {
     // Holds the TextView that will add each animal to
-    val tvNum = view.text_num
+    val tvNum = view.textNum
 }

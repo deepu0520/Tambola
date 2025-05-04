@@ -23,11 +23,12 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import butterknife.BindView
-import butterknife.ButterKnife
+/*import butterknife.BindView
+import butterknife.ButterKnife*/
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.newitzone.desitambola.adapter.*
+import com.newitzone.desitambola.databinding.ActivityPlayBinding
 import com.newitzone.desitambola.dialog.MessageDialog
 import com.newitzone.desitambola.utils.*
 import kotlinx.coroutines.CoroutineScope
@@ -91,9 +92,10 @@ class PlayActivity : AppCompatActivity(){
     private lateinit var fixUser3AutoPlay: FixUserAutoPlay
     private var gameResult = GameResult(emptyList())
     private var claimPrizeList: List<model.claim.Result> = arrayListOf()
+    private lateinit var binding: ActivityPlayBinding
     //var randNoThread = Thread(PlayActivity())
 
-    @BindView(R.id.progress_bar) lateinit var progressBar: ProgressBar
+   /* @BindView(R.id.progress_bar) lateinit var progressBar: ProgressBar
     @BindView(R.id.text_per) lateinit var tvPer: TextView
     @BindView(R.id.text_ran_num) lateinit var tvRanNum: TextView
     @BindView(R.id.relative_pro_bar) lateinit var rLProBar: RelativeLayout
@@ -111,7 +113,7 @@ class PlayActivity : AppCompatActivity(){
     @BindView(R.id.recycler_view_live_user) lateinit var recyclerViewLiveUser: RecyclerView
     @BindView(R.id.recycler_view_number_grid) lateinit var recyclerViewNoGrid: RecyclerView
 
-    @BindView(R.id.content) lateinit var consLayout: ConstraintLayout
+    @BindView(R.id.content) lateinit var consLayout: ConstraintLayout*/
     override fun onCreate(savedInstanceState: Bundle?){
         super.onCreate(savedInstanceState)
         if (Build.VERSION.SDK_INT < 16) {
@@ -120,10 +122,12 @@ class PlayActivity : AppCompatActivity(){
                 WindowManager.LayoutParams.FLAG_FULLSCREEN)
         }
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        setContentView(R.layout.activity_play)
+       // setContentView(R.layout.activity_play)
+        setContentView(binding.root)
         supportActionBar?.hide()
         this.context = this@PlayActivity
-        ButterKnife.bind(this)
+        binding = ActivityPlayBinding.inflate(layoutInflater)
+       // ButterKnife.bind(this)
         // Hide the status bar.
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
         // Remember that you should never show the action bar if the
@@ -135,11 +139,11 @@ class PlayActivity : AppCompatActivity(){
         //keyGameInResFixUser = intent.getSerializableExtra(LoadingActivity.KEY_GAME_IN_FIX_USER) as FixUserGameIn
         if (keyModel != null) {
             if (keyModel.ticketType == 1) {
-                lLTicket1.visibility = View.VISIBLE
-                lLTicket2.visibility = View.GONE
+                binding.linearTicket1.visibility = View.VISIBLE
+                binding.linearTicket2.visibility = View.GONE
             } else if (keyModel.ticketType == 2) {
-                lLTicket1.visibility = View.VISIBLE
-                lLTicket2.visibility = View.VISIBLE
+                binding.linearTicket1.visibility = View.VISIBLE
+                binding.linearTicket2.visibility = View.VISIBLE
             }
         }
         if (keyGameInResponse != null){
@@ -168,11 +172,11 @@ class PlayActivity : AppCompatActivity(){
             // TODO: Load Recycler view prize Ticket 2
             onLoadRecyclerViewPrize(TICKET_TYPE_2)
             // TODO: Show/hide prize Ticket 1
-            tvBtnClaimTicket1.setOnClickListener {
+            binding.textBtnTicketClaim1.setOnClickListener {
                 onTicketPrizeShowHide(TICKET_TYPE_1)
             }
             // TODO: Show/hide prize Ticket 2
-            tvBtnClaimTicket2.setOnClickListener {
+            binding.textBtnTicketClaim2.setOnClickListener {
                 onTicketPrizeShowHide(TICKET_TYPE_2)
             }
         }
@@ -195,16 +199,16 @@ class PlayActivity : AppCompatActivity(){
 //                    recyclerViewNoGrid.adapter?.notifyDataSetChanged()
 //                }
                 // TODO: Init progress bar
-                progressBar.progress = 1
-                i = progressBar.progress
+                binding.progressBar.progress = 1
+                i = binding.progressBar.progress
                 Thread(Runnable {
                     while (i < 100) {
                         i += 1
                         // Update the progress bar and display the current value
                         handler.post(Runnable {
-                            progressBar.progress = i
-                            tvPer!!.text = i.toString()// + "%/" + progressBar!!.max
-                            tvRanNum!!.text = "" + ranNum
+                            binding.progressBar.progress = i
+                            binding.textPer!!.text = i.toString()// + "%/" + progressBar!!.max
+                            binding.textRanNum!!.text = "" + ranNum
                         })
                         try {
                             Thread.sleep(100)
@@ -219,9 +223,9 @@ class PlayActivity : AppCompatActivity(){
                     handler.post(Runnable {
                         // Initializing an empty ArrayList to be filled with items
                         val adapter = RandomNumberAdapter(randomNumList, this)
-                        recyclerViewRanNum.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-                        recyclerViewRanNum.adapter = adapter
-                        recyclerViewRanNum.scrollToPosition(randomNumList.size - 1)
+                        binding.recyclerViewRandomNumber.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+                        binding.recyclerViewRandomNumber.adapter = adapter
+                        binding.recyclerViewRandomNumber.scrollToPosition(randomNumList.size - 1)
                         // TODO: update ticket1 value
                         for ((i, elements) in numList1.withIndex()) {
                             if (elements.num != 0) {
@@ -231,7 +235,7 @@ class PlayActivity : AppCompatActivity(){
                                 }
                             }
                         }
-                        rVTicket1.adapter?.notifyDataSetChanged()
+                        binding.recyclerViewTicket1.adapter?.notifyDataSetChanged()
                         // TODO: update ticket2 value
                         for ((i, elements) in numList2.withIndex()) {
                             if (elements.num != 0) {
@@ -241,7 +245,7 @@ class PlayActivity : AppCompatActivity(){
                                 }
                             }
                         }
-                        rVTicket2.adapter?.notifyDataSetChanged()
+                        binding.recyclerViewTicket2.adapter?.notifyDataSetChanged()
                         // TODO: call game claim status api
                         callGamePrizeClaimOrStatusApi(
                             "",
@@ -256,7 +260,7 @@ class PlayActivity : AppCompatActivity(){
                             // restart
                             onRecyclerViewRandomNumber()
                         } else {
-                            rLProBar.visibility = View.INVISIBLE
+                            binding.relativeProBar.visibility = View.INVISIBLE
 
                             isThreadRunning = false
                             if (isActivity) {
@@ -291,9 +295,9 @@ class PlayActivity : AppCompatActivity(){
             // Initializing an empty ArrayList to be filled with items
             val list: List<UserData> = keyGameInResponse.result.userData
             val adapter = LiveUserAdapter(list, this)
-            recyclerViewLiveUser.layoutManager = LinearLayoutManager(context)
-            recyclerViewLiveUser.adapter = adapter
-            ItemClickSupport.addTo(recyclerViewLiveUser).setOnItemClickListener { recyclerView, position, v ->
+            binding.recyclerViewLiveUser.layoutManager = LinearLayoutManager(context)
+            binding.recyclerViewLiveUser.adapter = adapter
+            ItemClickSupport.addTo(binding.recyclerViewLiveUser).setOnItemClickListener { recyclerView, position, v ->
                 // on item click
             }
         }
@@ -306,8 +310,8 @@ class PlayActivity : AppCompatActivity(){
         }
         // Initializing an empty ArrayList to be filled with items
         val adapter = NumberGridAdapter(numGridList,this)
-        recyclerViewNoGrid.layoutManager = GridLayoutManager(context,3)
-        recyclerViewNoGrid.adapter = adapter
+        binding.recyclerViewNumberGrid.layoutManager = GridLayoutManager(context,3)
+        binding.recyclerViewNumberGrid.adapter = adapter
     }
 
     // TODO: Ticket and Prize
@@ -333,8 +337,8 @@ class PlayActivity : AppCompatActivity(){
                         numList1.add(numModel)
                     }
                     val adapter = TicketNumberAdapter(numList1, this)
-                    rVTicket1.layoutManager = GridLayoutManager(context, 9)
-                    rVTicket1.adapter = adapter
+                    binding.recyclerViewTicket1.layoutManager = GridLayoutManager(context, 9)
+                    binding.recyclerViewTicket1.adapter = adapter
                 }
             }
             TICKET_TYPE_2 ->{
@@ -356,8 +360,8 @@ class PlayActivity : AppCompatActivity(){
                         numList2.add(numModel)
                     }
                     val adapter = TicketNumberAdapter(numList2, this)
-                    rVTicket2.layoutManager = GridLayoutManager(context, 9)
-                    rVTicket2.adapter = adapter
+                    binding.recyclerViewTicket2.layoutManager = GridLayoutManager(context, 9)
+                    binding.recyclerViewTicket2.adapter = adapter
                 }
             }
         }
@@ -367,25 +371,25 @@ class PlayActivity : AppCompatActivity(){
             TICKET_TYPE_1 -> {
                 // TODO: Ticket 1
                 if (claimTicket1) {
-                    rVClaimTicket1.visibility = View.VISIBLE
+                    binding.textBtnTicketClaim1.visibility = View.VISIBLE
                     claimTicket1 = false
-                    tvBtnClaimTicket1.text = resources.getString(R.string.txt_ticket_hide_1)
+                    binding.textBtnTicketClaim1.text = resources.getString(R.string.txt_ticket_hide_1)
                 } else {
-                    rVClaimTicket1.visibility = View.GONE
+                    binding.textBtnTicketClaim1.visibility = View.GONE
                     claimTicket1 = true
-                    tvBtnClaimTicket1.text = resources.getString(R.string.txt_ticket_1)
+                    binding.textBtnTicketClaim1.text = resources.getString(R.string.txt_ticket_1)
                 }
             }
             TICKET_TYPE_2 -> {
                 // TODO: Ticket 2
                 if (claimTicket2){
-                    rVClaimTicket2.visibility = View.VISIBLE
+                    binding.recyclerViewClaimTicket2.visibility = View.VISIBLE
                     claimTicket2 = false
-                    tvBtnClaimTicket2.text = resources.getString(R.string.txt_ticket_hide_2)
+                    binding.textBtnTicketClaim2.text = resources.getString(R.string.txt_ticket_hide_2)
                 }else{
-                    rVClaimTicket2.visibility = View.GONE
+                    binding.recyclerViewClaimTicket2.visibility = View.GONE
                     claimTicket2 = true
-                    tvBtnClaimTicket2.text = resources.getString(R.string.txt_ticket_2)
+                    binding.textBtnTicketClaim2.text = resources.getString(R.string.txt_ticket_2)
                 }
             }
         }
@@ -408,9 +412,9 @@ class PlayActivity : AppCompatActivity(){
                     }
                 }
                 if (ticketType == TICKET_TYPE_1) {
-                    rVClaimTicket1.layoutManager = GridLayoutManager(context,2)
+                    binding.recyclerViewClaimTicket1.layoutManager = GridLayoutManager(context,2)
                 }else if (ticketType == TICKET_TYPE_2) {
-                    rVClaimTicket2.layoutManager = GridLayoutManager(context,2)
+                    binding.recyclerViewClaimTicket2.layoutManager = GridLayoutManager(context,2)
                 }
             }
             CASH_GAME -> {
@@ -428,9 +432,9 @@ class PlayActivity : AppCompatActivity(){
                     }
                 }
                 if (ticketType == TICKET_TYPE_1) {
-                    rVClaimTicket1.layoutManager = GridLayoutManager(context,2)
+                    binding.recyclerViewClaimTicket1.layoutManager = GridLayoutManager(context,2)
                 }else if (ticketType == TICKET_TYPE_2) {
-                    rVClaimTicket2.layoutManager = GridLayoutManager(context,2)
+                    binding.recyclerViewClaimTicket2.layoutManager = GridLayoutManager(context,2)
                 }
             }
             TOURNAMENT_GAME -> {
@@ -444,17 +448,17 @@ class PlayActivity : AppCompatActivity(){
                     }
                 }
                 if (ticketType == TICKET_TYPE_1) {
-                    rVClaimTicket1.layoutManager = GridLayoutManager(context,3)
+                    binding.recyclerViewClaimTicket1.layoutManager = GridLayoutManager(context,3)
                 }else if (ticketType == TICKET_TYPE_2) {
-                    rVClaimTicket2.layoutManager = GridLayoutManager(context,3)
+                    binding.recyclerViewClaimTicket2.layoutManager = GridLayoutManager(context,3)
                 }
             }
         }
         if (ticketType == TICKET_TYPE_1) {
             // TODO: Ticket 1
             val adapter = ClaimTicketAdapter(prizeList1,this)
-            rVClaimTicket1.adapter = adapter
-            ItemClickSupport.addTo(rVClaimTicket1).setOnItemClickListener { recyclerView, position, v ->
+            binding.recyclerViewClaimTicket1.adapter = adapter
+            ItemClickSupport.addTo(binding.recyclerViewClaimTicket1).setOnItemClickListener { recyclerView, position, v ->
                 if (!prizeList1[position].isChecked) {
                     //todo: Claim the ticket 1
                     onPrizeClaim(ticketType, position, prizeList1)
@@ -463,8 +467,8 @@ class PlayActivity : AppCompatActivity(){
         }else if (ticketType == TICKET_TYPE_2) {
             // TODO: Ticket 2
             val adapter = ClaimTicketAdapter(prizeList2,this)
-            rVClaimTicket2.adapter = adapter
-            ItemClickSupport.addTo(rVClaimTicket2).setOnItemClickListener { recyclerView, position, v ->
+            binding.recyclerViewClaimTicket2.adapter = adapter
+            ItemClickSupport.addTo(binding.recyclerViewClaimTicket2).setOnItemClickListener { recyclerView, position, v ->
                 if (!prizeList2[position].isChecked) {
                     //todo: Claim the ticket 2
                     onPrizeClaim(ticketType, position, prizeList2)
@@ -742,10 +746,10 @@ class PlayActivity : AppCompatActivity(){
     private fun onRefreshPrizeClaim(ticketType: Int,position: Int){
         if (ticketType == TICKET_TYPE_1){
             prizeList1[position].isChecked = true
-            rVClaimTicket1.adapter?.notifyDataSetChanged()
+            binding.recyclerViewClaimTicket1.adapter?.notifyDataSetChanged()
         }else if (ticketType == TICKET_TYPE_2){
             prizeList2[position].isChecked = true
-            rVClaimTicket2.adapter?.notifyDataSetChanged()
+            binding.recyclerViewClaimTicket2.adapter?.notifyDataSetChanged()
         }
     }
 
@@ -983,8 +987,8 @@ class PlayActivity : AppCompatActivity(){
                                         }
                                     }
                                     // TODO: Refreshed claimed prize list
-                                    rVClaimTicket1.adapter?.notifyDataSetChanged()
-                                    rVClaimTicket2.adapter?.notifyDataSetChanged()
+                                    binding.recyclerViewClaimTicket1.adapter?.notifyDataSetChanged()
+                                    binding.recyclerViewClaimTicket2.adapter?.notifyDataSetChanged()
 
                                     // TODO: when full house is true
                                     if (isFullHouse){

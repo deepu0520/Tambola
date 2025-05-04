@@ -6,7 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.newitzone.desitambola.R
-import kotlinx.android.synthetic.main.cardview_games_price.view.*
+import com.newitzone.desitambola.databinding.CardviewGamesPriceBinding
+import com.newitzone.desitambola.databinding.CardviewNumberGridBinding
+
 
 class PriceAdapter(val items : List<String>, val context: Context) : RecyclerView.Adapter<ViewHolder>() {
 
@@ -17,7 +19,10 @@ class PriceAdapter(val items : List<String>, val context: Context) : RecyclerVie
 
     // Inflates the item views
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(LayoutInflater.from(context).inflate(R.layout.cardview_games_price, parent, false))
+        val binding =
+            CardviewGamesPriceBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ViewHolder(binding)
+      //  return ViewHolder(LayoutInflater.from(context).inflate(R.layout.cardview_games_price, parent, false))
     }
 
     // Binds each animal in the ArrayList to a view
@@ -26,7 +31,7 @@ class PriceAdapter(val items : List<String>, val context: Context) : RecyclerVie
     }
 }
 
-class ViewHolder (view: View) : RecyclerView.ViewHolder(view) {
+class ViewHolder (view: CardviewGamesPriceBinding) : RecyclerView.ViewHolder(view.root) {
     // Holds the TextView that will add each animal to
-    val tvPrice = view.text_price
+    val tvPrice = view.textPrice
 }

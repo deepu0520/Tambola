@@ -10,12 +10,12 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
-import android.widget.TextView
+//import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import butterknife.BindView
-import butterknife.ButterKnife
+/*import butterknife.BindView
+import butterknife.ButterKnife*/
 import com.android.volley.AuthFailureError
 import com.android.volley.Request
 import com.android.volley.Response
@@ -24,7 +24,9 @@ import com.android.volley.toolbox.StringRequest
 //import com.github.anastr.flattimelib.intf.OnTimeFinish
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.newitzone.desitambola.HomeActivity.Companion
 import com.newitzone.desitambola.HomeActivity.Companion.TAG
+import com.newitzone.desitambola.databinding.ActivityLoadingBinding
 import com.newitzone.desitambola.utils.Constants
 import com.newitzone.desitambola.utils.UtilMethods
 import kotlinx.coroutines.CoroutineScope
@@ -42,6 +44,7 @@ import retrofit.TambolaApiService
 import retrofit2.HttpException
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.concurrent.timer
 
 
 class LoadingActivity : AppCompatActivity() {
@@ -56,8 +59,9 @@ class LoadingActivity : AppCompatActivity() {
     private var grStatus: model.gamerequeststatus.Result? = null
     private var fixUserGameInList: MutableList<GameIn> = mutableListOf<GameIn>()
     private lateinit var countDownTimer:CountDownTimer
-    @BindView(R.id.text_message) lateinit var tvMsg: TextView
-    @BindView(R.id.text_timer) lateinit var tvTimer: TextView
+    private lateinit var binding: ActivityLoadingBinding
+    /*@BindView(R.id.text_message) lateinit var tvMsg: TextView
+    @BindView(R.id.text_timer) lateinit var tvTimer: TextView*/
   //  @BindView(R.id.countDown_TimerView) lateinit var mCountDownTimer: CountDownTimerView
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,10 +70,12 @@ class LoadingActivity : AppCompatActivity() {
             window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN)
         }
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        setContentView(R.layout.activity_loading)
+        //setContentView(R.layout.activity_loading)
+        setContentView(binding.root)
         supportActionBar?.hide()
         this.context = this@LoadingActivity
-        ButterKnife.bind(this)
+        binding = ActivityLoadingBinding.inflate(layoutInflater)
+       // ButterKnife.bind(this)
         // Hide the status bar.
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
         // Remember that you should never show the action bar if the
@@ -80,20 +86,37 @@ class LoadingActivity : AppCompatActivity() {
 
 
         if (keyModel != null){
-            tvMsg.text = "Loading..."
+            binding.textMessage.text = "Loading..."
             callTimers(60)  // call for 60 sec
             callGameRequestStatusApiFromCurrentUser(CURRENT_USER, isStart)
         }
     }
     private fun callTimers(sec: Long){
-        // 60 seconds (1 minute)
+       /* // 60 seconds (1 minute)
         val minute:Long = 1000 * sec // 1000 milliseconds = 1 second
         // Count down interval 1 second
         val countDownInterval: Long = 1000
 
-        countDownTimer = timer(minute,countDownInterval).start()
+        countDownTimer = timer(minute,countDownInterval).start()*/
        // countDown(minute)
         //tvMsg.text = "Loading..."
+
+        val millisInFuture: Long = 1000 * sec   // Total time in milliseconds
+        val countDownInterval: Long = 1000      // 1-second interval
+
+        countDownTimer = object : CountDownTimer(millisInFuture, countDownInterval) {
+            override fun onTick(millisUntilFinished: Long) {
+                val secondsLeft = millisUntilFinished / 1000
+                // Update your UI here, like:
+                Log.d("TIMER", "Seconds remaining: $secondsLeft")
+            }
+
+            override fun onFinish() {
+                Log.d("TIMER", "Timer finished!")
+                // Timer completed - take action
+            }
+        }.start()
+
     }
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun callGameRequestStatusApiFromCurrentUser(fixType: Int, isStart: Boolean){
@@ -411,44 +434,28 @@ class LoadingActivity : AppCompatActivity() {
         const val CURRENT_USER = 0
         const val FIX_USER = 1
     }
+
+    override fun onStop() {
+        super.onStop()
+        Thread.interrupted()
+        finish()
     }
-    // Method to configure and return an instance of CountDownTimer object
-   /* private fun timer(millisInFuture:Long,countDownInterval:Long): CountDownTimer{
-        return object: CountDownTimer(millisInFuture,countDownInterval){
-
-            @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-            override fun onTick(millisUntilFinished: Long){
-                val timeRemaining = timeString(millisUntilFinished)
-                tvTimer.text = timeRemaining
-                if (timeRemaining.toInt() == 5){ // Countdown 55/60 sec or 25/30 sec
-                    callGameRequestStatusApiFromCurrentUser(CURRENT_USER, true)
-                }
-                if (timeout){
-                    tvMsg.text = "Give you $timeRemaining sec more time to join"
-                }
+    override fun onDestroy() {
+        super.onDestroy()
+        Thread.interrupted()
+        finish()
+    }
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        return when (keyCode) {
+            KeyEvent.KEYCODE_BACK ->  {
+                // do something here
+                finish()
+                true
             }
-
-            @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-            override fun onFinish() {
-                tvTimer.text = ""
-                if (grStatus != null) {
-                    if (grStatus!!.totalTickets.toInt() < 6 && grStatus!!.playersOnline.toInt() < 6) {
-                        if (timeout) {
-                            tvMsg.text = "Oops something went wrong"
-                            finish()
-                        } else {
-                            timeout = true
-                            //tvMsg.text = "Give you 30 sec more time to join"
-                            callTimers(30)
-                        }
-                    } else {
-                        callGameRequestStatusApiFromCurrentUser(CURRENT_USER, isStart)
-                    }
-                }
-            }
+            else -> super.onKeyDown(keyCode, event)
         }
-    }*/
-    // Method to get days hours minutes seconds from milliseconds
+    }
+
     private fun timeString(millisUntilFinished:Long):String{
         var millisUntilFinished:Long = millisUntilFinished
         val days = TimeUnit.MILLISECONDS.toDays(millisUntilFinished)
@@ -479,7 +486,7 @@ class LoadingActivity : AppCompatActivity() {
             val context = this@LoadingActivity
             for ((i, elements) in fixUserResponse.fixUsers.withIndex()) {
                 if (i < user){
-                    Log.d(TAG, "User : $user -> Item $elements")
+                    Log.d(HomeActivity.TAG, "User : $user -> Item $elements")
                     gameRequestApi(context,elements.userId,elements.sessionId,keyModel.amount.toString(),elements.ticketReq, keyModel.gameType.toString(),elements.tournamentId)
                 }
             }
@@ -525,26 +532,47 @@ class LoadingActivity : AppCompatActivity() {
             UtilMethods.ToastLong(context,"No Internet Connection")
         }
     }
-    override fun onStop() {
-        super.onStop()
-        Thread.interrupted()
-        finish()
+
     }
-    override fun onDestroy() {
-        super.onDestroy()
-        Thread.interrupted()
-        finish()
-    }
-    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        return when (keyCode) {
-            KeyEvent.KEYCODE_BACK ->  {
-                // do something here
-                finish()
-                true
+    // Method to configure and return an instance of CountDownTimer object
+   /* private fun timer(millisInFuture:Long,countDownInterval:Long): CountDownTimer{
+        return object: CountDownTimer(millisInFuture,countDownInterval){
+
+            @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+            override fun onTick(millisUntilFinished: Long){
+                val timeRemaining = timeString(millisUntilFinished)
+                tvTimer.text = timeRemaining
+                if (timeRemaining.toInt() == 5){ // Countdown 55/60 sec or 25/30 sec
+                    callGameRequestStatusApiFromCurrentUser(CURRENT_USER, true)
+                }
+                if (timeout){
+                    tvMsg.text = "Give you $timeRemaining sec more time to join"
+                }
             }
-            else -> super.onKeyDown(keyCode, event)
+
+            @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+            override fun onFinish() {
+                tvTimer.text = ""
+                if (grStatus != null) {
+                    if (grStatus!!.totalTickets.toInt() < 6 && grStatus!!.playersOnline.toInt() < 6) {
+                        if (timeout) {
+                            tvMsg.text = "Oops something went wrong"
+                            finish()
+                        } else {
+                            timeout = true
+                            //tvMsg.text = "Give you 30 sec more time to join"
+                            callTimers(30)
+                        }
+                    } else {
+                        callGameRequestStatusApiFromCurrentUser(CURRENT_USER, isStart)
+                    }
+                }
+            }
         }
-    }
+    }*/
+    // Method to get days hours minutes seconds from milliseconds
+
+
 
 
 

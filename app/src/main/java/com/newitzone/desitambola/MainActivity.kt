@@ -13,6 +13,7 @@ import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
@@ -27,10 +28,11 @@ import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.newitzone.desitambola.databinding.ActivityMainBinding
 import com.newitzone.desitambola.utils.Constants
 import com.newitzone.desitambola.utils.DesiTambolaPreferences
 import com.newitzone.desitambola.utils.UtilMethods
-import kotlinx.android.synthetic.main.layout_loading_dialog.*
+//import kotlinx.android.synthetic.main.layout_loading_dialog.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -51,7 +53,9 @@ class MainActivity : AppCompatActivity(), InstallStateUpdatedListener,TextToSpee
 
     private var tts: TextToSpeech? = null
     private var context: Context? = null
-    private val DELAY_MS: Long = 3000  //delay in milliseconds before task is to be executed
+    private val DELAY_MS: Long = 3000
+    private lateinit var binding: ActivityMainBinding
+    //delay in milliseconds before task is to be executed
     /**
      * Touch listener to use for in-layout UI controls to delay hiding the
      * system UI. This is to prevent the jarring behavior of controls going away
@@ -67,10 +71,12 @@ class MainActivity : AppCompatActivity(), InstallStateUpdatedListener,TextToSpee
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
         }
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        setContentView(R.layout.activity_main)
+       // setContentView(R.layout.activity_main)
+        setContentView(binding.root)
         supportActionBar?.hide()
         //val flag = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
         this.context = this@MainActivity
+        binding = ActivityMainBinding.inflate(layoutInflater)
         // Hide the status bar.
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
         // Remember that you should never show the action bar if the
@@ -221,15 +227,21 @@ class MainActivity : AppCompatActivity(), InstallStateUpdatedListener,TextToSpee
             when (resultCode) {
                 Activity.RESULT_OK -> {
                     //  handle user's approval
-                    Snackbar.make(txt_message, R.string.user_approval, Snackbar.LENGTH_LONG).show()
+                    //Snackbar.make(txt_message, R.string.user_approval, Snackbar.LENGTH_LONG).show()
+                    Snackbar.make(binding.root, R.string.user_approval, Snackbar.LENGTH_LONG).show()
+                   // Toast.makeText(this@MainActivity, R.string.user_approval, Toast.LENGTH_SHORT).show()
                 }
                 Activity.RESULT_CANCELED -> {
                     //  handle user's rejection
-                    Snackbar.make(txt_message, R.string.user_cancel, Snackbar.LENGTH_LONG).show()
+                    // Snackbar.make(txt_message, R.string.user_cancel, Snackbar.LENGTH_LONG).show()
+                    Snackbar.make(binding.root, R.string.user_cancel, Snackbar.LENGTH_LONG).show()
+
                 }
                 ActivityResult.RESULT_IN_APP_UPDATE_FAILED -> {
                     //  handle update failure
-                    Snackbar.make(txt_message, R.string.app_update_failed, Snackbar.LENGTH_LONG).show()
+                  //  Snackbar.make(txt_message, R.string.app_update_failed, Snackbar.LENGTH_LONG).show()
+                    Snackbar.make(binding.root, R.string.app_update_failed, Snackbar.LENGTH_LONG).show()
+
                 }
             }
         }
@@ -260,7 +272,8 @@ class MainActivity : AppCompatActivity(), InstallStateUpdatedListener,TextToSpee
         }
     }
     private fun notifyUser() {
-        Snackbar.make(txt_message, R.string.restart_to_update, Snackbar.LENGTH_INDEFINITE)
+        Snackbar.make(binding.root, R.string.restart_to_update, Snackbar.LENGTH_INDEFINITE)
+
             .setAction(R.string.action_restart) {
                 appUpdateManager.completeUpdate()
                 appUpdateManager.unregisterListener(this)
@@ -277,7 +290,7 @@ class MainActivity : AppCompatActivity(), InstallStateUpdatedListener,TextToSpee
     // TODO: Tournament Start Json by local
     private fun getLoginJson(): ResLogin {
         val jsonFileString = context?.let { Constants.getJsonDataFromAsset(it, "login.json") }
-        Log.i("data", jsonFileString)
+        Log.i("data", jsonFileString!!)
 
         val gson = Gson()
         val resLogin = object : TypeToken<ResLogin>() {}.type

@@ -4,21 +4,23 @@ import android.content.Context
 import android.os.Build
 import android.os.CountDownTimer
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.RequiresApi
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.newitzone.desitambola.R
+import com.newitzone.desitambola.databinding.CardviewTournamentItemBinding
 import com.newitzone.desitambola.utils.UtilMethods
-import kotlinx.android.synthetic.main.cardview_tournament_item.view.*
 import model.tournament.Tournament
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
-class TournamentAdapter(val items : List<Tournament>, private val date: String, private val day: String, val context: Context) : RecyclerView.Adapter<ViewHolderTournament>() {
+class TournamentAdapter(
+    val items: List<Tournament>,
+    private val date: String,
+    private val day: String,
+    val context: Context,
+) : RecyclerView.Adapter<ViewHolderTournament>() {
     // Gets the number of animals in the list
     override fun getItemCount(): Int {
         return items.size
@@ -26,68 +28,78 @@ class TournamentAdapter(val items : List<Tournament>, private val date: String, 
 
     // Inflates the item views
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderTournament {
-        return ViewHolderTournament(LayoutInflater.from(context).inflate(R.layout.cardview_tournament_item, parent, false))
+        val binding =
+            CardviewTournamentItemBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
+            )
+        return ViewHolderTournament(binding)
+        //return ViewHolderTournament(LayoutInflater.from(context).inflate(R.layout.cardview_tournament_item, parent, false))
     }
 
     // Binds each animal in the ArrayList to a view
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onBindViewHolder(holder: ViewHolderTournament, position: Int) {
-        if(items[position].amount.toDouble() == 0.0){
+        if (items[position].amount.toDouble() == 0.0) {
             holder?.constraintLayout?.background = context.getDrawable(R.drawable.round_corner_1)
             holder?.tvTourName?.text = "Free Tournament"
             holder?.tvEntryFee?.text = "FREE"
-        }else{
+        } else {
             holder?.constraintLayout?.background = context.getDrawable(R.drawable.round_corner)
             holder?.tvTourName?.text = items[position].name
             holder?.tvEntryFee?.text = "₹" + items[position].amount + "/-"
         }
-        holder?.tvTourPrizeAmt?.text =  "Total Tickets : " + items[position].totalRequestedTicket
-        holder?.tvStartTime?.text = UtilMethods.getTimeAMPM(date+" "+items[position].startTime) + " " + day.toUpperCase()
+        holder?.tvTourPrizeAmt?.text = "Total Tickets : " + items[position].totalRequestedTicket
+        holder?.tvStartTime?.text =
+            UtilMethods.getTimeAMPM(date + " " + items[position].startTime) + " " + day.toUpperCase()
         holder?.tvStatus?.text = context.getText(R.string.txt_fast_filling)
         if (items[position].requestOpen == "1") {
             // TODO: Join or cancel request
-            if (items[position].userRequestedTickets.toInt() > 0){
+            if (items[position].userRequestedTickets.toInt() > 0) {
                 // TODO: Cancel request
                 holder?.tvJoinOrStatus?.text = "Withdraw"
-                holder?.tvStatus?.text = "You already join with "+items[position].userRequestedTickets+" ticket"
-            }else {
+                holder?.tvStatus?.text =
+                    "You already join with " + items[position].userRequestedTickets + " ticket"
+            } else {
                 // TODO: Join request
                 holder?.tvJoinOrStatus?.text = "JOIN"
                 holder?.tvStatus?.text = context.getText(R.string.txt_fast_filling)
             }
-        }else if (items[position].requestOpen == "0") {
+        } else if (items[position].requestOpen == "0") {
             // TODO: Play or Game over
             val currentTime = System.currentTimeMillis()
             val tournamentTime = UtilMethods.getDateInMS(date + " " + items[position].startTime)
             var different = UtilMethods.getTimeDifferenceInMinute(currentTime, tournamentTime!!)
-            if (different <= 2){
+            if (different <= 2) {
                 if (different >= -2) {
-                    if (items[position].userRequestedTickets.toInt() > 0){
+                    if (items[position].userRequestedTickets.toInt() > 0) {
                         // TODO: Cancel request
                         holder?.tvJoinOrStatus?.text = "Play"
-                        holder?.tvStatus?.text = "You already join with "+items[position].userRequestedTickets+" ticket"
-                    }else {
+                        holder?.tvStatus?.text =
+                            "You already join with " + items[position].userRequestedTickets + " ticket"
+                    } else {
                         // TODO: Time difference for play
                         holder?.tvJoinOrStatus?.text = "Registration closed"
                         holder?.tvStatus?.text = "Sorry you are late please join other tournament"
                     }
-                }else if (different >= -5 && different < -2) {
+                } else if (different >= -5 && different < -2) {
                     if (items[position].userRequestedTickets.toInt() > 0) {
                         // TODO: Time difference for tournament play soon
                         holder?.tvJoinOrStatus?.text = "Be ready to play"
                         holder?.tvStatus?.text =
                             "You already join with " + items[position].userRequestedTickets + " ticket"
-                    }else {
+                    } else {
                         // TODO: Time difference for play
                         holder?.tvJoinOrStatus?.text = "Registration closed"
                         holder?.tvStatus?.text = "Sorry you are late please join other tournament"
                     }
                 }
-            }else if (different in 3..14){
+            } else if (different in 3..14) {
                 // TODO: Time difference for tournament going
                 holder?.tvJoinOrStatus?.text = "Tournament is going "
                 holder?.tvStatus?.text = "Please wait for the result"
-            }else if (different > 14){
+            } else if (different > 14) {
                 // TODO: Time difference for result
                 holder?.tvJoinOrStatus?.text = "Result"
                 holder?.tvStatus?.text = "Tournament Over"
@@ -122,11 +134,16 @@ class TournamentAdapter(val items : List<Tournament>, private val date: String, 
 //            holder?.lLTourItem.visibility = View.VISIBLE
 //        }
     }
-    // Method to configure and return an instance of CountDownTimer object
-    private fun timer(millisInFuture:Long, countDownInterval:Long, tvTimer: TextView): CountDownTimer {
-        return object: CountDownTimer(millisInFuture,countDownInterval){
 
-            override fun onTick(millisUntilFinished: Long){
+    // Method to configure and return an instance of CountDownTimer object
+    private fun timer(
+        millisInFuture: Long,
+        countDownInterval: Long,
+        tvTimer: TextView,
+    ): CountDownTimer {
+        return object : CountDownTimer(millisInFuture, countDownInterval) {
+
+            override fun onTick(millisUntilFinished: Long) {
                 val timeRemaining = timeString(millisUntilFinished)
                 tvTimer.text = timeRemaining
                 notifyDataSetChanged()
@@ -138,9 +155,10 @@ class TournamentAdapter(val items : List<Tournament>, private val date: String, 
             }
         }
     }
+
     // Method to get days hours minutes seconds from milliseconds
-    private fun timeString(millisUntilFinished:Long):String{
-        var millisUntilFinished:Long = millisUntilFinished
+    private fun timeString(millisUntilFinished: Long): String {
+        var millisUntilFinished: Long = millisUntilFinished
         val days = TimeUnit.MILLISECONDS.toDays(millisUntilFinished)
         millisUntilFinished -= TimeUnit.DAYS.toMillis(days)
 
@@ -153,20 +171,21 @@ class TournamentAdapter(val items : List<Tournament>, private val date: String, 
         val seconds = TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished)
 
         // Format the string
-        return String.format(Locale.getDefault(),"%02d H %02d M %02d S", hours ,minutes, seconds)
+        return String.format(Locale.getDefault(), "%02d H %02d M %02d S", hours, minutes, seconds)
     }
 }
 
-class ViewHolderTournament (view: View) : RecyclerView.ViewHolder(view) {
+class ViewHolderTournament(view: CardviewTournamentItemBinding) :
+    RecyclerView.ViewHolder(view.root) {
     // Holds the TextView that will add each animal to
-    val constraintLayout: ConstraintLayout = view.constraint_layout
-    val tvTourName: TextView = view.text_tour_name
-    val tvTourPrizeAmt: TextView = view.text_tournament_prize_amt
-    val tvEntryFee: TextView = view.text_entry_fee
-    val tvStartTime: TextView = view.text_start_datetime
-    val tvRemainTime: TextView = view.text_remaining_time
-    val tvJoinOrStatus: TextView = view.text_join_or_status
-    val tvStatus: TextView = view.text_status
-    val lLTourItem: LinearLayout = view.linear_tournament_item
+    val constraintLayout = view.constraintLayout
+    val tvTourName = view.textTourName
+    val tvTourPrizeAmt = view.textTournamentPrizeAmt
+    val tvEntryFee = view.textEntryFee
+    val tvStartTime = view.textStartDatetime
+    val tvRemainTime = view.textRemainingTime
+    val tvJoinOrStatus = view.textJoinOrStatus
+    val tvStatus = view.textStatus
+    val lLTourItem = view.linearTournamentItem
     val mCountDownTimer: CountDownTimer? = null
 }

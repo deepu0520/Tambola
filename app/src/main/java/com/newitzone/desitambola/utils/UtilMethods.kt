@@ -122,7 +122,7 @@ object UtilMethods {
             val allNetworks = manager?.allNetworks?.let { it } ?: return false
             allNetworks.forEach { network ->
                 val info = manager.getNetworkInfo(network)
-                if (info.state == NetworkInfo.State.CONNECTED) return true
+                if (info?.state == NetworkInfo.State.CONNECTED) return true
             }
         } else {
             val allNetworkInfo = manager?.allNetworkInfo?.let { it } ?: return false
@@ -260,7 +260,7 @@ object UtilMethods {
     fun getTimeDifferenceInMinute(fromTime: Long, toTime: Long): Long {
         var different = 0L
         return try {
-            different = fromTime?.minus(toTime)
+            different = fromTime.minus(toTime)
             val secondsInMilli: Long = 1000
             val minutesInMilli = secondsInMilli * 60
 
@@ -276,7 +276,7 @@ object UtilMethods {
     fun getTimeDifferenceInSec(fromTime: Long, toTime: Long): Long {
         var different = 0L
         return try {
-            different = fromTime?.minus(toTime)
+            different = fromTime!!.minus(toTime)
             val secondsInMilli: Long = 1000
             // TODO: Final value
             val elapsedSec = different / secondsInMilli

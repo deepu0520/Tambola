@@ -12,12 +12,13 @@ import android.view.WindowManager
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import butterknife.BindView
-import butterknife.ButterKnife
+/*import butterknife.BindView
+import butterknife.ButterKnife*/
 /*import com.github.anastr.flattimelib.CountDownTimerView
 import com.github.anastr.flattimelib.intf.OnTimeFinish*/
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.newitzone.desitambola.databinding.ActivityLoadingBinding
 import com.newitzone.desitambola.utils.Constants
 import com.newitzone.desitambola.utils.UtilMethods
 import kotlinx.coroutines.CoroutineScope
@@ -40,8 +41,9 @@ class LoadingTournamentGameActivity : AppCompatActivity() {
     private lateinit var login: Result
     private lateinit var tournament: Tournament
     private lateinit var countDownTimer:CountDownTimer
-    @BindView(R.id.text_message) lateinit var tvMsg: TextView
-    @BindView(R.id.text_timer) lateinit var tvTimer: TextView
+    private lateinit var binding: ActivityLoadingBinding
+    /*@BindView(R.id.text_message) lateinit var tvMsg: TextView
+    @BindView(R.id.text_timer) lateinit var tvTimer: TextView*/
    // @BindView(R.id.countDown_TimerView) lateinit var mCountDownTimer: CountDownTimerView
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,10 +52,12 @@ class LoadingTournamentGameActivity : AppCompatActivity() {
             window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN)
         }
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        setContentView(R.layout.activity_loading)
+       // setContentView(R.layout.activity_loading)
+        setContentView(binding.root)
         supportActionBar?.hide()
         this.context = this@LoadingTournamentGameActivity
-        ButterKnife.bind(this)
+        binding = ActivityLoadingBinding.inflate(layoutInflater)
+       // ButterKnife.bind(this)
         // Hide the status bar.
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
         // Remember that you should never show the action bar if the
@@ -63,7 +67,7 @@ class LoadingTournamentGameActivity : AppCompatActivity() {
         tournament = intent.getSerializableExtra(HomeActivity.KEY_TOURNAMENT) as Tournament
         loadTimerSec = intent.getLongExtra(HomeActivity.KEY_TOURNAMENT_TIMER, loadTimerSec)
         if (login != null){// && tournament != null){
-            tvMsg.text = "Loading..."
+            binding.textMessage.text = "Loading..."
 
             callTimers(loadTimerSec)  // call for 60 sec
 
@@ -158,12 +162,12 @@ class LoadingTournamentGameActivity : AppCompatActivity() {
 
             override fun onTick(millisUntilFinished: Long){
                 val timeRemaining = timeString(millisUntilFinished)
-                tvTimer.text = timeRemaining
+                binding.textTimer.text = timeRemaining
             }
 
             @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
             override fun onFinish() {
-                tvTimer.text = "Tournament started..."
+                binding.textTimer.text = "Tournament started..."
                 val context = this@LoadingTournamentGameActivity
                 if (login != null && tournament != null) {
                     tournamentStartApi(
